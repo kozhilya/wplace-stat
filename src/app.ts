@@ -4,7 +4,6 @@ import { CanvasManager } from './script/managers/canvas-manager';
 import { StatisticsManager } from './script/managers/statistics-manager';
 import { TableManager } from './script/ui/table-manager';
 import { LanguageManager } from './script/managers/language-manager';
-import { TemplateData } from './types';
 
 class App {
     private canvasManager: CanvasManager;
