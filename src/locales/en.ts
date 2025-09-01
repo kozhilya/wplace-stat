@@ -1,0 +1,19 @@
+export const en = {
+    appTitle: 'WPlace Progress Tracker',
+    templateConfiguration: 'Template Configuration',
+    statistics: 'Statistics',
+    metric: 'Metric',
+    value: 'Value',
+    pixelsDrawn: 'Pixels Drawn',
+    completion: 'Completion',
+    lastUpdated: 'Last Updated',
+    saveTemplate: 'Save Template',
+    imageUrl: 'Image URL',
+    tlX: 'Tl X',
+    tlY: 'Tl Y',
+    pxX: 'Px X',
+    pxY: 'Px Y',
+    errorLoadingImage: 'Could not load image from the provided URL. Please check the URL and try again.',
+    invalidImageUrl: 'Please provide a valid image URL',
+    errorLoadingHash: 'Error loading data from hash:'
+};

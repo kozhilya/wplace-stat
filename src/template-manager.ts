@@ -1,4 +1,5 @@
 import { TemplateData } from './types';
+import { LanguageManager } from './language-manager';
 
 export class TemplateManager {
     static saveTemplateToHash(templateData: TemplateData): void {
@@ -14,7 +15,7 @@ export class TemplateManager {
                 const jsonData = decodeURIComponent(escape(atob(base64Data)));
                 return JSON.parse(jsonData) as TemplateData;
             } catch (error) {
-                console.error('Error loading data from hash:', error);
+                console.error(LanguageManager.getText('errorLoadingHash'), error);
                 return null;
             }
         }
@@ -26,17 +27,17 @@ export class TemplateManager {
         (document.getElementById('tl-y') as HTMLInputElement).value = templateData.tlY.toString();
         (document.getElementById('px-x') as HTMLInputElement).value = templateData.pxX.toString();
         (document.getElementById('px-y') as HTMLInputElement).value = templateData.pxY.toString();
+        (document.getElementById('image-url') as HTMLInputElement).value = templateData.imageDataUrl;
     }
 
-    static getFormData(): Omit<TemplateData, 'imageDataUrl'> & { imageFile: File | null } {
+    static getFormData(): TemplateData {
         const tlX = parseInt((document.getElementById('tl-x') as HTMLInputElement).value);
         const tlY = parseInt((document.getElementById('tl-y') as HTMLInputElement).value);
         const pxX = parseInt((document.getElementById('px-x') as HTMLInputElement).value);
         const pxY = parseInt((document.getElementById('px-y') as HTMLInputElement).value);
         
-        const imageInput = document.getElementById('template-image') as HTMLInputElement;
-        const imageFile = imageInput.files && imageInput.files[0] ? imageInput.files[0] : null;
+        const imageUrl = (document.getElementById('image-url') as HTMLInputElement).value;
         
-        return { tlX, tlY, pxX, pxY, imageFile };
+        return { tlX, tlY, pxX, pxY, imageDataUrl: imageUrl };
     }
 }

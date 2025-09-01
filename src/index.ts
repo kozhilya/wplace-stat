@@ -2,12 +2,14 @@ import './styles/main.scss';
 import { TemplateManager } from './template-manager';
 import { CanvasManager } from './canvas-manager';
 import { StatisticsManager } from './statistics-manager';
+import { LanguageManager } from './language-manager';
 import { TemplateData } from './types';
 
 class App {
     private canvasManager: CanvasManager;
 
     constructor() {
+        LanguageManager.initialize();
         this.canvasManager = new CanvasManager('template-canvas');
         this.init();
     }
