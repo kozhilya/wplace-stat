@@ -9,7 +9,6 @@ import { TemplateData } from './types';
 class App {
     private canvasManager: CanvasManager;
     private statisticsManager: StatisticsManager | null = null;
-    private tableManager: TableManager = new TableManager();
 
     constructor() {
         LanguageManager.initialize();
@@ -105,7 +104,7 @@ class App {
                     
                     // Update statistics
                     this.statisticsManager = new StatisticsManager(img, actualCanvas);
-                    this.tableManager.updateTable(this.statisticsManager.getStatistics());
+                    TableManager.updateTable(this.statisticsManager.getStatistics());
                 } catch (error) {
                     console.error('Failed to load actual canvas:', error);
                 }
@@ -160,7 +159,7 @@ class App {
                     
                     // Update statistics
                     this.statisticsManager = new StatisticsManager(img, actualCanvas);
-                    this.tableManager.updateTable(this.statisticsManager.getStatistics());
+                    TableManager.updateTable(this.statisticsManager.getStatistics());
                 } catch (error) {
                     console.error('Failed to load actual canvas:', error);
                 }
