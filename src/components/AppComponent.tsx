@@ -13,6 +13,27 @@ export const AppComponent: React.FC = () => {
 
     useEffect(() => {
         LanguageManager.initialize();
+        
+        // Listen for hash changes to update the template
+        const handleHashChange = () => {
+            if (window.location.hash) {
+                try {
+                    const hash = window.location.hash.substring(1);
+                    const template = Template.deserialize(hash);
+                    setTemplateName(template.name);
+                    setLastUpdated(new Date());
+                } catch (error) {
+                    console.error('Error loading template from hash change:', error);
+                }
+            }
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        
+        // Cleanup
+        return () => {
+            window.removeEventListener('hashchange', handleHashChange);
+        };
     }, []);
 
     const handleSplitterMouseDown = (e: React.MouseEvent) => {
