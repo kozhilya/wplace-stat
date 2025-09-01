@@ -72,4 +72,67 @@ export class TemplateManager {
         
         return tiles;
     }
+
+    static async loadTile(tileX: number, tileY: number): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png`;
+        });
+    }
+
+    static async loadActualCanvas(templateData: TemplateData, imageWidth: number, imageHeight: number): Promise<HTMLCanvasElement> {
+        const occupiedTiles = this.calculateOccupiedTiles(templateData, imageWidth, imageHeight);
+        
+        // Create a canvas to composite the actual canvas parts
+        const canvas = document.createElement('canvas');
+        canvas.width = imageWidth;
+        canvas.height = imageHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Could not get canvas context');
+        
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Load and draw each tile
+        for (const tile of occupiedTiles) {
+            try {
+                const tileImage = await this.loadTile(tile.x, tile.y);
+                
+                // Calculate the source and destination coordinates
+                const isFirstTileX = tile.x === templateData.tlX;
+                const isFirstTileY = tile.y === templateData.tlY;
+                
+                const srcX = isFirstTileX ? templateData.pxX : 0;
+                const srcY = isFirstTileY ? templateData.pxY : 0;
+                
+                const destX = isFirstTileX ? 0 : (tile.x - templateData.tlX) * WplaceTileWidth - templateData.pxX;
+                const destY = isFirstTileY ? 0 : (tile.y - templateData.tlY) * WplaceTileHeight - templateData.pxY;
+                
+                // Calculate the width and height to draw
+                const width = Math.min(WplaceTileWidth - srcX, imageWidth - destX);
+                const height = Math.min(WplaceTileHeight - srcY, imageHeight - destY);
+                
+                ctx.drawImage(
+                    tileImage,
+                    srcX, srcY, width, height,
+                    destX, destY, width, height
+                );
+            } catch (error) {
+                console.error(`Failed to load tile ${tile.x}/${tile.y}:`, error);
+                // Draw a placeholder for failed tiles
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(
+                    (tile.x - templateData.tlX) * WplaceTileWidth - templateData.pxX,
+                    (tile.y - templateData.tlY) * WplaceTileHeight - templateData.pxY,
+                    WplaceTileWidth,
+                    WplaceTileHeight
+                );
+            }
+        }
+        
+        return canvas;
+    }
 }

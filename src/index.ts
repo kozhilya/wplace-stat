@@ -74,16 +74,28 @@ class App {
             const img = new Image();
             // Handle CORS if the image is from another domain
             img.crossOrigin = 'Anonymous';
-            img.onload = () => {
+            img.onload = async () => {
                 this.canvasManager.drawImage(img);
-                const canvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+                const templateCanvas = document.getElementById('template-canvas') as HTMLCanvasElement;
                 
                 // Calculate occupied tiles
                 const templateData = TemplateManager.getFormData();
                 const occupiedTiles = TemplateManager.calculateOccupiedTiles(templateData, img.width, img.height);
                 console.log('Occupied tiles:', occupiedTiles);
                 
-                StatisticsManager.updateStatistics(canvas, occupiedTiles);
+                // Load and display actual canvas
+                try {
+                    const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
+                    // Draw the actual canvas onto our main canvas
+                    const ctx = templateCanvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(actualCanvas, 0, 0);
+                    }
+                } catch (error) {
+                    console.error('Failed to load actual canvas:', error);
+                }
+                
+                StatisticsManager.updateStatistics(templateCanvas, occupiedTiles);
                 // Hide the form after successful submission
                 this.hideTemplateForm();
             };
@@ -106,16 +118,28 @@ class App {
             const img = new Image();
             // Handle CORS if the image is from another domain
             img.crossOrigin = 'Anonymous';
-            img.onload = () => {
+            img.onload = async () => {
                 this.canvasManager.drawImage(img);
-                const canvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+                const templateCanvas = document.getElementById('template-canvas') as HTMLCanvasElement;
                 
                 // Calculate occupied tiles
                 const templateData = TemplateManager.getFormData();
                 const occupiedTiles = TemplateManager.calculateOccupiedTiles(templateData, img.width, img.height);
                 console.log('Occupied tiles:', occupiedTiles);
                 
-                StatisticsManager.updateStatistics(canvas, occupiedTiles);
+                // Load and display actual canvas
+                try {
+                    const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
+                    // Draw the actual canvas onto our main canvas
+                    const ctx = templateCanvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(actualCanvas, 0, 0);
+                    }
+                } catch (error) {
+                    console.error('Failed to load actual canvas:', error);
+                }
+                
+                StatisticsManager.updateStatistics(templateCanvas, occupiedTiles);
             };
             img.onerror = () => {
                 console.error('Error loading image from URL in hash');
