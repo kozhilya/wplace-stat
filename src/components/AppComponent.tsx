@@ -4,12 +4,15 @@ import { LeftPanel } from './LeftPanel';
 import { RightPanel } from './RightPanel';
 import { Splitter } from './Splitter';
 import { LanguageManager } from '../script/managers/language-manager';
+import { Template } from '../script/template';
+import { StatisticsRow } from '../script/managers/statistics-manager';
 
 export const AppComponent: React.FC = () => {
     const [templateName, setTemplateName] = useState<string>('Untitled Template');
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [leftPanelWidth, setLeftPanelWidth] = useState<number>(300);
     const [isResizing, setIsResizing] = useState<boolean>(false);
+    const [statistics, setStatistics] = useState<StatisticsRow[]>([]);
 
     useEffect(() => {
         LanguageManager.initialize();
@@ -64,7 +67,7 @@ export const AppComponent: React.FC = () => {
                 lastUpdated={lastUpdated} 
             />
             <div className="main-content" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
-                <LeftPanel width={leftPanelWidth} />
+                <LeftPanel width={leftPanelWidth} statistics={statistics} />
                 <Splitter onMouseDown={handleSplitterMouseDown} />
                 <RightPanel />
             </div>

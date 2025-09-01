@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { TemplateConfig } from './TemplateConfig';
 import { StatisticsView } from './StatisticsView';
 import { Template } from '../script/template';
+import { StatisticsRow } from '../script/managers/statistics-manager';
 
 interface LeftPanelProps {
     width: number;
     onTemplateSave?: (template: Template) => void;
+    statistics?: StatisticsRow[];
 }
 
-export const LeftPanel: React.FC<LeftPanelProps> = ({ width, onTemplateSave }) => {
+export const LeftPanel: React.FC<LeftPanelProps> = ({ width, onTemplateSave, statistics = [] }) => {
     const [activeView, setActiveView] = useState<'template' | 'statistics'>('template');
 
     return (
@@ -38,7 +40,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({ width, onTemplateSave }) =
             </div>
             
             {activeView === 'template' && <TemplateConfig onTemplateSave={onTemplateSave} />}
-            {activeView === 'statistics' && <StatisticsView />}
+            {activeView === 'statistics' && <StatisticsView statistics={statistics} />}
         </div>
     );
 };
