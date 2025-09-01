@@ -26,10 +26,6 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                     setPxX(template.pxX.toString());
                     setPxY(template.pxY.toString());
                     setImageDataUrl(template.imageDataUrl);
-                    
-                    if (onTemplateSave) {
-                        onTemplateSave(template);
-                    }
                 } catch (error) {
                     console.error('Error loading template from hash:', error);
                 }
@@ -37,7 +33,18 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
         };
 
         loadFromHash();
-    }, [onTemplateSave]);
+
+        // Listen for hash changes
+        const handleHashChange = () => {
+            loadFromHash();
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        
+        return () => {
+            window.removeEventListener('hashchange', handleHashChange);
+        };
+    }, []); // Empty dependency array - only run on mount
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
