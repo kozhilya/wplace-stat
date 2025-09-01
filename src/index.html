@@ -9,6 +9,9 @@
     <div id="app">
         <header class="header">
             <h1 data-i18n="appTitle">WPlace Progress Tracker</h1>
+            <div class="last-updated">
+                Last updated: <span id="last-updated"></span>
+            </div>
         </header>
         <div class="main-content">
             <aside class="stats-panel">
@@ -40,17 +43,19 @@
                     <button type="submit" data-i18n="saveTemplate">Save Template</button>
                 </form>
                 <h2 data-i18n="statistics">Statistics</h2>
-                <table id="stats-table">
-                    <thead>
-                        <tr>
-                            <th data-i18n="metric">Metric</th>
-                            <th data-i18n="value">Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Statistics will be populated here -->
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table id="stats-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="metric">Metric</th>
+                                <th data-i18n="value">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Statistics will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
             </aside>
             <main class="canvas-area">
                 <canvas id="template-canvas"></canvas>

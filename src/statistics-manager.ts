@@ -4,25 +4,16 @@ import { WplacePalette } from './wplace';
 export class StatisticsManager {
     static updateStatistics(canvas?: HTMLCanvasElement): void {
         const tableBody = document.querySelector('#stats-table tbody');
+        const lastUpdatedElement = document.getElementById('last-updated');
+        
+        // Update last updated time in header
+        if (lastUpdatedElement) {
+            lastUpdatedElement.textContent = new Date().toLocaleTimeString();
+        }
+        
         if (tableBody) {
-            // Sample statistics - replace with actual data from your tracking
-            const stats = [
-                { metric: LanguageManager.getText('pixelsDrawn'), value: '1,234/10,000' },
-                { metric: LanguageManager.getText('completion'), value: '12.34%' },
-                { metric: LanguageManager.getText('lastUpdated'), value: new Date().toLocaleTimeString() },
-                // Add more statistics here
-            ];
-            
             tableBody.innerHTML = '';
-            stats.forEach(stat => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${stat.metric}</td>
-                    <td>${stat.value}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-
+            
             // Add color statistics if canvas is provided
             if (canvas) {
                 this.addColorStatistics(tableBody, canvas);
@@ -56,11 +47,14 @@ export class StatisticsManager {
                 colorCounts.set(colorId, (colorCounts.get(colorId) || 0) + 1);
             }
 
+            let totalPixels = 0;
+            
             // Add color statistics to the table
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
                     const count = colorCounts.get(color.id) || 0;
                     if (count > 0) {
+                        totalPixels += count;
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>
@@ -75,6 +69,17 @@ export class StatisticsManager {
                     }
                 }
             });
+            
+            // Add total row
+            if (totalPixels > 0) {
+                const totalRow = document.createElement('tr');
+                totalRow.style.fontWeight = 'bold';
+                totalRow.innerHTML = `
+                    <td>Total</td>
+                    <td>${totalPixels.toLocaleString()}</td>
+                `;
+                tableBody.appendChild(totalRow);
+            }
         } catch (error) {
             console.error('Could not analyze image due to CORS restrictions:', error);
             // Add a message to the statistics table
