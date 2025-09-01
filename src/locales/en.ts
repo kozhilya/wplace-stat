@@ -22,5 +22,6 @@ export const en = {
     color: 'Color',
     drawn: 'Drawn',
     percentage: 'Percentage',
-    remaining: 'Remaining'
+    remaining: 'Remaining',
+    completed: 'Completed'
 };
