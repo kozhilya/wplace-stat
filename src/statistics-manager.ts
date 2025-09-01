@@ -49,12 +49,37 @@ export class StatisticsManager {
 
             let totalPixels = 0;
             
+            // Add total row first
+            // First pass to calculate total
+            WplacePalette.forEach(color => {
+                if (color.id !== 0) { // Skip transparent
+                    const count = colorCounts.get(color.id) || 0;
+                    totalPixels += count;
+                }
+            });
+            
+            if (totalPixels > 0) {
+                const totalRow = document.createElement('tr');
+                totalRow.style.fontWeight = 'bold';
+                totalRow.innerHTML = `
+                    <td>${LanguageManager.getText('total')}</td>
+                    <td>${totalPixels.toLocaleString()}</td>
+                `;
+                tableBody.appendChild(totalRow);
+                
+                // Add separator
+                const separatorRow = document.createElement('tr');
+                separatorRow.innerHTML = `
+                    <td colspan="2"><hr style="margin: 8px 0; border: none; border-top: 1px solid #ccc;"></td>
+                `;
+                tableBody.appendChild(separatorRow);
+            }
+            
             // Add color statistics to the table
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
                     const count = colorCounts.get(color.id) || 0;
                     if (count > 0) {
-                        totalPixels += count;
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>
@@ -69,17 +94,6 @@ export class StatisticsManager {
                     }
                 }
             });
-            
-            // Add total row
-            if (totalPixels > 0) {
-                const totalRow = document.createElement('tr');
-                totalRow.style.fontWeight = 'bold';
-                totalRow.innerHTML = `
-                    <td>Total</td>
-                    <td>${totalPixels.toLocaleString()}</td>
-                `;
-                tableBody.appendChild(totalRow);
-            }
         } catch (error) {
             console.error('Could not analyze image due to CORS restrictions:', error);
             // Add a message to the statistics table

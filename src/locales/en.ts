@@ -17,5 +17,8 @@ export const en = {
     errorLoadingImage: 'Could not load image from the provided URL. Please check the URL and try again.',
     invalidImageUrl: 'Please provide a valid image URL',
     errorLoadingHash: 'Error loading data from hash:',
-    corsRestrictionMessage: 'Color statistics unavailable due to CORS restrictions'
+    corsRestrictionMessage: 'Color statistics unavailable due to CORS restrictions',
+    total: 'Total',
+    metric: 'Metric',
+    value: 'Value'
 };
