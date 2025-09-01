@@ -226,8 +226,7 @@ export class StatisticsManager {
 
             let totalPixels = 0;
             
-            // Add total row first
-            // First pass to calculate total
+            // Calculate total
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
                     const count = colorCounts.get(color.id) || 0;
@@ -235,14 +234,25 @@ export class StatisticsManager {
                 }
             });
             
+            // Add total row
             if (totalPixels > 0) {
                 const totalRow = document.createElement('tr');
                 totalRow.style.fontWeight = 'bold';
                 totalRow.innerHTML = `
                     <td data-sort-value="-1">${LanguageManager.getText('total')}</td>
                     <td data-sort-value="${totalPixels}">${totalPixels.toLocaleString()}</td>
+                    <td data-sort-value="0">0</td>
+                    <td data-sort-value="0">0.00%</td>
+                    <td data-sort-value="${totalPixels}">${totalPixels.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(totalRow);
+                
+                // Add separator
+                const separatorRow = document.createElement('tr');
+                separatorRow.innerHTML = `
+                    <td colspan="5"><hr style="margin: 8px 0; border: none; border-top: 1px solid #ccc;"></td>
+                `;
+                tableBody.appendChild(separatorRow);
             }
             
             // Add color statistics to the table
@@ -259,6 +269,9 @@ export class StatisticsManager {
                                 ${color.id}. ${color.premium ? '★ ' : ''}${color.name}
                             </td>
                             <td data-sort-value="${count}">${count.toLocaleString()}</td>
+                            <td data-sort-value="0">0</td>
+                            <td data-sort-value="0">0.00%</td>
+                            <td data-sort-value="${count}">${count.toLocaleString()}</td>
                         `;
                         tableBody.appendChild(row);
                     }
@@ -266,7 +279,7 @@ export class StatisticsManager {
             });
             
             // Set initial sort indicator on value column (descending)
-            const valueHeader = document.querySelector('#stats-table thead th:nth-child(2)');
+            const valueHeader = document.querySelector('#stats-table thead th:nth-child(3)');
             if (valueHeader) {
                 valueHeader.setAttribute('data-sort', 'desc');
             }
@@ -275,7 +288,7 @@ export class StatisticsManager {
             // Add a message to the statistics table
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td colspan="2" style="color: #999; font-style: italic;">
+                <td colspan="5" style="color: #999; font-style: italic;">
                     ${LanguageManager.getText('corsRestrictionMessage')}
                 </td>
             `;

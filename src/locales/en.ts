@@ -18,5 +18,9 @@ export const en = {
     corsRestrictionMessage: 'Color statistics unavailable due to CORS restrictions',
     total: 'Total',
     metric: 'Metric',
-    value: 'Value'
+    value: 'Value',
+    color: 'Color',
+    drawn: 'Drawn',
+    percentage: 'Percentage',
+    remaining: 'Remaining'
 };
