@@ -60,6 +60,22 @@ export const AppComponent: React.FC = () => {
         document.removeEventListener('mouseup', handleMouseUp);
     };
 
+    const handleTemplateSave = (template: Template) => {
+        setTemplateName(template.name);
+        setLastUpdated(new Date());
+        // Serialize and add to hash
+        const serialized = template.serialize();
+        window.location.hash = serialized;
+    };
+
+    const handleTemplateLoad = (template: Template) => {
+        setTemplateName(template.name);
+        setLastUpdated(new Date());
+        // Serialize and add to hash
+        const serialized = template.serialize();
+        window.location.hash = serialized;
+    };
+
     return (
         <div className="app">
             <Header 
@@ -67,7 +83,12 @@ export const AppComponent: React.FC = () => {
                 lastUpdated={lastUpdated} 
             />
             <div className="main-content" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
-                <LeftPanel width={leftPanelWidth} statistics={statistics} />
+                <LeftPanel 
+                    width={leftPanelWidth} 
+                    statistics={statistics} 
+                    onTemplateSave={handleTemplateSave}
+                    onTemplateLoad={handleTemplateLoad}
+                />
                 <Splitter onMouseDown={handleSplitterMouseDown} />
                 <RightPanel />
             </div>
