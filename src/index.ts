@@ -29,30 +29,27 @@ class App {
     }
 
     private async handleTemplateSubmit(): Promise<void> {
-        const formData = TemplateManager.getFormData();
+        const templateData = TemplateManager.getFormData();
         
-        if (formData.imageFile) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const templateData: TemplateData = {
-                    tlX: formData.tlX,
-                    tlY: formData.tlY,
-                    pxX: formData.pxX,
-                    pxY: formData.pxY,
-                    imageDataUrl: e.target?.result as string
-                };
-                
-                TemplateManager.saveTemplateToHash(templateData);
-                
-                // Draw the image
-                const img = new Image();
-                img.onload = () => {
-                    this.canvasManager.drawImage(img);
-                    StatisticsManager.updateStatistics();
-                };
-                img.src = templateData.imageDataUrl;
+        // Validate the image URL
+        if (templateData.imageDataUrl) {
+            TemplateManager.saveTemplateToHash(templateData);
+            
+            // Draw the image
+            const img = new Image();
+            // Handle CORS if the image is from another domain
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => {
+                this.canvasManager.drawImage(img);
+                StatisticsManager.updateStatistics();
             };
-            reader.readAsDataURL(formData.imageFile);
+            img.onerror = () => {
+                console.error('Error loading image from URL');
+                alert('Could not load image from the provided URL. Please check the URL and try again.');
+            };
+            img.src = templateData.imageDataUrl;
+        } else {
+            alert('Please provide a valid image URL');
         }
     }
 
