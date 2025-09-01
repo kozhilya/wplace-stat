@@ -26,43 +26,16 @@ export class Template {
         this.name = name;
     }
 
-    // Load the template image
+    // Load the template image using ImageLoaderManager
     async loadTemplateImage(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'Anonymous';
-            img.onload = () => {
-                this.templateImage = img;
-                this.imageWidth = img.width;
-                this.imageHeight = img.height;
-                resolve();
-            };
-            img.onerror = reject;
-            img.src = this.imageDataUrl;
-        });
+        const { ImageLoaderManager } = await import('./managers/image-loader-manager');
+        await ImageLoaderManager.loadTemplateImage(this);
     }
 
-    // Load the actual canvas from the server
+    // Load the actual canvas from the server using ImageLoaderManager
     async loadActualCanvas(): Promise<void> {
-        if (!this.templateImage) {
-            await this.loadTemplateImage();
-        }
-                
-        // Create template data object matching the expected interface
-        const templateData = {
-            tlX: this.tlX,
-            tlY: this.tlY,
-            pxX: this.pxX,
-            pxY: this.pxY,
-            imageDataUrl: this.imageDataUrl
-        };
-        
-        // Load the actual canvas using TemplateManager
-        // this.actualCanvas = await TemplateManager.loadActualCanvas(
-        //     templateData, 
-        //     this.imageWidth, 
-        //     this.imageHeight
-        // );
+        const { ImageLoaderManager } = await import('./managers/image-loader-manager');
+        await ImageLoaderManager.loadActualCanvas(this);
     }
 
     // Serialize to base64
