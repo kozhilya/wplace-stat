@@ -8,6 +8,7 @@ export const en = {
     completion: 'Completion',
     lastUpdated: 'Last Updated',
     saveTemplate: 'Save Template',
+    editTemplate: 'Edit Template',
     imageUrl: 'Image URL',
     tlX: 'Tl X',
     tlY: 'Tl Y',

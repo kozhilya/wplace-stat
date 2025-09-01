@@ -16,6 +16,8 @@ export class LanguageManager {
                 const text = this.currentLanguage[key as keyof typeof this.currentLanguage];
                 if (element instanceof HTMLInputElement && element.type === 'submit') {
                     element.value = text;
+                } else if (element instanceof HTMLButtonElement) {
+                    element.textContent = text;
                 } else {
                     element.textContent = text;
                 }
