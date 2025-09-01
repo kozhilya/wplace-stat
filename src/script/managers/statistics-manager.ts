@@ -1,5 +1,5 @@
 import { LanguageManager } from './language-manager';
-import { WplaceColorDefinition, WplacePalette } from './wplace';
+import { WplaceColorDefinition, WplacePalette } from '../wplace';
 
 export class StatisticsRow {
     public color: WplaceColorDefinition | null;

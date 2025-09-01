@@ -1,5 +1,3 @@
-
-
 export interface TileInfo {
     x: number;
     y: number;

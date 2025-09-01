@@ -1,9 +1,9 @@
 import './styles/main.scss';
-import { TemplateManager } from './template-manager';
-import { CanvasManager } from './canvas-manager';
-import { StatisticsManager } from './statistics-manager';
-import { TableManager } from './table-manager';
-import { LanguageManager } from './language-manager';
+import { TemplateManager } from './script/managers/template-manager';
+import { CanvasManager } from './script/managers/canvas-manager';
+import { StatisticsManager } from './script/managers/statistics-manager';
+import { TableManager } from './script/ui/table-manager';
+import { LanguageManager } from './script/managers/language-manager';
 import { TemplateData } from './types';
 
 class App {

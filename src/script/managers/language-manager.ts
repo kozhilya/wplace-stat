@@ -1,4 +1,4 @@
-import { en } from './locales/en';
+import { en } from '../../locales/en';
 
 export class LanguageManager {
     private static currentLanguage = en;

@@ -1,5 +1,5 @@
 import { LanguageManager } from './language-manager';
-import { WplacePalette } from './wplace';
+import { WplacePalette } from '../wplace';
 import { StatisticsRow } from './statistics-manager';
 
 export class TableManager {

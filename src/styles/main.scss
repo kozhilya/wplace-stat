@@ -40,7 +40,7 @@ body {
 }
 
 .stats-panel {
-    width: 400px;
+    width: 550px;
     background: #f0f0f0;
     padding: 1rem;
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
@@ -55,7 +55,7 @@ body {
     .table-container {
         flex: 1;
         overflow-y: auto;
-        max-height: 400px;
+        max-height: 800px;
         
         table {
             width: 100%;

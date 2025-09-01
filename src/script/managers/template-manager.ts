@@ -1,6 +1,6 @@
-import { TemplateData, TileInfo } from './types';
+import { TemplateData, TileInfo } from '../../types';
 import { LanguageManager } from './language-manager';
-import { WplaceTileWidth, WplaceTileHeight } from './wplace';
+import { WplaceTileWidth, WplaceTileHeight } from '../wplace';
 
 export class TemplateManager {
     static saveTemplateToHash(templateData: TemplateData): void {
