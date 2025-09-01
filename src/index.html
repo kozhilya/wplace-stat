@@ -6,6 +6,32 @@
     <title>WPlace Stat</title>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <header class="header">
+            <h1>WPlace Progress Tracker</h1>
+        </header>
+        <div class="main-content">
+            <aside class="stats-panel">
+                <h2>Statistics</h2>
+                <table id="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Statistics will be populated here -->
+                    </tbody>
+                </table>
+                <div class="upload-section">
+                    <input type="file" id="image-upload" accept="image/png" />
+                </div>
+            </aside>
+            <main class="canvas-area">
+                <canvas id="template-canvas"></canvas>
+            </main>
+        </div>
+    </div>
 </body>
 </html>
