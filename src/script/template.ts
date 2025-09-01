@@ -47,10 +47,7 @@ export class Template {
         if (!this.templateImage) {
             await this.loadTemplateImage();
         }
-        
-        // Import TemplateManager dynamically to avoid circular dependencies
-        const { TemplateManager } = await import('./managers/template-manager');
-        
+                
         // Create template data object matching the expected interface
         const templateData = {
             tlX: this.tlX,
@@ -61,11 +58,11 @@ export class Template {
         };
         
         // Load the actual canvas using TemplateManager
-        this.actualCanvas = await TemplateManager.loadActualCanvas(
-            templateData, 
-            this.imageWidth, 
-            this.imageHeight
-        );
+        // this.actualCanvas = await TemplateManager.loadActualCanvas(
+        //     templateData, 
+        //     this.imageWidth, 
+        //     this.imageHeight
+        // );
     }
 
     // Serialize to base64

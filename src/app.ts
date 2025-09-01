@@ -1,5 +1,4 @@
 import './styles/main.scss';
-import { TemplateManager } from './script/managers/template-manager';
 import { CanvasManager } from './script/managers/canvas-manager';
 import { StatisticsManager } from './script/managers/statistics-manager';
 import { TableManager } from './script/ui/table-manager';
