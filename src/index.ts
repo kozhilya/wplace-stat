@@ -44,8 +44,10 @@ class App {
     private hideTemplateForm(): void {
         const templateForm = document.getElementById('template-form');
         const editTemplateBtn = document.getElementById('edit-template-btn');
-        if (templateForm && editTemplateBtn) {
+        const templateConfigHeader = document.querySelector('.stats-panel h2[data-i18n="templateConfiguration"]');
+        if (templateForm && editTemplateBtn && templateConfigHeader) {
             templateForm.style.display = 'none';
+            templateConfigHeader.style.display = 'none';
             editTemplateBtn.style.display = 'block';
         }
     }
@@ -53,8 +55,10 @@ class App {
     private showTemplateForm(): void {
         const templateForm = document.getElementById('template-form');
         const editTemplateBtn = document.getElementById('edit-template-btn');
-        if (templateForm && editTemplateBtn) {
+        const templateConfigHeader = document.querySelector('.stats-panel h2[data-i18n="templateConfiguration"]');
+        if (templateForm && editTemplateBtn && templateConfigHeader) {
             templateForm.style.display = 'block';
+            templateConfigHeader.style.display = 'block';
             editTemplateBtn.style.display = 'none';
         }
     }
