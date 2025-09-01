@@ -1,24 +1,44 @@
 import { LanguageManager } from './language-manager';
-import { WplacePalette } from './wplace';
+import { WplaceColorDefinition, WplacePalette } from './wplace';
+
+export class StatisticsRow {
+    public color: WplaceColorDefinition | null;
+
+    public total: number = 0;
+
+    public completed: number = 0;
+
+    public get percentage(): number {
+        return (this.total > 0) ? this.completed / this.total : 1;
+    }
+
+    public get remain(): number {
+        return this.total - this.completed;
+    }
+
+    constructor(color: WplaceColorDefinition | null) {
+        this.color = color;
+    }
+};
 
 export class StatisticsManager {
     static updateStatistics(canvas?: HTMLCanvasElement, occupiedTiles?: any[], templateImage?: HTMLImageElement): void {
         const tableBody = document.querySelector('#stats-table tbody');
         const lastUpdatedElement = document.getElementById('last-updated');
-        
+
         // Update last updated time in header
         if (lastUpdatedElement) {
             lastUpdatedElement.textContent = new Date().toLocaleTimeString();
         }
-        
+
         // Log occupied tiles to console
         if (occupiedTiles && occupiedTiles.length > 0) {
             console.log('Occupied tiles:', occupiedTiles.map(tile => `${tile.x}/${tile.y}`).join(', '));
         }
-        
+
         if (tableBody) {
             tableBody.innerHTML = '';
-            
+
             // Add color statistics if canvas and template image are provided
             if (canvas && templateImage) {
                 this.addPixelMatchStatistics(tableBody, canvas, templateImage);
@@ -44,36 +64,36 @@ export class StatisticsManager {
     private static sortTable(columnIndex: number): void {
         const table = document.getElementById('stats-table');
         if (!table) return;
-        
+
         const tbody = table.querySelector('tbody');
         if (!tbody) return;
-        
+
         const rows = Array.from(tbody.querySelectorAll('tr'));
         const headers = table.querySelectorAll('thead th');
-        
+
         // Determine sort direction
         let sortDirection = 'desc';
         const currentHeader = headers[columnIndex];
         if (currentHeader.getAttribute('data-sort') === 'desc') {
             sortDirection = 'asc';
         }
-        
+
         // Update sort indicators on all headers
         headers.forEach(header => {
             header.removeAttribute('data-sort');
         });
-        
+
         // Set sort indicator on current header
         currentHeader.setAttribute('data-sort', sortDirection);
-        
+
         // Sort rows using data-sort-value attributes
         rows.sort((a, b) => {
             const aValue = parseFloat(a.cells[columnIndex].getAttribute('data-sort-value') || '0');
             const bValue = parseFloat(b.cells[columnIndex].getAttribute('data-sort-value') || '0');
-            
+
             return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
         });
-        
+
         // Re-add rows in sorted order
         rows.forEach(row => tbody.appendChild(row));
     }
@@ -85,38 +105,38 @@ export class StatisticsManager {
         templateCanvas.height = templateImage.height;
         const templateCtx = templateCanvas.getContext('2d');
         if (!templateCtx) return;
-        
+
         // Draw the template image
         templateCtx.drawImage(templateImage, 0, 0);
-        
+
         const actualCtx = actualCanvas.getContext('2d');
         if (!actualCtx) return;
-        
+
         try {
             // Get image data from both canvases
             const templateImageData = templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
             const actualImageData = actualCtx.getImageData(0, 0, actualCanvas.width, actualCanvas.height);
-            
+
             const templateData = templateImageData.data;
             const actualData = actualImageData.data;
-            
+
             // Count matching pixels by color
             const matchCounts = new Map<number, number>();
-            
+
             for (let i = 0; i < templateData.length; i += 4) {
                 const templateR = templateData[i];
                 const templateG = templateData[i + 1];
                 const templateB = templateData[i + 2];
                 const templateA = templateData[i + 3];
-                
+
                 const actualR = actualData[i];
                 const actualG = actualData[i + 1];
                 const actualB = actualData[i + 2];
                 const actualA = actualData[i + 3];
-                
+
                 // Skip transparent pixels in template
                 if (templateA === 0) continue;
-                
+
                 // Check if pixels match
                 if (templateR === actualR && templateG === actualG && templateB === actualB && templateA === actualA) {
                     // Find the closest color in the Wplace palette
@@ -126,7 +146,7 @@ export class StatisticsManager {
             }
 
             let totalMatches = 0;
-            
+
             // Add total matches row
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
@@ -134,7 +154,7 @@ export class StatisticsManager {
                     totalMatches += count;
                 }
             });
-            
+
             if (totalMatches > 0) {
                 const totalRow = document.createElement('tr');
                 totalRow.style.fontWeight = 'bold';
@@ -143,7 +163,7 @@ export class StatisticsManager {
                     <td data-sort-value="${totalMatches}">${totalMatches.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(totalRow);
-                
+
                 // Add total template pixels for reference
                 const templatePixelsRow = document.createElement('tr');
                 templatePixelsRow.innerHTML = `
@@ -151,7 +171,7 @@ export class StatisticsManager {
                     <td>${(templateData.length / 4).toLocaleString()}</td>
                 `;
                 tableBody.appendChild(templatePixelsRow);
-                
+
                 // Add separator
                 const separatorRow = document.createElement('tr');
                 separatorRow.innerHTML = `
@@ -159,7 +179,7 @@ export class StatisticsManager {
                 `;
                 tableBody.appendChild(separatorRow);
             }
-            
+
             // Add match statistics to the table
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
@@ -179,7 +199,7 @@ export class StatisticsManager {
                     }
                 }
             });
-            
+
             // Set initial sort indicator on value column (descending)
             const valueHeader = document.querySelector('#stats-table thead th:nth-child(2)');
             if (valueHeader) {
@@ -202,30 +222,30 @@ export class StatisticsManager {
         // Get image data from canvas
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-        
+
         try {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
-            
+
             // Count pixels by color
             const colorCounts = new Map<number, number>();
-            
+
             for (let i = 0; i < data.length; i += 4) {
                 const r = data[i];
                 const g = data[i + 1];
                 const b = data[i + 2];
                 const a = data[i + 3];
-                
+
                 // Skip transparent pixels
                 if (a === 0) continue;
-                
+
                 // Find the closest color in the Wplace palette
                 const colorId = this.findClosestColorId(r, g, b);
                 colorCounts.set(colorId, (colorCounts.get(colorId) || 0) + 1);
             }
 
             let totalPixels = 0;
-            
+
             // Calculate total
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
@@ -233,7 +253,7 @@ export class StatisticsManager {
                     totalPixels += count;
                 }
             });
-            
+
             // Add total row
             if (totalPixels > 0) {
                 const totalRow = document.createElement('tr');
@@ -246,7 +266,7 @@ export class StatisticsManager {
                     <td data-sort-value="${totalPixels}">${totalPixels.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(totalRow);
-                
+
                 // Add separator
                 const separatorRow = document.createElement('tr');
                 separatorRow.innerHTML = `
@@ -254,7 +274,7 @@ export class StatisticsManager {
                 `;
                 tableBody.appendChild(separatorRow);
             }
-            
+
             // Add color statistics to the table
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
@@ -277,7 +297,7 @@ export class StatisticsManager {
                     }
                 }
             });
-            
+
             // Set initial sort indicator on value column (descending)
             const valueHeader = document.querySelector('#stats-table thead th:nth-child(3)');
             if (valueHeader) {
@@ -299,26 +319,26 @@ export class StatisticsManager {
     private static findClosestColorId(r: number, g: number, b: number): number {
         let minDistance = Infinity;
         let closestColorId = 1; // Default to Black
-        
+
         for (const color of WplacePalette) {
             // Skip transparent
             if (color.id === 0) continue;
-            
+
             const distance = this.colorDistance(r, g, b, color.rgb[0], color.rgb[1], color.rgb[2]);
             if (distance < minDistance) {
                 minDistance = distance;
                 closestColorId = color.id;
             }
         }
-        
+
         return closestColorId;
     }
 
-    private static colorDistance(r1: number, g1: number, b1: number, 
-                                r2: number, g2: number, b2: number): number {
+    private static colorDistance(r1: number, g1: number, b1: number,
+        r2: number, g2: number, b2: number): number {
         return Math.sqrt(
-            Math.pow(r2 - r1, 2) + 
-            Math.pow(g2 - g1, 2) + 
+            Math.pow(r2 - r1, 2) +
+            Math.pow(g2 - g1, 2) +
             Math.pow(b2 - b1, 2)
         );
     }
