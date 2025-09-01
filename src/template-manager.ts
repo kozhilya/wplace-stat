@@ -79,7 +79,8 @@ export class TemplateManager {
             img.crossOrigin = 'Anonymous';
             img.onload = () => resolve(img);
             img.onerror = reject;
-            img.src = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png`;
+            // Use a CORS proxy to bypass CORS restrictions
+            img.src = `https://corsproxy.io/?${encodeURIComponent(`https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png`)}`;
         });
     }
 
@@ -97,7 +98,7 @@ export class TemplateManager {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Load and draw each tile
-        for (const tile of occupiedTiles) {
+        const tilePromises = occupiedTiles.map(async (tile) => {
             try {
                 const tileImage = await this.loadTile(tile.x, tile.y);
                 
@@ -131,7 +132,10 @@ export class TemplateManager {
                     WplaceTileHeight
                 );
             }
-        }
+        });
+        
+        // Wait for all tiles to load (or fail)
+        await Promise.allSettled(tilePromises);
         
         return canvas;
     }
