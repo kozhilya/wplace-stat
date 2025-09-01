@@ -17,7 +17,12 @@ class App {
     private init(): void {
         this.setupEventListeners();
         StatisticsManager.updateStatistics();
-        this.loadFromHash();
+        const hasTemplate = this.loadFromHash();
+        
+        // Hide form if template was loaded from hash
+        if (hasTemplate) {
+            this.hideTemplateForm();
+        }
     }
 
     private setupEventListeners(): void {
@@ -26,6 +31,32 @@ class App {
             event.preventDefault();
             this.handleTemplateSubmit();
         });
+
+        // Add event listener for edit template button
+        const editTemplateBtn = document.getElementById('edit-template-btn');
+        if (editTemplateBtn) {
+            editTemplateBtn.addEventListener('click', () => {
+                this.showTemplateForm();
+            });
+        }
+    }
+
+    private hideTemplateForm(): void {
+        const templateForm = document.getElementById('template-form');
+        const editTemplateBtn = document.getElementById('edit-template-btn');
+        if (templateForm && editTemplateBtn) {
+            templateForm.style.display = 'none';
+            editTemplateBtn.style.display = 'block';
+        }
+    }
+
+    private showTemplateForm(): void {
+        const templateForm = document.getElementById('template-form');
+        const editTemplateBtn = document.getElementById('edit-template-btn');
+        if (templateForm && editTemplateBtn) {
+            templateForm.style.display = 'block';
+            editTemplateBtn.style.display = 'none';
+        }
     }
 
     private async handleTemplateSubmit(): Promise<void> {
@@ -42,6 +73,8 @@ class App {
             img.onload = () => {
                 this.canvasManager.drawImage(img);
                 StatisticsManager.updateStatistics();
+                // Hide the form after successful submission
+                this.hideTemplateForm();
             };
             img.onerror = () => {
                 console.error('Error loading image from URL');
@@ -53,7 +86,7 @@ class App {
         }
     }
 
-    private loadFromHash(): void {
+    private loadFromHash(): boolean {
         const templateData = TemplateManager.loadTemplateFromHash();
         if (templateData) {
             TemplateManager.fillFormFromTemplateData(templateData);
@@ -65,7 +98,9 @@ class App {
                 StatisticsManager.updateStatistics();
             };
             img.src = templateData.imageDataUrl;
+            return true;
         }
+        return false;
     }
 }
 
