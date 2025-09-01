@@ -8,64 +8,8 @@
 </head>
 
 <body>
-    <div id="app">
-        <header class="header">
-            <h1 data-i18n="appTitle">WPlace Progress Tracker</h1>
-            <div class="last-updated">
-                Last updated: <span id="last-updated"></span>
-            </div>
-        </header>
-        <div class="main-content">
-            <aside class="stats-panel">
-                <button id="edit-template-btn" style="display: none;" data-i18n="editTemplate">Edit Template</button>
-                <h2 data-i18n="templateConfiguration">Template Configuration</h2>
-                <form id="template-form">
-                    <div class="number-inputs-row">
-                        <div class="form-group">
-                            <label for="tl-x" data-i18n="tlX">Tl X:</label>
-                            <input type="number" id="tl-x" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="tl-y" data-i18n="tlY">Tl Y:</label>
-                            <input type="number" id="tl-y" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="px-x" data-i18n="pxX">Px X:</label>
-                            <input type="number" id="px-x" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="px-y" data-i18n="pxY">Px Y:</label>
-                            <input type="number" id="px-y" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="image-url" data-i18n="imageUrl">Image URL:</label>
-                        <input type="url" id="image-url" required>
-                    </div>
-                    <button type="submit" data-i18n="saveTemplate">Save Template</button>
-                </form>
-                <h2 data-i18n="statistics">Statistics</h2>
-                <div class="table-container">
-                    <table id="stats-table">
-                        <thead>
-                            <tr>
-                                <th><span class="text" data-i18n="color">Color</span><span class="sort-indicator"></span></th>
-                                <th><span class="text" data-i18n="total">Total</span><span class="sort-indicator"></span></th>
-                                <th><span class="text" data-i18n="completed">Completed</span><span class="sort-indicator"></span></th>
-                                <th><span class="text" data-i18n="percentage">Percentage</span><span class="sort-indicator"></span></th>
-                                <th><span class="text" data-i18n="remaining">Remaining</span><span class="sort-indicator"></span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Statistics will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </aside>
-            <main class="canvas-area">
-                <canvas id="template-canvas"></canvas>
-            </main>
-        </div>
+    <div id="root">
+        <!-- React will render here -->
     </div>
 </body>
 
