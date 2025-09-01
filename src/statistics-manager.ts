@@ -66,13 +66,6 @@ export class StatisticsManager {
                     <td>${totalPixels.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(totalRow);
-                
-                // Add separator
-                const separatorRow = document.createElement('tr');
-                separatorRow.innerHTML = `
-                    <td colspan="2"><hr style="margin: 8px 0; border: none; border-top: 1px solid #ccc;"></td>
-                `;
-                tableBody.appendChild(separatorRow);
             }
             
             // Add color statistics to the table
@@ -86,7 +79,7 @@ export class StatisticsManager {
                                 <span style="display: inline-block; width: 12px; height: 12px; 
                                              background-color: rgb(${color.rgb.join(',')}); 
                                              margin-right: 5px; border: 1px solid #ccc;"></span>
-                                ${color.name}
+                                ${color.id}. ${color.premium ? '★ ' : ''}${color.name}
                             </td>
                             <td>${count.toLocaleString()}</td>
                         `;
