@@ -2,8 +2,8 @@ export class CanvasManager {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
 
-    constructor(canvasId: string) {
-        this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    constructor(canvas: HTMLCanvasElement) {
+        this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d')!;
         // Set initial canvas size
         this.canvas.width = 800;
