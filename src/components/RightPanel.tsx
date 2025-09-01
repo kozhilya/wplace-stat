@@ -19,16 +19,24 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         }
     }, []);
 
-    // Update template canvas when template changes
+    // Update template canvas when template or view mode changes
     useEffect(() => {
-        if (canvasManager && currentTemplate?.templateImage) {
-            canvasManager.drawImage(currentTemplate.templateImage);
+        if (canvasManager && templateCanvasRef.current) {
+            if (currentTemplate?.templateImage && (viewMode === 'template' || viewMode === 'both')) {
+                canvasManager.drawImage(currentTemplate.templateImage);
+            } else {
+                // Clear the canvas if not in template view
+                const ctx = templateCanvasRef.current.getContext('2d');
+                if (ctx) {
+                    ctx.clearRect(0, 0, templateCanvasRef.current.width, templateCanvasRef.current.height);
+                }
+            }
         }
-    }, [canvasManager, currentTemplate]);
+    }, [canvasManager, currentTemplate, viewMode]);
 
-    // Update actual canvas when template changes
+    // Update actual canvas when template or view mode changes
     useEffect(() => {
-        if (actualCanvasRef.current && currentTemplate?.actualCanvas) {
+        if (actualCanvasRef.current && currentTemplate?.actualCanvas && (viewMode === 'actual' || viewMode === 'both')) {
             // Set the canvas dimensions to match the actual canvas
             actualCanvasRef.current.width = currentTemplate.actualCanvas.width;
             actualCanvasRef.current.height = currentTemplate.actualCanvas.height;
@@ -39,7 +47,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 ctx.drawImage(currentTemplate.actualCanvas, 0, 0);
             }
         }
-    }, [currentTemplate]);
+    }, [currentTemplate, viewMode]);
 
     return (
         <div 
