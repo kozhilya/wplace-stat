@@ -1,61 +1,51 @@
-import React, { useEffect, useRef } from 'react';
-import { TemplateManager } from '../script/managers/template-manager';
-import { CanvasManager } from '../script/managers/canvas-manager';
-import { StatisticsManager } from '../script/managers/statistics-manager';
-import { TableManager } from '../script/ui/table-manager';
+import React, { useState, useEffect } from 'react';
+import { Header } from './Header';
+import { LeftPanel } from './LeftPanel';
+import { RightPanel } from './RightPanel';
+import { Splitter } from './Splitter';
 import { LanguageManager } from '../script/managers/language-manager';
 
 export const AppComponent: React.FC = () => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const statisticsManagerRef = useRef<StatisticsManager | null>(null);
+    const [templateName, setTemplateName] = useState<string>('Untitled Template');
+    const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+    const [leftPanelWidth, setLeftPanelWidth] = useState<number>(300);
+    const [isResizing, setIsResizing] = useState<boolean>(false);
 
     useEffect(() => {
         LanguageManager.initialize();
-        // Initialize canvas manager
-        if (canvasRef.current) {
-            const canvasManager = new CanvasManager('template-canvas');
-            // You might need to adjust CanvasManager to work with React refs
-        }
-        
-        // Load from hash
-        const hasTemplate = loadFromHash();
-        if (hasTemplate) {
-            // Hide form logic
-        }
     }, []);
 
-    const handleTemplateSubmit = async (event: React.FormEvent) => {
-        event.preventDefault();
-        // Implement your template submission logic here
+    const handleSplitterMouseDown = (e: React.MouseEvent) => {
+        setIsResizing(true);
+        document.addEventListener('mousemove', handleMouseMove as any);
+        document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const loadFromHash = (): boolean => {
-        // Implement your hash loading logic here
-        return false;
+    const handleMouseMove = (e: MouseEvent) => {
+        if (isResizing) {
+            const newWidth = e.clientX;
+            if (newWidth > 200 && newWidth < window.innerWidth - 200) {
+                setLeftPanelWidth(newWidth);
+            }
+        }
+    };
+
+    const handleMouseUp = () => {
+        setIsResizing(false);
+        document.removeEventListener('mousemove', handleMouseMove as any);
+        document.removeEventListener('mouseup', handleMouseUp);
     };
 
     return (
-        <div id="app">
-            {/* Your existing HTML structure goes here, converted to JSX */}
-            <header className="header">
-                <h1 data-i18n="appTitle">WPlace Progress Tracker</h1>
-                <div className="last-updated">
-                    Last updated: <span id="last-updated"></span>
-                </div>
-            </header>
-            <div className="main-content">
-                <aside className="stats-panel">
-                    <button id="edit-template-btn" style={{ display: 'none' }} data-i18n="editTemplate">Edit Template</button>
-                    <h2 data-i18n="templateConfiguration">Template Configuration</h2>
-                    <form id="template-form" onSubmit={handleTemplateSubmit}>
-                        {/* Form fields */}
-                        <button type="submit" data-i18n="saveTemplate">Save Template</button>
-                    </form>
-                    {/* Statistics table */}
-                </aside>
-                <main className="canvas-area">
-                    <canvas id="template-canvas" ref={canvasRef}></canvas>
-                </main>
+        <div className="app">
+            <Header 
+                templateName={templateName} 
+                lastUpdated={lastUpdated} 
+            />
+            <div className="main-content" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
+                <LeftPanel width={leftPanelWidth} />
+                <Splitter onMouseDown={handleSplitterMouseDown} />
+                <RightPanel />
             </div>
         </div>
     );
