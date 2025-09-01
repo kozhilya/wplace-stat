@@ -60,6 +60,21 @@ body {
     }
 }
 
+.number-inputs-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    
+    .form-group {
+        flex: 1;
+        margin-bottom: 0;
+        
+        input[type="number"] {
+            width: 100%;
+        }
+    }
+}
+
 .form-group {
     margin-bottom: 1rem;
     
@@ -70,7 +85,7 @@ body {
     }
     
     input[type="number"],
-    input[type="file"] {
+    input[type="url"] {
         width: 100%;
         padding: 0.5rem;
         border: 1px solid #ddd;
