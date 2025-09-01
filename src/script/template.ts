@@ -26,7 +26,33 @@ export class Template {
         this.name = name;
     }
 
-    // Добавь методы по сериализации и десериализации шаблона в формате base64. Нужно сериализовывать только методы, указанные в конструкторе. AI!
+    // Serialize to base64
+    serialize(): string {
+        const data = {
+            name: this.name,
+            tlX: this.tlX,
+            tlY: this.tlY,
+            pxX: this.pxX,
+            pxY: this.pxY,
+            imageDataUrl: this.imageDataUrl
+        };
+        const jsonString = JSON.stringify(data);
+        return btoa(unescape(encodeURIComponent(jsonString)));
+    }
+
+    // Deserialize from base64
+    static deserialize(base64String: string): Template {
+        const jsonString = decodeURIComponent(escape(atob(base64String)));
+        const data = JSON.parse(jsonString);
+        return new Template(
+            data.name,
+            data.tlX,
+            data.tlY,
+            data.pxX,
+            data.pxY,
+            data.imageDataUrl
+        );
+    }
 }
 
 export class TemplateCollection {
