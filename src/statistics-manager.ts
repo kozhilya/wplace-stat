@@ -57,38 +57,12 @@ export class StatisticsManager {
         // Set sort indicator on current header
         currentHeader.setAttribute('data-sort', sortDirection);
         
-        // Sort rows
+        // Sort rows using data-sort-value attributes
         rows.sort((a, b) => {
-            const aValue = a.cells[columnIndex].textContent || '';
-            const bValue = b.cells[columnIndex].textContent || '';
+            const aValue = parseFloat(a.cells[columnIndex].getAttribute('data-sort-value') || '0');
+            const bValue = parseFloat(b.cells[columnIndex].getAttribute('data-sort-value') || '0');
             
-            // Always treat the second column as numbers
-            if (columnIndex === 1) {
-                // Parse numbers, handling commas in thousands
-                const aNum = parseInt(aValue.replace(/,/g, '')) || 0;
-                const bNum = parseInt(bValue.replace(/,/g, '')) || 0;
-                return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
-            } else {
-                // For the first column, we need special handling for the Total row
-                // Put Total at the top always
-                if (aValue === LanguageManager.getText('total')) return -1;
-                if (bValue === LanguageManager.getText('total')) return 1;
-                
-                // For other rows in the first column, sort by the numeric prefix
-                const aMatch = aValue.match(/^(\d+)\./);
-                const bMatch = bValue.match(/^(\d+)\./);
-                
-                if (aMatch && bMatch) {
-                    const aNum = parseInt(aMatch[1]);
-                    const bNum = parseInt(bMatch[1]);
-                    return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
-                }
-                
-                // Fallback to alphabetical sort
-                return sortDirection === 'asc' 
-                    ? aValue.localeCompare(bValue) 
-                    : bValue.localeCompare(aValue);
-            }
+            return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
         });
         
         // Re-add rows in sorted order
@@ -136,42 +110,30 @@ export class StatisticsManager {
                 const totalRow = document.createElement('tr');
                 totalRow.style.fontWeight = 'bold';
                 totalRow.innerHTML = `
-                    <td>${LanguageManager.getText('total')}</td>
-                    <td>${totalPixels.toLocaleString()}</td>
+                    <td data-sort-value="-1">${LanguageManager.getText('total')}</td>
+                    <td data-sort-value="${totalPixels}">${totalPixels.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(totalRow);
             }
             
-            // Collect all color rows to sort them by count in descending order
-            const colorRows: { count: number; html: string }[] = [];
+            // Add color statistics to the table
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
                     const count = colorCounts.get(color.id) || 0;
                     if (count > 0) {
-                        colorRows.push({
-                            count,
-                            html: `
-                                <td>
-                                    <span style="display: inline-block; width: 12px; height: 12px; 
-                                                 background-color: rgb(${color.rgb.join(',')}); 
-                                                 margin-right: 5px; border: 1px solid #ccc;"></span>
-                                    ${color.id}. ${color.premium ? '★ ' : ''}${color.name}
-                                </td>
-                                <td>${count.toLocaleString()}</td>
-                            `
-                        });
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td data-sort-value="${color.id}">
+                                <span style="display: inline-block; width: 12px; height: 12px; 
+                                             background-color: rgb(${color.rgb.join(',')}); 
+                                             margin-right: 5px; border: 1px solid #ccc;"></span>
+                                ${color.id}. ${color.premium ? '★ ' : ''}${color.name}
+                            </td>
+                            <td data-sort-value="${count}">${count.toLocaleString()}</td>
+                        `;
+                        tableBody.appendChild(row);
                     }
                 }
-            });
-            
-            // Sort by count in descending order
-            colorRows.sort((a, b) => b.count - a.count);
-            
-            // Add sorted rows to the table
-            colorRows.forEach(colorRow => {
-                const row = document.createElement('tr');
-                row.innerHTML = colorRow.html;
-                tableBody.appendChild(row);
             });
             
             // Set initial sort indicator on value column (descending)
