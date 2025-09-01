@@ -103,7 +103,7 @@ class App {
                     console.error('Failed to load actual canvas:', error);
                 }
                 
-                StatisticsManager.updateStatistics(templateCanvas, occupiedTiles);
+                StatisticsManager.updateStatistics(templateCanvas, occupiedTiles, img);
                 // Hide the form after successful submission
                 this.hideTemplateForm();
             };
@@ -155,7 +155,7 @@ class App {
                     console.error('Failed to load actual canvas:', error);
                 }
                 
-                StatisticsManager.updateStatistics(templateCanvas, occupiedTiles);
+                StatisticsManager.updateStatistics(templateCanvas, occupiedTiles, img);
             };
             img.onerror = () => {
                 console.error('Error loading image from URL in hash');
