@@ -75,8 +75,19 @@ class App {
             // Handle CORS if the image is from another domain
             img.crossOrigin = 'Anonymous';
             img.onload = async () => {
-                this.canvasManager.drawImage(img);
                 const templateCanvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+                const ctx = templateCanvas.getContext('2d');
+                if (!ctx) return;
+                
+                // Set canvas size to match image dimensions
+                templateCanvas.width = img.width;
+                templateCanvas.height = img.height;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                
+                // Draw the template image at (0,0) without scaling
+                ctx.drawImage(img, 0, 0);
                 
                 // Calculate occupied tiles
                 const templateData = TemplateManager.getFormData();
@@ -86,11 +97,8 @@ class App {
                 // Load and display actual canvas
                 try {
                     const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
-                    // Draw the actual canvas onto our main canvas
-                    const ctx = templateCanvas.getContext('2d');
-                    if (ctx) {
-                        ctx.drawImage(actualCanvas, 0, 0);
-                    }
+                    // Draw the actual canvas at (0,0) without scaling
+                    ctx.drawImage(actualCanvas, 0, 0);
                 } catch (error) {
                     console.error('Failed to load actual canvas:', error);
                 }
@@ -119,8 +127,19 @@ class App {
             // Handle CORS if the image is from another domain
             img.crossOrigin = 'Anonymous';
             img.onload = async () => {
-                this.canvasManager.drawImage(img);
                 const templateCanvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+                const ctx = templateCanvas.getContext('2d');
+                if (!ctx) return;
+                
+                // Set canvas size to match image dimensions
+                templateCanvas.width = img.width;
+                templateCanvas.height = img.height;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+                
+                // Draw the template image at (0,0) without scaling
+                ctx.drawImage(img, 0, 0);
                 
                 // Calculate occupied tiles
                 const templateData = TemplateManager.getFormData();
@@ -130,11 +149,8 @@ class App {
                 // Load and display actual canvas
                 try {
                     const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
-                    // Draw the actual canvas onto our main canvas
-                    const ctx = templateCanvas.getContext('2d');
-                    if (ctx) {
-                        ctx.drawImage(actualCanvas, 0, 0);
-                    }
+                    // Draw the actual canvas at (0,0) without scaling
+                    ctx.drawImage(actualCanvas, 0, 0);
                 } catch (error) {
                     console.error('Failed to load actual canvas:', error);
                 }
