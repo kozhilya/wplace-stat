@@ -98,10 +98,17 @@ class App {
             
             // Draw the image
             const img = new Image();
+            // Handle CORS if the image is from another domain
+            img.crossOrigin = 'Anonymous';
             img.onload = () => {
                 this.canvasManager.drawImage(img);
                 const canvas = document.getElementById('template-canvas') as HTMLCanvasElement;
                 StatisticsManager.updateStatistics(canvas);
+            };
+            img.onerror = () => {
+                console.error('Error loading image from URL in hash');
+                // Still try to update statistics without the canvas
+                StatisticsManager.updateStatistics();
             };
             img.src = templateData.imageDataUrl;
             return true;

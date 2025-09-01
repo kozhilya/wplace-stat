@@ -81,7 +81,7 @@ export class StatisticsManager {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td colspan="2" style="color: #999; font-style: italic;">
-                    Color statistics unavailable due to CORS restrictions
+                    ${LanguageManager.getText('corsRestrictionMessage')}
                 </td>
             `;
             tableBody.appendChild(row);
