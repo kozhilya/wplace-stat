@@ -141,32 +141,4 @@ export class StatisticsManager {
         );
     }
 }
-
-
-    private static findClosestColorId(r: number, g: number, b: number): number {
-        let minDistance = Infinity;
-        let closestColorId = 1; // Default to Black
-
-        for (const color of WplacePalette) {
-            // Skip transparent
-            if (color.id === 0) continue;
-
-            const distance = this.colorDistance(r, g, b, color.rgb[0], color.rgb[1], color.rgb[2]);
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestColorId = color.id;
-            }
-        }
-
-        return closestColorId;
-    }
-
-    private static colorDistance(r1: number, g1: number, b1: number,
-        r2: number, g2: number, b2: number): number {
-        return Math.sqrt(
-            Math.pow(r2 - r1, 2) +
-            Math.pow(g2 - g1, 2) +
-            Math.pow(b2 - b1, 2)
-        );
-    }
 }
