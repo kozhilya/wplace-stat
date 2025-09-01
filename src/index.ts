@@ -77,7 +77,13 @@ class App {
             img.onload = () => {
                 this.canvasManager.drawImage(img);
                 const canvas = document.getElementById('template-canvas') as HTMLCanvasElement;
-                StatisticsManager.updateStatistics(canvas);
+                
+                // Calculate occupied tiles
+                const templateData = TemplateManager.getFormData();
+                const occupiedTiles = TemplateManager.calculateOccupiedTiles(templateData, img.width, img.height);
+                console.log('Occupied tiles:', occupiedTiles);
+                
+                StatisticsManager.updateStatistics(canvas, occupiedTiles);
                 // Hide the form after successful submission
                 this.hideTemplateForm();
             };
@@ -103,7 +109,13 @@ class App {
             img.onload = () => {
                 this.canvasManager.drawImage(img);
                 const canvas = document.getElementById('template-canvas') as HTMLCanvasElement;
-                StatisticsManager.updateStatistics(canvas);
+                
+                // Calculate occupied tiles
+                const templateData = TemplateManager.getFormData();
+                const occupiedTiles = TemplateManager.calculateOccupiedTiles(templateData, img.width, img.height);
+                console.log('Occupied tiles:', occupiedTiles);
+                
+                StatisticsManager.updateStatistics(canvas, occupiedTiles);
             };
             img.onerror = () => {
                 console.error('Error loading image from URL in hash');

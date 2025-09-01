@@ -5,3 +5,14 @@ export interface TemplateData {
     pxY: number;
     imageDataUrl: string;
 }
+
+export interface TileInfo {
+    x: number;
+    y: number;
+}
+
+export interface TemplateAnalysis {
+    tiles: TileInfo[];
+    imageWidth?: number;
+    imageHeight?: number;
+}

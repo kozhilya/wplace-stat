@@ -40,4 +40,37 @@ export class TemplateManager {
         
         return { tlX, tlY, pxX, pxY, imageDataUrl: imageUrl };
     }
+
+    static calculateOccupiedTiles(templateData: TemplateData, imageWidth: number, imageHeight: number): TileInfo[] {
+        const TILE_SIZE = 1000; // Assuming tile size is 1000x1000
+        
+        const tiles: TileInfo[] = [];
+        
+        // Starting tile coordinates
+        const startTileX = templateData.tlX;
+        const startTileY = templateData.tlY;
+        
+        // Starting pixel coordinates within the starting tile
+        const startPixelX = templateData.pxX;
+        const startPixelY = templateData.pxY;
+        
+        // Calculate how many tiles are needed in x and y directions
+        const remainingWidth = imageWidth - (TILE_SIZE - startPixelX);
+        const remainingHeight = imageHeight - (TILE_SIZE - startPixelY);
+        
+        const tilesX = 1 + Math.max(0, Math.ceil(remainingWidth / TILE_SIZE));
+        const tilesY = 1 + Math.max(0, Math.ceil(remainingHeight / TILE_SIZE));
+        
+        // Generate all occupied tiles
+        for (let y = 0; y < tilesY; y++) {
+            for (let x = 0; x < tilesX; x++) {
+                tiles.push({
+                    x: startTileX + x,
+                    y: startTileY + y
+                });
+            }
+        }
+        
+        return tiles;
+    }
 }
