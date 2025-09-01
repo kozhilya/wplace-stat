@@ -9,7 +9,13 @@ class App {
 
     constructor() {
         LanguageManager.initialize();
-        this.canvasManager = new CanvasManager('template-canvas');
+        // Find the canvas element
+        const canvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+        if (canvas) {
+            this.canvasManager = new CanvasManager(canvas);
+        } else {
+            console.error('Canvas element not found');
+        }
         this.init();
     }
 

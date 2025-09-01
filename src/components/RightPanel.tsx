@@ -14,7 +14,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
     useEffect(() => {
         if (templateCanvasRef.current) {
-            const manager = new CanvasManager('template-canvas');
+            const manager = new CanvasManager(templateCanvasRef.current);
             setCanvasManager(manager);
         }
     }, []);
