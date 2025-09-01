@@ -1,5 +1,6 @@
-import { TemplateData } from './types';
+import { TemplateData, TileInfo } from './types';
 import { LanguageManager } from './language-manager';
+import { WplaceTileWidth, WplaceTileHeight } from './wplace';
 
 export class TemplateManager {
     static saveTemplateToHash(templateData: TemplateData): void {
@@ -42,8 +43,6 @@ export class TemplateManager {
     }
 
     static calculateOccupiedTiles(templateData: TemplateData, imageWidth: number, imageHeight: number): TileInfo[] {
-        const TILE_SIZE = 1000; // Assuming tile size is 1000x1000
-        
         const tiles: TileInfo[] = [];
         
         // Starting tile coordinates
@@ -55,11 +54,11 @@ export class TemplateManager {
         const startPixelY = templateData.pxY;
         
         // Calculate how many tiles are needed in x and y directions
-        const remainingWidth = imageWidth - (TILE_SIZE - startPixelX);
-        const remainingHeight = imageHeight - (TILE_SIZE - startPixelY);
+        const remainingWidth = imageWidth - (WplaceTileWidth - startPixelX);
+        const remainingHeight = imageHeight - (WplaceTileHeight - startPixelY);
         
-        const tilesX = 1 + Math.max(0, Math.ceil(remainingWidth / TILE_SIZE));
-        const tilesY = 1 + Math.max(0, Math.ceil(remainingHeight / TILE_SIZE));
+        const tilesX = 1 + Math.max(0, Math.ceil(remainingWidth / WplaceTileWidth));
+        const tilesY = 1 + Math.max(0, Math.ceil(remainingHeight / WplaceTileHeight));
         
         // Generate all occupied tiles
         for (let y = 0; y < tilesY; y++) {
