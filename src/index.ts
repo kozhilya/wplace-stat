@@ -1,5 +1,13 @@
 import './styles/main.scss';
 
+interface TemplateData {
+    tlX: number;
+    tlY: number;
+    pxX: number;
+    pxY: number;
+    imageDataUrl: string;
+}
+
 class App {
     private canvas: HTMLCanvasElement | null = null;
     private ctx: CanvasRenderingContext2D | null = null;
@@ -12,13 +20,79 @@ class App {
         this.setupEventListeners();
         this.initializeCanvas();
         this.updateStatistics();
+        this.loadFromHash();
     }
 
     private setupEventListeners(): void {
-        const imageUpload = document.getElementById('image-upload') as HTMLInputElement;
-        imageUpload.addEventListener('change', (event) => {
-            this.handleImageUpload(event);
+        const templateForm = document.getElementById('template-form') as HTMLFormElement;
+        templateForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            this.handleTemplateSubmit(event);
         });
+    }
+
+    private handleTemplateSubmit(event: Event): void {
+        const form = event.target as HTMLFormElement;
+        const formData = new FormData(form);
+        
+        const tlX = parseInt((document.getElementById('tl-x') as HTMLInputElement).value);
+        const tlY = parseInt((document.getElementById('tl-y') as HTMLInputElement).value);
+        const pxX = parseInt((document.getElementById('px-x') as HTMLInputElement).value);
+        const pxY = parseInt((document.getElementById('px-y') as HTMLInputElement).value);
+        
+        const imageInput = document.getElementById('template-image') as HTMLInputElement;
+        if (imageInput.files && imageInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const templateData: TemplateData = {
+                    tlX,
+                    tlY,
+                    pxX,
+                    pxY,
+                    imageDataUrl: e.target?.result as string
+                };
+                
+                // Convert to base64 string for the URL hash
+                const jsonData = JSON.stringify(templateData);
+                const base64Data = btoa(unescape(encodeURIComponent(jsonData)));
+                window.location.hash = base64Data;
+                
+                // Draw the image
+                const img = new Image();
+                img.onload = () => {
+                    this.drawImageOnCanvas(img);
+                    this.updateStatistics();
+                };
+                img.src = templateData.imageDataUrl;
+            };
+            reader.readAsDataURL(imageInput.files[0]);
+        }
+    }
+
+    private loadFromHash(): void {
+        if (window.location.hash) {
+            const base64Data = window.location.hash.substring(1);
+            try {
+                const jsonData = decodeURIComponent(escape(atob(base64Data)));
+                const templateData: TemplateData = JSON.parse(jsonData);
+                
+                // Fill the form
+                (document.getElementById('tl-x') as HTMLInputElement).value = templateData.tlX.toString();
+                (document.getElementById('tl-y') as HTMLInputElement).value = templateData.tlY.toString();
+                (document.getElementById('px-x') as HTMLInputElement).value = templateData.pxX.toString();
+                (document.getElementById('px-y') as HTMLInputElement).value = templateData.pxY.toString();
+                
+                // Draw the image
+                const img = new Image();
+                img.onload = () => {
+                    this.drawImageOnCanvas(img);
+                    this.updateStatistics();
+                };
+                img.src = templateData.imageDataUrl;
+            } catch (error) {
+                console.error('Error loading data from hash:', error);
+            }
+        }
     }
 
     private initializeCanvas(): void {
@@ -28,22 +102,6 @@ class App {
             // Set initial canvas size
             this.canvas.width = 800;
             this.canvas.height = 600;
-        }
-    }
-
-    private handleImageUpload(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    this.drawImageOnCanvas(img);
-                    this.updateStatistics();
-                };
-                img.src = e.target?.result as string;
-            };
-            reader.readAsDataURL(input.files[0]);
         }
     }
 
