@@ -1,7 +1,6 @@
 import './styles/main.scss';
 import { CanvasManager } from './script/managers/canvas-manager';
 import { StatisticsManager } from './script/managers/statistics-manager';
-import { TableManager } from './script/ui/table-manager';
 import { LanguageManager } from './script/managers/language-manager';
 
 class App {
@@ -17,19 +16,19 @@ class App {
     private init(): void {
         this.setupEventListeners();
         // Statistics will be updated when images are loaded
-        const hasTemplate = this.loadFromHash();
+        // const hasTemplate = this.loadFromHash();
         
         // Hide form if template was loaded from hash
-        if (hasTemplate) {
-            this.hideTemplateForm();
-        }
+        // if (hasTemplate) {
+        //     this.hideTemplateForm();
+        // }
     }
 
     private setupEventListeners(): void {
         const templateForm = document.getElementById('template-form') as HTMLFormElement;
         templateForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            this.handleTemplateSubmit();
+            // this.handleTemplateSubmit();
         });
 
         // Add event listener for edit template button
@@ -63,113 +62,113 @@ class App {
         }
     }
 
-    private async handleTemplateSubmit(): Promise<void> {
-        const templateData = TemplateManager.getFormData();
+    // private async handleTemplateSubmit(): Promise<void> {
+    //     const templateData = TemplateManager.getFormData();
         
-        // Validate the image URL
-        if (templateData.imageDataUrl) {
-            TemplateManager.saveTemplateToHash(templateData);
+    //     // Validate the image URL
+    //     if (templateData.imageDataUrl) {
+    //         TemplateManager.saveTemplateToHash(templateData);
             
-            // Draw the image
-            const img = new Image();
-            // Handle CORS if the image is from another domain
-            img.crossOrigin = 'Anonymous';
-            img.onload = async () => {
-                const templateCanvas = document.getElementById('template-canvas') as HTMLCanvasElement;
-                const ctx = templateCanvas.getContext('2d');
-                if (!ctx) return;
+    //         // Draw the image
+    //         const img = new Image();
+    //         // Handle CORS if the image is from another domain
+    //         img.crossOrigin = 'Anonymous';
+    //         img.onload = async () => {
+    //             const templateCanvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+    //             const ctx = templateCanvas.getContext('2d');
+    //             if (!ctx) return;
                 
-                // Set canvas size to match image dimensions
-                templateCanvas.width = img.width;
-                templateCanvas.height = img.height;
+    //             // Set canvas size to match image dimensions
+    //             templateCanvas.width = img.width;
+    //             templateCanvas.height = img.height;
                 
-                // Clear canvas
-                ctx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+    //             // Clear canvas
+    //             ctx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
                 
-                // Draw the template image at (0,0) without scaling
-                ctx.drawImage(img, 0, 0);
+    //             // Draw the template image at (0,0) without scaling
+    //             ctx.drawImage(img, 0, 0);
                 
-                // Calculate occupied tiles
-                const templateData = TemplateManager.getFormData();
-                const occupiedTiles = TemplateManager.calculateOccupiedTiles(templateData, img.width, img.height);
-                console.log('Occupied tiles:', occupiedTiles);
+    //             // Calculate occupied tiles
+    //             const templateData = TemplateManager.getFormData();
+    //             const occupiedTiles = TemplateManager.calculateOccupiedTiles(templateData, img.width, img.height);
+    //             console.log('Occupied tiles:', occupiedTiles);
                 
-                // Load and display actual canvas
-                try {
-                    const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
-                    // Draw the actual canvas at (0,0) without scaling
-                    ctx.drawImage(actualCanvas, 0, 0);
+    //             // Load and display actual canvas
+    //             try {
+    //                 const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
+    //                 // Draw the actual canvas at (0,0) without scaling
+    //                 ctx.drawImage(actualCanvas, 0, 0);
                     
-                    // Update statistics
-                    this.statisticsManager = new StatisticsManager(img, actualCanvas);
-                    TableManager.updateTable(this.statisticsManager.getStatistics());
-                } catch (error) {
-                    console.error('Failed to load actual canvas:', error);
-                }
+    //                 // Update statistics
+    //                 this.statisticsManager = new StatisticsManager(img, actualCanvas);
+    //                 TableManager.updateTable(this.statisticsManager.getStatistics());
+    //             } catch (error) {
+    //                 console.error('Failed to load actual canvas:', error);
+    //             }
                 
-                // Hide the form after successful submission
-                this.hideTemplateForm();
-            };
-            img.onerror = () => {
-                console.error('Error loading image from URL');
-                alert('Could not load image from the provided URL. Please check the URL and try again.');
-            };
-            img.src = templateData.imageDataUrl;
-        } else {
-            alert('Please provide a valid image URL');
-        }
-    }
+    //             // Hide the form after successful submission
+    //             this.hideTemplateForm();
+    //         };
+    //         img.onerror = () => {
+    //             console.error('Error loading image from URL');
+    //             alert('Could not load image from the provided URL. Please check the URL and try again.');
+    //         };
+    //         img.src = templateData.imageDataUrl;
+    //     } else {
+    //         alert('Please provide a valid image URL');
+    //     }
+    // }
 
-    private loadFromHash(): boolean {
-        const templateData = TemplateManager.loadTemplateFromHash();
-        if (templateData) {
-            TemplateManager.fillFormFromTemplateData(templateData);
+    // private loadFromHash(): boolean {
+    //     const templateData = TemplateManager.loadTemplateFromHash();
+    //     if (templateData) {
+    //         TemplateManager.fillFormFromTemplateData(templateData);
             
-            // Draw the image
-            const img = new Image();
-            // Handle CORS if the image is from another domain
-            img.crossOrigin = 'Anonymous';
-            img.onload = async () => {
-                const templateCanvas = document.getElementById('template-canvas') as HTMLCanvasElement;
-                const ctx = templateCanvas.getContext('2d');
-                if (!ctx) return;
+    //         // Draw the image
+    //         const img = new Image();
+    //         // Handle CORS if the image is from another domain
+    //         img.crossOrigin = 'Anonymous';
+    //         img.onload = async () => {
+    //             const templateCanvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+    //             const ctx = templateCanvas.getContext('2d');
+    //             if (!ctx) return;
                 
-                // Set canvas size to match image dimensions
-                templateCanvas.width = img.width;
-                templateCanvas.height = img.height;
+    //             // Set canvas size to match image dimensions
+    //             templateCanvas.width = img.width;
+    //             templateCanvas.height = img.height;
                 
-                // Clear canvas
-                ctx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
+    //             // Clear canvas
+    //             ctx.clearRect(0, 0, templateCanvas.width, templateCanvas.height);
                 
-                // Draw the template image at (0,0) without scaling
-                ctx.drawImage(img, 0, 0);
+    //             // Draw the template image at (0,0) without scaling
+    //             ctx.drawImage(img, 0, 0);
                 
-                // Calculate occupied tiles
-                const templateData = TemplateManager.getFormData();
-                const occupiedTiles = TemplateManager.calculateOccupiedTiles(templateData, img.width, img.height);
-                console.log('Occupied tiles:', occupiedTiles);
+    //             // Calculate occupied tiles
+    //             const templateData = TemplateManager.getFormData();
+    //             const occupiedTiles = TemplateManager.calculateOccupiedTiles(templateData, img.width, img.height);
+    //             console.log('Occupied tiles:', occupiedTiles);
                 
-                // Load and display actual canvas
-                try {
-                    const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
-                    // Draw the actual canvas at (0,0) without scaling
-                    ctx.drawImage(actualCanvas, 0, 0);
+    //             // Load and display actual canvas
+    //             try {
+    //                 const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
+    //                 // Draw the actual canvas at (0,0) without scaling
+    //                 ctx.drawImage(actualCanvas, 0, 0);
                     
-                    // Update statistics
-                    this.statisticsManager = new StatisticsManager(img, actualCanvas);
-                    TableManager.updateTable(this.statisticsManager.getStatistics());
-                } catch (error) {
-                    console.error('Failed to load actual canvas:', error);
-                }
-            };
-            img.onerror = () => {
-                console.error('Error loading image from URL in hash');
-            };
-            img.src = templateData.imageDataUrl;
-            return true;
-        }
-        return false;
-    }
+    //                 // Update statistics
+    //                 this.statisticsManager = new StatisticsManager(img, actualCanvas);
+    //                 TableManager.updateTable(this.statisticsManager.getStatistics());
+    //             } catch (error) {
+    //                 console.error('Failed to load actual canvas:', error);
+    //             }
+    //         };
+    //         img.onerror = () => {
+    //             console.error('Error loading image from URL in hash');
+    //         };
+    //         img.src = templateData.imageDataUrl;
+    //         return true;
+    //     }
+    //     return false;
+    // }
 }
 
 new App();
