@@ -35,45 +35,57 @@ export class StatisticsManager {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        
-        // Count pixels by color
-        const colorCounts = new Map<number, number>();
-        
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            const a = data[i + 3];
+        try {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
             
-            // Skip transparent pixels
-            if (a === 0) continue;
+            // Count pixels by color
+            const colorCounts = new Map<number, number>();
             
-            // Find the closest color in the Wplace palette
-            const colorId = this.findClosestColorId(r, g, b);
-            colorCounts.set(colorId, (colorCounts.get(colorId) || 0) + 1);
-        }
-
-        // Add color statistics to the table
-        WplacePalette.forEach(color => {
-            if (color.id !== 0) { // Skip transparent
-                const count = colorCounts.get(color.id) || 0;
-                if (count > 0) {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>
-                            <span style="display: inline-block; width: 12px; height: 12px; 
-                                         background-color: rgb(${color.rgb.join(',')}); 
-                                         margin-right: 5px; border: 1px solid #ccc;"></span>
-                            ${color.name}
-                        </td>
-                        <td>${count.toLocaleString()}</td>
-                    `;
-                    tableBody.appendChild(row);
-                }
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+                
+                // Skip transparent pixels
+                if (a === 0) continue;
+                
+                // Find the closest color in the Wplace palette
+                const colorId = this.findClosestColorId(r, g, b);
+                colorCounts.set(colorId, (colorCounts.get(colorId) || 0) + 1);
             }
-        });
+
+            // Add color statistics to the table
+            WplacePalette.forEach(color => {
+                if (color.id !== 0) { // Skip transparent
+                    const count = colorCounts.get(color.id) || 0;
+                    if (count > 0) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <span style="display: inline-block; width: 12px; height: 12px; 
+                                             background-color: rgb(${color.rgb.join(',')}); 
+                                             margin-right: 5px; border: 1px solid #ccc;"></span>
+                                ${color.name}
+                            </td>
+                            <td>${count.toLocaleString()}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Could not analyze image due to CORS restrictions:', error);
+            // Add a message to the statistics table
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td colspan="2" style="color: #999; font-style: italic;">
+                    Color statistics unavailable due to CORS restrictions
+                </td>
+            `;
+            tableBody.appendChild(row);
+        }
     }
 
     private static findClosestColorId(r: number, g: number, b: number): number {
