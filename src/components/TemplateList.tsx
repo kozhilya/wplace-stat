@@ -21,8 +21,19 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
         }
     };
 
-    const handleLoad = (template: Template) => {
-        onTemplateSelect(template);
+    const handleLoad = async (template: Template) => {
+        try {
+            // Load the template image
+            await template.loadTemplateImage();
+            
+            // Load the actual canvas
+            await template.loadActualCanvas();
+            
+            onTemplateSelect(template);
+        } catch (error) {
+            console.error('Error loading template images:', error);
+            alert('Failed to load template images. Please try again.');
+        }
     };
 
     return (

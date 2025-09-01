@@ -14,6 +14,8 @@ export class Template {
     tiles: TileInfo[] = [];
     imageWidth: number = -1;
     imageHeight: number = -1;
+    templateImage: HTMLImageElement | null = null;
+    actualCanvas: HTMLCanvasElement | null = null;
 
     constructor(name: string, tlX: number, tlY: number, pxX: number, pxY: number, imageDataUrl: string) {
         this.tlX = tlX;
@@ -22,6 +24,48 @@ export class Template {
         this.pxY = pxY;
         this.imageDataUrl = imageDataUrl;
         this.name = name;
+    }
+
+    // Load the template image
+    async loadTemplateImage(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => {
+                this.templateImage = img;
+                this.imageWidth = img.width;
+                this.imageHeight = img.height;
+                resolve();
+            };
+            img.onerror = reject;
+            img.src = this.imageDataUrl;
+        });
+    }
+
+    // Load the actual canvas from the server
+    async loadActualCanvas(): Promise<void> {
+        if (!this.templateImage) {
+            await this.loadTemplateImage();
+        }
+        
+        // Import TemplateManager dynamically to avoid circular dependencies
+        const { TemplateManager } = await import('./managers/template-manager');
+        
+        // Create template data object matching the expected interface
+        const templateData = {
+            tlX: this.tlX,
+            tlY: this.tlY,
+            pxX: this.pxX,
+            pxY: this.pxY,
+            imageDataUrl: this.imageDataUrl
+        };
+        
+        // Load the actual canvas using TemplateManager
+        this.actualCanvas = await TemplateManager.loadActualCanvas(
+            templateData, 
+            this.imageWidth, 
+            this.imageHeight
+        );
     }
 
     // Serialize to base64

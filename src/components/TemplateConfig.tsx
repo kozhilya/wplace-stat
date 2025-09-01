@@ -39,7 +39,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
         loadFromHash();
     }, [onTemplateSave]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
         const template = new Template(
@@ -51,13 +51,24 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
             imageDataUrl
         );
         
-        if (onTemplateSave) {
-            onTemplateSave(template);
+        try {
+            // Load the template image
+            await template.loadTemplateImage();
+            
+            // Load the actual canvas
+            await template.loadActualCanvas();
+            
+            if (onTemplateSave) {
+                onTemplateSave(template);
+            }
+            
+            // Serialize and add to hash
+            const serialized = template.serialize();
+            window.location.hash = serialized;
+        } catch (error) {
+            console.error('Error loading images:', error);
+            alert('Failed to load images. Please check the image URL and try again.');
         }
-        
-        // Serialize and add to hash
-        const serialized = template.serialize();
-        window.location.hash = serialized;
     };
 
     return (
