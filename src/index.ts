@@ -42,9 +42,9 @@ class App {
     }
 
     private hideTemplateForm(): void {
-        const templateForm = document.getElementById('template-form');
-        const editTemplateBtn = document.getElementById('edit-template-btn');
-        const templateConfigHeader = document.querySelector('.stats-panel h2[data-i18n="templateConfiguration"]');
+        const templateForm = document.getElementById('template-form') as HTMLElement | null;
+        const editTemplateBtn = document.getElementById('edit-template-btn') as HTMLElement | null;
+        const templateConfigHeader = document.querySelector('.stats-panel h2[data-i18n="templateConfiguration"]') as HTMLElement | null;
         if (templateForm && editTemplateBtn && templateConfigHeader) {
             templateForm.style.display = 'none';
             templateConfigHeader.style.display = 'none';
@@ -53,9 +53,9 @@ class App {
     }
 
     private showTemplateForm(): void {
-        const templateForm = document.getElementById('template-form');
-        const editTemplateBtn = document.getElementById('edit-template-btn');
-        const templateConfigHeader = document.querySelector('.stats-panel h2[data-i18n="templateConfiguration"]');
+        const templateForm = document.getElementById('template-form') as HTMLElement | null;
+        const editTemplateBtn = document.getElementById('edit-template-btn') as HTMLElement | null;
+        const templateConfigHeader = document.querySelector('.stats-panel h2[data-i18n="templateConfiguration"]') as HTMLElement | null;
         if (templateForm && editTemplateBtn && templateConfigHeader) {
             templateForm.style.display = 'block';
             templateConfigHeader.style.display = 'block';
