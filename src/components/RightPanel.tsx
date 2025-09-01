@@ -29,6 +29,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     // Update actual canvas when template changes
     useEffect(() => {
         if (actualCanvasRef.current && currentTemplate?.actualCanvas) {
+            // Set the canvas dimensions to match the actual canvas
+            actualCanvasRef.current.width = currentTemplate.actualCanvas.width;
+            actualCanvasRef.current.height = currentTemplate.actualCanvas.height;
+            
             const ctx = actualCanvasRef.current.getContext('2d');
             if (ctx) {
                 ctx.clearRect(0, 0, actualCanvasRef.current.width, actualCanvasRef.current.height);

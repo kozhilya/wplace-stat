@@ -22,24 +22,24 @@ export class ImageLoaderManager {
             await this.loadTemplateImage(template);
         }
         
-        // Create a canvas to composite the actual image
-        const canvas = document.createElement('canvas');
-        canvas.width = template.imageWidth!;
-        canvas.height = template.imageHeight!;
-        const ctx = canvas.getContext('2d')!;
+        // Calculate the number of tiles in width and height
+        const tileCountX = template.pxX - template.tlX + 1;
+        const tileCountY = template.pxY - template.tlY + 1;
         
-        // Calculate tile coordinates
-        const startX = template.tlX;
-        const startY = template.tlY;
-        const endX = template.pxX;
-        const endY = template.pxY;
+        // Create a canvas with the correct dimensions
+        const canvas = document.createElement('canvas');
+        canvas.width = tileCountX * WplaceTileWidth;
+        canvas.height = tileCountY * WplaceTileWidth;
+        const ctx = canvas.getContext('2d')!;
         
         // Load and draw each tile
         const tilePromises = [];
         
-        for (let y = startY; y <= endY; y++) {
-            for (let x = startX; x <= endX; x++) {
-                tilePromises.push(this.loadAndDrawTile(ctx, x, y, template));
+        for (let y = 0; y < tileCountY; y++) {
+            for (let x = 0; x < tileCountX; x++) {
+                const tileX = template.tlX + x;
+                const tileY = template.tlY + y;
+                tilePromises.push(this.loadAndDrawTile(ctx, tileX, tileY, x, y));
             }
         }
         
@@ -49,25 +49,31 @@ export class ImageLoaderManager {
 
     private static async loadAndDrawTile(
         ctx: CanvasRenderingContext2D, 
-        x: number, 
-        y: number, 
-        template: Template
+        tileX: number, 
+        tileY: number, 
+        offsetX: number, 
+        offsetY: number
     ): Promise<void> {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
             img.onload = () => {
                 // Calculate position to draw the tile
-                const drawX = (x - template.tlX) * WplaceTileWidth;
-                const drawY = (y - template.tlY) * WplaceTileWidth;
-                ctx.drawImage(img, drawX, drawY);
+                const drawX = offsetX * WplaceTileWidth;
+                const drawY = offsetY * WplaceTileWidth;
+                ctx.drawImage(img, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
                 resolve();
             };
-            img.onerror = reject;
+            img.onerror = () => {
+                // If tile fails to load, draw a blank space and resolve
+                // This prevents the entire composition from failing due to missing tiles
+                console.warn(`Failed to load tile at (${tileX}, ${tileY})`);
+                resolve();
+            };
             
-            // Construct the tile URL
+            // Construct the tile URL with timestamp to avoid caching issues
             const timestamp = Date.now();
-            img.src = `https://backend.wplace.live/files/s0/tiles/${x}/${y}.png`;
+            img.src = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
         });
     }
 }
