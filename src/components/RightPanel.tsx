@@ -1,15 +1,41 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { CanvasManager } from '../script/managers/canvas-manager';
+import { Template } from '../script/template';
 
-export const RightPanel: React.FC = () => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+interface RightPanelProps {
+    currentTemplate?: Template;
+}
+
+export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
+    const templateCanvasRef = useRef<HTMLCanvasElement>(null);
+    const actualCanvasRef = useRef<HTMLCanvasElement>(null);
+    const [canvasManager, setCanvasManager] = useState<CanvasManager | null>(null);
+    const [viewMode, setViewMode] = useState<'template' | 'actual' | 'both'>('template');
 
     useEffect(() => {
-        if (canvasRef.current) {
-            // Initialize canvas manager
-            const canvasManager = new CanvasManager('template-canvas');
+        if (templateCanvasRef.current) {
+            const manager = new CanvasManager('template-canvas');
+            setCanvasManager(manager);
         }
     }, []);
+
+    // Update template canvas when template changes
+    useEffect(() => {
+        if (canvasManager && currentTemplate?.templateImage) {
+            canvasManager.drawImage(currentTemplate.templateImage);
+        }
+    }, [canvasManager, currentTemplate]);
+
+    // Update actual canvas when template changes
+    useEffect(() => {
+        if (actualCanvasRef.current && currentTemplate?.actualCanvas) {
+            const ctx = actualCanvasRef.current.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, actualCanvasRef.current.width, actualCanvasRef.current.height);
+                ctx.drawImage(currentTemplate.actualCanvas, 0, 0);
+            }
+        }
+    }, [currentTemplate]);
 
     return (
         <div 
@@ -19,20 +45,76 @@ export const RightPanel: React.FC = () => {
                 height: '100%', 
                 overflow: 'hidden',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                flexDirection: 'column',
                 backgroundColor: '#f0f0f0'
             }}
         >
-            <canvas 
-                id="template-canvas" 
-                ref={canvasRef}
-                style={{ 
-                    maxWidth: '100%', 
-                    maxHeight: '100%', 
-                    border: '1px solid #ccc' 
-                }}
-            />
+            {/* View mode selector */}
+            <div style={{ padding: '10px', display: 'flex', gap: '10px' }}>
+                <button 
+                    onClick={() => setViewMode('template')}
+                    style={{ fontWeight: viewMode === 'template' ? 'bold' : 'normal' }}
+                >
+                    Template
+                </button>
+                <button 
+                    onClick={() => setViewMode('actual')}
+                    style={{ fontWeight: viewMode === 'actual' ? 'bold' : 'normal' }}
+                >
+                    Actual
+                </button>
+                <button 
+                    onClick={() => setViewMode('both')}
+                    style={{ fontWeight: viewMode === 'both' ? 'bold' : 'normal' }}
+                >
+                    Both
+                </button>
+            </div>
+
+            {/* Canvas area */}
+            <div style={{ 
+                flex: 1, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexDirection: viewMode === 'both' ? 'column' : 'row',
+                gap: '20px',
+                padding: '10px',
+                overflow: 'auto'
+            }}>
+                {/* Template canvas */}
+                {(viewMode === 'template' || viewMode === 'both') && (
+                    <div style={{ textAlign: 'center' }}>
+                        <div>Template</div>
+                        <canvas 
+                            id="template-canvas" 
+                            ref={templateCanvasRef}
+                            style={{ 
+                                maxWidth: '100%', 
+                                maxHeight: '70vh', 
+                                border: '1px solid #ccc' 
+                            }}
+                        />
+                    </div>
+                )}
+                
+                {/* Actual canvas */}
+                {(viewMode === 'actual' || viewMode === 'both') && currentTemplate?.actualCanvas && (
+                    <div style={{ textAlign: 'center' }}>
+                        <div>Actual Canvas</div>
+                        <canvas 
+                            ref={actualCanvasRef}
+                            width={currentTemplate.actualCanvas.width}
+                            height={currentTemplate.actualCanvas.height}
+                            style={{ 
+                                maxWidth: '100%', 
+                                maxHeight: '70vh', 
+                                border: '1px solid #ccc' 
+                            }}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

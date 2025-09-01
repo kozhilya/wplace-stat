@@ -13,6 +13,7 @@ export const AppComponent: React.FC = () => {
     const [leftPanelWidth, setLeftPanelWidth] = useState<number>(300);
     const [isResizing, setIsResizing] = useState<boolean>(false);
     const [statistics, setStatistics] = useState<StatisticsRow[]>([]);
+    const [currentTemplate, setCurrentTemplate] = useState<Template | undefined>();
 
     useEffect(() => {
         LanguageManager.initialize();
@@ -63,6 +64,7 @@ export const AppComponent: React.FC = () => {
     const handleTemplateSave = (template: Template) => {
         setTemplateName(template.name);
         setLastUpdated(new Date());
+        setCurrentTemplate(template);
         // Serialize and add to hash
         const serialized = template.serialize();
         window.location.hash = serialized;
@@ -71,6 +73,7 @@ export const AppComponent: React.FC = () => {
     const handleTemplateLoad = (template: Template) => {
         setTemplateName(template.name);
         setLastUpdated(new Date());
+        setCurrentTemplate(template);
         // Serialize and add to hash
         const serialized = template.serialize();
         window.location.hash = serialized;
@@ -90,7 +93,7 @@ export const AppComponent: React.FC = () => {
                     onTemplateLoad={handleTemplateLoad}
                 />
                 <Splitter onMouseDown={handleSplitterMouseDown} />
-                <RightPanel />
+                <RightPanel currentTemplate={currentTemplate} />
             </div>
         </div>
     );
