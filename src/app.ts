@@ -4,7 +4,7 @@ import { StatisticsManager } from './script/managers/statistics-manager';
 import { LanguageManager } from './script/managers/language-manager';
 
 class App {
-    private canvasManager: CanvasManager;
+    private canvasManager: CanvasManager | null = null;
     private statisticsManager: StatisticsManager | null = null;
 
     constructor() {
