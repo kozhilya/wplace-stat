@@ -104,15 +104,38 @@ export class TableManager {
         // Set sort indicator on current header
         currentHeader.setAttribute('data-sort', sortDirection);
 
-        // Sort rows using data-sort-value attributes
-        rows.sort((a, b) => {
-            const aValue = parseFloat(a.cells[columnIndex].getAttribute('data-sort-value') || '0');
-            const bValue = parseFloat(b.cells[columnIndex].getAttribute('data-sort-value') || '0');
+        // Sort rows using data-sort-value attributes, but only sort rows that have the required number of cells
+        // Also, skip the separator row which has colspan="5"
+        const sortableRows = rows.filter(row => {
+            // Check if the row has enough cells and is not a separator
+            return row.cells.length > columnIndex && 
+                   !row.cells[0].hasAttribute('colspan');
+        });
+        
+        const otherRows = rows.filter(row => {
+            // These are rows to keep at the top (total, separator)
+            return row.cells.length <= columnIndex || 
+                   row.cells[0].hasAttribute('colspan');
+        });
+
+        // Sort only the sortable rows
+        sortableRows.sort((a, b) => {
+            // Make sure the cell exists and has the data-sort-value attribute
+            const aCell = a.cells[columnIndex];
+            const bCell = b.cells[columnIndex];
+            
+            const aValue = aCell ? parseFloat(aCell.getAttribute('data-sort-value') || '0') : 0;
+            const bValue = bCell ? parseFloat(bCell.getAttribute('data-sort-value') || '0') : 0;
 
             return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
         });
 
-        // Re-add rows in sorted order
-        rows.forEach(row => tbody.appendChild(row));
+        // Clear the table body
+        tbody.innerHTML = '';
+        
+        // Add other rows first (total, separator)
+        otherRows.forEach(row => tbody.appendChild(row));
+        // Add sorted rows
+        sortableRows.forEach(row => tbody.appendChild(row));
     }
 }
