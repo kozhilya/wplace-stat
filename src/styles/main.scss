@@ -5,9 +5,10 @@ body {
     padding: 0;
     background-color: #f0f0f0;
     height: 100vh;
+    overflow: hidden;
 }
 
-#app {
+.app {
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -16,15 +17,35 @@ body {
 .header {
     background-color: #333;
     color: white;
-    padding: 1rem;
-    text-align: center;
+    padding: 0 20px;
+    height: 60px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     
     h1 {
         margin: 0;
         color: white;
+        font-size: 1.2rem;
+    }
+    
+    .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        
+        button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #555;
+            color: white;
+            
+            &:hover {
+                background-color: #666;
+            }
+        }
     }
     
     .last-updated {
@@ -39,23 +60,36 @@ body {
     overflow: hidden;
 }
 
-.stats-panel {
-    width: 550px;
+.left-panel {
     background: #f0f0f0;
-    padding: 1rem;
-    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
+    padding: 10px;
+    overflow: auto;
+    height: 100%;
+    box-sizing: border-box;
+    
+    .view-selector {
+        margin-bottom: 10px;
+        
+        button {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            
+            &:hover {
+                background: #f5f5f5;
+            }
+        }
+    }
     
     h2 {
         margin-top: 0;
         color: #333;
+        font-size: 1.1rem;
     }
     
     .table-container {
-        flex: 1;
         overflow-y: auto;
-        max-height: 800px;
         
         table {
             width: 100%;
@@ -79,7 +113,7 @@ body {
                 cursor: pointer;
                 user-select: none;
                 position: relative;
-                padding-right: 24px; // Make space for the sort indicator
+                padding-right: 24px;
                 
                 &:hover {
                     background-color: #a0a0a0;
@@ -125,15 +159,15 @@ body {
 
 .number-inputs-row {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
     
     .form-group {
-        flex: 1;
         margin-bottom: 0;
         
         input[type="number"] {
-            width: 100%;
+            width: 60px;
         }
     }
 }
@@ -145,14 +179,19 @@ body {
         display: block;
         margin-bottom: 0.5rem;
         font-weight: bold;
+        font-size: 0.9rem;
     }
     
     input[type="number"],
     input[type="url"] {
-        width: 100%;
         padding: 0.5rem;
         border: 1px solid #ddd;
         border-radius: 4px;
+        box-sizing: border-box;
+    }
+    
+    input[type="url"] {
+        width: 100%;
     }
 }
 
@@ -165,16 +204,15 @@ button[type="submit"] {
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
-    margin-bottom: 1rem;
+    margin-top: 10px;
     
     &:hover {
         background-color: #45a049;
     }
 }
 
-.canvas-area {
+.right-panel {
     flex: 1;
-    padding: 1rem;
     background: #fff;
     display: flex;
     justify-content: center;
@@ -186,4 +224,38 @@ button[type="submit"] {
         max-height: 100%;
         border: 1px solid #ddd;
     }
+}
+
+.splitter {
+    width: 5px;
+    height: 100%;
+    background-color: #ddd;
+    cursor: col-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+        background-color: #ccc;
+    }
+    
+    &:active {
+        background-color: #bbb;
+    }
+    
+    > div {
+        width: 3px;
+        height: 30px;
+        background-color: #999;
+        border-radius: 2px;
+    }
+}
+
+// Prevent text selection during resize
+* {
+    user-select: none;
+}
+
+input, button {
+    user-select: text;
 }
