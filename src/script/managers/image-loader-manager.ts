@@ -67,7 +67,7 @@ export class ImageLoaderManager {
             
             // Construct the tile URL
             const timestamp = Date.now();
-            img.src = `https://wplace.io/tiles/${x}/${y}?t=${timestamp}`;
+            img.src = `https://backend.wplace.live/files/s0/tiles/${x}/${y}.png`;
         });
     }
 }
