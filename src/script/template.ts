@@ -15,7 +15,7 @@ export class Template {
     imageWidth: number = -1;
     imageHeight: number = -1;
     templateImage: HTMLImageElement | null = null;
-    actualCanvas: HTMLCanvasElement | null = null;
+    actualCanvas: HTMLImageElement | null = null;
 
     constructor(name: string, tlX: number, tlY: number, pxX: number, pxY: number, imageDataUrl: string) {
         this.tlX = tlX;

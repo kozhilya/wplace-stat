@@ -44,7 +44,18 @@ export class ImageLoaderManager {
         }
         
         await Promise.all(tilePromises);
-        template.actualCanvas = canvas;
+        
+        // Convert canvas to image
+        template.actualCanvas = await this.canvasToImage(canvas);
+    }
+
+    private static async canvasToImage(canvas: HTMLCanvasElement): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = canvas.toDataURL('image/png');
+        });
     }
 
     private static async loadAndDrawTile(
