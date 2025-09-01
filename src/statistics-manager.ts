@@ -11,26 +11,13 @@ export class StatisticsManager {
             lastUpdatedElement.textContent = new Date().toLocaleTimeString();
         }
         
+        // Log occupied tiles to console
+        if (occupiedTiles && occupiedTiles.length > 0) {
+            console.log('Occupied tiles:', occupiedTiles.map(tile => `${tile.x}/${tile.y}`).join(', '));
+        }
+        
         if (tableBody) {
             tableBody.innerHTML = '';
-            
-            // Add occupied tiles information
-            if (occupiedTiles && occupiedTiles.length > 0) {
-                const tilesRow = document.createElement('tr');
-                tilesRow.innerHTML = `
-                    <td colspan="2">
-                        <strong>Occupied Tiles:</strong> ${occupiedTiles.map(tile => `${tile.x}/${tile.y}`).join(', ')}
-                    </td>
-                `;
-                tableBody.appendChild(tilesRow);
-                
-                // Add separator
-                const separatorRow = document.createElement('tr');
-                separatorRow.innerHTML = `
-                    <td colspan="2"><hr style="margin: 8px 0; border: none; border-top: 1px solid #ccc;"></td>
-                `;
-                tableBody.appendChild(separatorRow);
-            }
             
             // Add color statistics if canvas is provided
             if (canvas) {
