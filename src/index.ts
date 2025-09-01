@@ -2,11 +2,14 @@ import './styles/main.scss';
 import { TemplateManager } from './template-manager';
 import { CanvasManager } from './canvas-manager';
 import { StatisticsManager } from './statistics-manager';
+import { TableManager } from './table-manager';
 import { LanguageManager } from './language-manager';
 import { TemplateData } from './types';
 
 class App {
     private canvasManager: CanvasManager;
+    private statisticsManager: StatisticsManager | null = null;
+    private tableManager: TableManager = new TableManager();
 
     constructor() {
         LanguageManager.initialize();
@@ -16,7 +19,7 @@ class App {
 
     private init(): void {
         this.setupEventListeners();
-        StatisticsManager.updateStatistics();
+        // Statistics will be updated when images are loaded
         const hasTemplate = this.loadFromHash();
         
         // Hide form if template was loaded from hash
@@ -99,11 +102,14 @@ class App {
                     const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
                     // Draw the actual canvas at (0,0) without scaling
                     ctx.drawImage(actualCanvas, 0, 0);
+                    
+                    // Update statistics
+                    this.statisticsManager = new StatisticsManager(img, actualCanvas);
+                    this.tableManager.updateTable(this.statisticsManager.getStatistics());
                 } catch (error) {
                     console.error('Failed to load actual canvas:', error);
                 }
                 
-                StatisticsManager.updateStatistics(templateCanvas, occupiedTiles, img);
                 // Hide the form after successful submission
                 this.hideTemplateForm();
             };
@@ -151,16 +157,16 @@ class App {
                     const actualCanvas = await TemplateManager.loadActualCanvas(templateData, img.width, img.height);
                     // Draw the actual canvas at (0,0) without scaling
                     ctx.drawImage(actualCanvas, 0, 0);
+                    
+                    // Update statistics
+                    this.statisticsManager = new StatisticsManager(img, actualCanvas);
+                    this.tableManager.updateTable(this.statisticsManager.getStatistics());
                 } catch (error) {
                     console.error('Failed to load actual canvas:', error);
                 }
-                
-                StatisticsManager.updateStatistics(templateCanvas, occupiedTiles, img);
             };
             img.onerror = () => {
                 console.error('Error loading image from URL in hash');
-                // Still try to update statistics without the canvas
-                StatisticsManager.updateStatistics();
             };
             img.src = templateData.imageDataUrl;
             return true;
