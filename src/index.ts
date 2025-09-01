@@ -76,7 +76,8 @@ class App {
             img.crossOrigin = 'Anonymous';
             img.onload = () => {
                 this.canvasManager.drawImage(img);
-                StatisticsManager.updateStatistics();
+                const canvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+                StatisticsManager.updateStatistics(canvas);
                 // Hide the form after successful submission
                 this.hideTemplateForm();
             };
@@ -99,7 +100,8 @@ class App {
             const img = new Image();
             img.onload = () => {
                 this.canvasManager.drawImage(img);
-                StatisticsManager.updateStatistics();
+                const canvas = document.getElementById('template-canvas') as HTMLCanvasElement;
+                StatisticsManager.updateStatistics(canvas);
             };
             img.src = templateData.imageDataUrl;
             return true;
