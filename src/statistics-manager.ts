@@ -17,8 +17,69 @@ export class StatisticsManager {
             // Add color statistics if canvas is provided
             if (canvas) {
                 this.addColorStatistics(tableBody, canvas);
+                // Set up sorting after adding the data
+                this.setupSorting();
             }
         }
+    }
+
+    private static setupSorting(): void {
+        const headers = document.querySelectorAll('#stats-table thead th');
+        headers.forEach((header, index) => {
+            header.addEventListener('click', () => {
+                this.sortTable(index);
+            });
+        });
+    }
+
+    private static sortTable(columnIndex: number): void {
+        const table = document.getElementById('stats-table');
+        if (!table) return;
+        
+        const tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const headers = table.querySelectorAll('thead th');
+        
+        // Determine sort direction
+        let sortDirection = 'desc';
+        const currentHeader = headers[columnIndex];
+        if (currentHeader.getAttribute('data-sort') === 'desc') {
+            sortDirection = 'asc';
+        }
+        
+        // Update sort indicators on all headers
+        headers.forEach(header => {
+            header.removeAttribute('data-sort');
+            header.textContent = header.textContent?.replace(' ▲', '').replace(' ▼', '') || '';
+        });
+        
+        // Set sort indicator on current header
+        const sortIndicator = sortDirection === 'asc' ? ' ▲' : ' ▼';
+        currentHeader.textContent = (currentHeader.textContent?.replace(' ▲', '').replace(' ▼', '') || '') + sortIndicator;
+        currentHeader.setAttribute('data-sort', sortDirection);
+        
+        // Sort rows
+        rows.sort((a, b) => {
+            const aValue = a.cells[columnIndex].textContent || '';
+            const bValue = b.cells[columnIndex].textContent || '';
+            
+            // For the value column, parse numbers
+            if (columnIndex === 1) {
+                const aNum = parseInt(aValue.replace(/,/g, '')) || 0;
+                const bNum = parseInt(bValue.replace(/,/g, '')) || 0;
+                return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
+            } else {
+                // For the metric column, sort alphabetically
+                return sortDirection === 'asc' 
+                    ? aValue.localeCompare(bValue) 
+                    : bValue.localeCompare(aValue);
+            }
+        });
+        
+        // Re-add rows in sorted order
+        rows.forEach(row => tbody.appendChild(row));
     }
 
     private static addColorStatistics(tableBody: Element, canvas: HTMLCanvasElement): void {
@@ -68,25 +129,44 @@ export class StatisticsManager {
                 tableBody.appendChild(totalRow);
             }
             
-            // Add color statistics to the table
+            // Collect all color rows to sort them by count in descending order
+            const colorRows: { count: number; html: string }[] = [];
             WplacePalette.forEach(color => {
                 if (color.id !== 0) { // Skip transparent
                     const count = colorCounts.get(color.id) || 0;
                     if (count > 0) {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>
-                                <span style="display: inline-block; width: 12px; height: 12px; 
-                                             background-color: rgb(${color.rgb.join(',')}); 
-                                             margin-right: 5px; border: 1px solid #ccc;"></span>
-                                ${color.id}. ${color.premium ? '★ ' : ''}${color.name}
-                            </td>
-                            <td>${count.toLocaleString()}</td>
-                        `;
-                        tableBody.appendChild(row);
+                        colorRows.push({
+                            count,
+                            html: `
+                                <td>
+                                    <span style="display: inline-block; width: 12px; height: 12px; 
+                                                 background-color: rgb(${color.rgb.join(',')}); 
+                                                 margin-right: 5px; border: 1px solid #ccc;"></span>
+                                    ${color.id}. ${color.premium ? '★ ' : ''}${color.name}
+                                </td>
+                                <td>${count.toLocaleString()}</td>
+                            `
+                        });
                     }
                 }
             });
+            
+            // Sort by count in descending order
+            colorRows.sort((a, b) => b.count - a.count);
+            
+            // Add sorted rows to the table
+            colorRows.forEach(colorRow => {
+                const row = document.createElement('tr');
+                row.innerHTML = colorRow.html;
+                tableBody.appendChild(row);
+            });
+            
+            // Set initial sort indicator on value column (descending)
+            const valueHeader = document.querySelector('#stats-table thead th:nth-child(2)');
+            if (valueHeader) {
+                valueHeader.textContent = (valueHeader.textContent || '') + ' ▼';
+                valueHeader.setAttribute('data-sort', 'desc');
+            }
         } catch (error) {
             console.error('Could not analyze image due to CORS restrictions:', error);
             // Add a message to the statistics table
