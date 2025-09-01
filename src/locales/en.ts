@@ -2,8 +2,6 @@ export const en = {
     appTitle: 'WPlace Progress Tracker',
     templateConfiguration: 'Template Configuration',
     statistics: 'Statistics',
-    metric: 'Metric',
-    value: 'Value',
     pixelsDrawn: 'Pixels Drawn',
     completion: 'Completion',
     lastUpdated: 'Last Updated',
