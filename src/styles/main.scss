@@ -78,9 +78,45 @@ body {
                 background-color: #c0c0c0;
                 cursor: pointer;
                 user-select: none;
+                position: relative;
+                padding-right: 24px; // Make space for the sort indicator
                 
                 &:hover {
                     background-color: #a0a0a0;
+                }
+                
+                .text {
+                    display: inline-block;
+                    margin-right: 4px;
+                }
+                
+                .sort-indicator {
+                    display: inline-block;
+                    width: 0;
+                    height: 0;
+                    margin-left: 4px;
+                    vertical-align: middle;
+                    border-style: solid;
+                    position: absolute;
+                    right: 8px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+                
+                &[data-sort="asc"] .sort-indicator {
+                    border-width: 0 6px 8px 6px;
+                    border-color: transparent transparent #000 transparent;
+                }
+                
+                &[data-sort="desc"] .sort-indicator {
+                    border-width: 8px 6px 0 6px;
+                    border-color: #000 transparent transparent transparent;
+                }
+                
+                &:not([data-sort]) .sort-indicator {
+                    opacity: 0.3;
+                    border-width: 8px 6px 0 6px;
+                    border-color: #000 transparent transparent transparent;
                 }
             }
         }

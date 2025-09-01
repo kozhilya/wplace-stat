@@ -18,6 +18,14 @@ export class LanguageManager {
                     element.value = text;
                 } else if (element instanceof HTMLButtonElement) {
                     element.textContent = text;
+                } else if (element instanceof HTMLTableCellElement) {
+                    // For table headers, preserve the sort indicator structure
+                    const span = element.querySelector('span.text');
+                    if (span) {
+                        span.textContent = text;
+                    } else {
+                        element.innerHTML = `<span class="text">${text}</span><span class="sort-indicator"></span>`;
+                    }
                 } else {
                     element.textContent = text;
                 }

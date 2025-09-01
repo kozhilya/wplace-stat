@@ -52,12 +52,9 @@ export class StatisticsManager {
         // Update sort indicators on all headers
         headers.forEach(header => {
             header.removeAttribute('data-sort');
-            header.textContent = header.textContent?.replace(' ▲', '').replace(' ▼', '') || '';
         });
         
         // Set sort indicator on current header
-        const sortIndicator = sortDirection === 'asc' ? ' ▲' : ' ▼';
-        currentHeader.textContent = (currentHeader.textContent?.replace(' ▲', '').replace(' ▼', '') || '') + sortIndicator;
         currentHeader.setAttribute('data-sort', sortDirection);
         
         // Sort rows
@@ -180,7 +177,6 @@ export class StatisticsManager {
             // Set initial sort indicator on value column (descending)
             const valueHeader = document.querySelector('#stats-table thead th:nth-child(2)');
             if (valueHeader) {
-                valueHeader.textContent = (valueHeader.textContent || '') + ' ▼';
                 valueHeader.setAttribute('data-sort', 'desc');
             }
         } catch (error) {
