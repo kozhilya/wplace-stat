@@ -162,6 +162,28 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         img.src = tempCanvas.toDataURL('image/png');
     }, [drawDifference]);
 
+    // Track the current image to draw separately from view mode
+    const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
+    
+    // Update the current image when view mode or template changes
+    useEffect(() => {
+        let imageToDraw: HTMLImageElement | null = null;
+        
+        switch (viewMode) {
+            case 'template':
+                imageToDraw = currentTemplate?.templateImage || null;
+                break;
+            case 'wplace':
+                imageToDraw = currentTemplate?.wplaceImage || null;
+                break;
+            case 'difference':
+                imageToDraw = differenceImageRef.current;
+                break;
+        }
+        
+        setCurrentImageToDraw(imageToDraw);
+    }, [viewMode, currentTemplate, differenceImageRef.current]);
+
     // Draw the appropriate image based on view mode
     const drawCanvas = useCallback(() => {
         const canvas = canvasRef.current;
@@ -180,21 +202,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             canvas.height = container.clientHeight;
         }
 
-        let imageToDraw: HTMLImageElement | null = null;
-
-        switch (viewMode) {
-            case 'template':
-                imageToDraw = currentTemplate?.templateImage || null;
-                break;
-            case 'wplace':
-                imageToDraw = currentTemplate?.wplaceImage || null;
-                break;
-            case 'difference':
-                imageToDraw = differenceImageRef.current;
-                break;
-        }
-
-        if (imageToDraw) {
+        if (currentImageToDraw) {
             // Save the current context
             ctx.save();
 
@@ -204,17 +212,17 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
             // Draw the image at the top-left corner (0,0)
             // The offset and scale will handle positioning
-            ctx.drawImage(imageToDraw, 0, 0);
+            ctx.drawImage(currentImageToDraw, 0, 0);
 
             // Restore the context
             ctx.restore();
         }
-    }, [currentTemplate, viewMode, scale, offset]);
+    }, [currentImageToDraw, scale, offset]);
 
-    // Draw on mount and when scale/offset changes
+    // Draw on mount and when scale/offset or current image changes
     useEffect(() => {
         drawCanvas();
-    }, [scale, offset, drawCanvas]);
+    }, [scale, offset, currentImageToDraw, drawCanvas]);
 
 
     // Zoom handlers
