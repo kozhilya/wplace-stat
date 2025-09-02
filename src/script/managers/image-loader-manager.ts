@@ -99,10 +99,13 @@ export class ImageLoaderManager {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
             
-            // Track if we've tried the fallback
-            let triedFallback = false;
+            // Track which URLs we've tried
+            const triedUrls: string[] = [];
             
-            const loadImage = (url: string) => {
+            const tryLoadImage = (url: string) => {
+                triedUrls.push(url);
+                console.log(`Loading tile from: ${url}`);
+                
                 img.onload = () => {
                     // Calculate position to draw the tile
                     const drawX = offsetX * WplaceTileWidth;
@@ -113,32 +116,50 @@ export class ImageLoaderManager {
                 };
                 
                 img.onerror = (error) => {
-                    if (!triedFallback) {
-                        // Try fallback proxy
-                        triedFallback = true;
-                        console.warn(`Failed to load tile using primary proxy, trying fallback: (${tileX}, ${tileY})`, error);
-                        
-                        const timestamp = Date.now();
-                        const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
-                        const fallbackProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`;
-                        console.log(`Trying fallback proxy: ${fallbackProxyUrl}`);
-                        img.src = fallbackProxyUrl;
+                    // Try next URL in the fallback sequence
+                    const nextUrl = getNextUrl(triedUrls, tileX, tileY);
+                    if (nextUrl) {
+                        console.warn(`Failed to load tile from ${url}, trying next: ${nextUrl}`, error);
+                        tryLoadImage(nextUrl);
                     } else {
-                        // If tile fails to load even with fallback, draw a blank space and resolve
-                        console.warn(`Failed to load tile at (${tileX}, ${tileY}) even with fallback`, error);
+                        // If all URLs fail, draw a blank space and resolve
+                        console.warn(`Failed to load tile at (${tileX}, ${tileY}) from all attempted URLs`, error);
                         resolve();
                     }
                 };
                 
-                console.log(`Loading tile from: ${url}`);
                 img.src = url;
             };
             
-            // Start with primary proxy
-            const timestamp = Date.now();
-            const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
-            const primaryProxyUrl = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`;
-            loadImage(primaryProxyUrl);
+            // Get the sequence of URLs to try
+            const getNextUrl = (triedUrls: string[], tileX: number, tileY: number): string | null => {
+                const timestamp = Date.now();
+                const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
+                
+                // URL sequence: direct -> corsproxy.io -> api.allorigins.win
+                const urlSequence = [
+                    originalUrl,
+                    `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`
+                ];
+                
+                // Find the next URL that hasn't been tried yet
+                for (const url of urlSequence) {
+                    if (!triedUrls.includes(url)) {
+                        return url;
+                    }
+                }
+                return null;
+            };
+            
+            // Start with the first URL in the sequence
+            const firstUrl = getNextUrl(triedUrls, tileX, tileY);
+            if (firstUrl) {
+                tryLoadImage(firstUrl);
+            } else {
+                console.warn(`No URLs to try for tile at (${tileX}, ${tileY})`);
+                resolve();
+            }
         });
     }
 }
