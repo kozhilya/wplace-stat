@@ -159,19 +159,20 @@ export class CanvasInteractionManager {
             this.offset.x = mouseX - mouseCanvasX * newScale;
             this.offset.y = mouseY - mouseCanvasY * newScale;
             
-            // Always update scale through the callback to ensure synchronization with RightPanel
-            if (this.onScaleChange) {
-                this.onScaleChange(newScale);
-            }
             // Always update our internal scale
             this.scale = newScale;
             
-            // Update offset through the callback
+            // Apply bounds to keep the image within the canvas
+            this.applyBounds();
+            
+            // Notify both scale and offset changes at once
+            // This prevents double rendering
+            if (this.onScaleChange) {
+                this.onScaleChange(this.scale);
+            }
             if (this.onOffsetChange) {
                 this.onOffsetChange(this.offset);
             }
-            // Apply bounds to keep the image within the canvas
-            this.applyBounds();
             
             this.wheelAnimationFrameId = undefined;
             this.wheelHandling = false;

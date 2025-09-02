@@ -41,17 +41,26 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas && !interactionManagerRef.current) {
+            // Track if we're in the middle of an update to prevent double rendering
+            let isUpdating = false;
+            
             interactionManagerRef.current = new CanvasInteractionManager(
                 canvas,
                 (newScale) => {
+                    if (isUpdating) return;
+                    isUpdating = true;
                     setScale(newScale);
                     // Force redraw when scale changes
                     drawCanvasRef.current?.();
+                    isUpdating = false;
                 },
                 (newOffset) => {
+                    if (isUpdating) return;
+                    isUpdating = true;
                     setOffset(newOffset);
                     // Force redraw when offset changes
                     drawCanvasRef.current?.();
+                    isUpdating = false;
                 }
             );
             
@@ -323,8 +332,15 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
 
     // Draw when scale, offset, or current image changes
     useEffect(() => {
-        debug('Drawing canvas due to change in scale, offset, or image');
-        drawCanvas();
+        // Use requestAnimationFrame to batch multiple updates into a single draw call
+        const frameId = requestAnimationFrame(() => {
+            debug('Drawing canvas due to change in scale, offset, or image');
+            drawCanvas();
+        });
+        
+        return () => {
+            cancelAnimationFrame(frameId);
+        };
     }, [scale, offset, currentImageToDraw]);
 
 
