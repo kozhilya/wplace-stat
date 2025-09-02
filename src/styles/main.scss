@@ -286,6 +286,18 @@ body {
                     display: table;
                     width: 100%;
                     table-layout: fixed;
+                    // Alternate row colors
+                    &:nth-child(even) {
+                        background-color: #f8f8f8;
+                    }
+                    &:nth-child(odd) {
+                        background-color: #ffffff;
+                    }
+                    // Hover effect
+                    &:hover {
+                        background-color: #e6f7ff;
+                        cursor: pointer;
+                    }
 
                     td {
                         padding: 8px;
