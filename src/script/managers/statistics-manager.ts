@@ -56,6 +56,12 @@ export class StatisticsManager {
             }
         });
 
+        // Ensure both images are loaded and have valid dimensions
+        if (this.templateImage.width === 0 || this.templateImage.height === 0 ||
+            this.actualCanvas.width === 0 || this.actualCanvas.height === 0) {
+            return;
+        }
+
         // Create a temporary canvas to draw the template image
         const templateCanvas = document.createElement('canvas');
         templateCanvas.width = this.templateImage.width;
@@ -71,8 +77,20 @@ export class StatisticsManager {
 
         try {
             // Get image data from both canvases
+            // We need to ensure they're the same size, so we'll use the template dimensions
             const templateImageData = templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
-            const actualImageData = actualCtx.getImageData(0, 0, this.actualCanvas.width, this.actualCanvas.height);
+            
+            // Scale actual canvas to match template dimensions if necessary
+            // Create a temporary canvas to scale the actual image to match template dimensions
+            const scaledActualCanvas = document.createElement('canvas');
+            scaledActualCanvas.width = templateCanvas.width;
+            scaledActualCanvas.height = templateCanvas.height;
+            const scaledActualCtx = scaledActualCanvas.getContext('2d');
+            if (!scaledActualCtx) return;
+            
+            // Draw the actual canvas scaled to match template dimensions
+            scaledActualCtx.drawImage(this.actualCanvas, 0, 0, templateCanvas.width, templateCanvas.height);
+            const actualImageData = scaledActualCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
 
             const templateData = templateImageData.data;
             const actualData = actualImageData.data;
@@ -110,7 +128,7 @@ export class StatisticsManager {
                 }
             }
         } catch (error) {
-            console.error('Could not analyze image due to CORS restrictions:', error);
+            console.error('Could not analyze image:', error);
         }
     }
 

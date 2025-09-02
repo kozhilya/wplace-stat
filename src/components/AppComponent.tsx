@@ -13,6 +13,7 @@ export const AppComponent: React.FC = () => {
     const [leftPanelWidth, setLeftPanelWidth] = useState<number>(550);
     const [isResizing, setIsResizing] = useState<boolean>(false);
     const [statistics, setStatistics] = useState<StatisticsRow[]>([]);
+    const statisticsManagerRef = React.useRef<StatisticsManager | null>(null);
     const [currentTemplate, setCurrentTemplate] = useState<Template | undefined>();
     const [templates, setTemplates] = useState<Template[]>([]);
     const templateCollection = React.useRef(new TemplateCollection());
@@ -54,6 +55,12 @@ export const AppComponent: React.FC = () => {
                     setCurrentTemplate(template);
                     setTemplateName(template.name);
                     setLastUpdated(new Date());
+                    
+                    // Update statistics
+                    if (template.templateImage && template.actualCanvas) {
+                        statisticsManagerRef.current = new StatisticsManager(template.templateImage, template.actualCanvas);
+                        setStatistics(statisticsManagerRef.current.getStatistics());
+                    }
                 } catch (error) {
                     console.error('Error loading template from hash:', error);
                 }
@@ -115,13 +122,27 @@ export const AppComponent: React.FC = () => {
         window.location.hash = serialized;
     };
 
-    const handleTemplateLoad = (template: Template) => {
+    const handleTemplateLoad = async (template: Template) => {
         setTemplateName(template.name);
         setLastUpdated(new Date());
         setCurrentTemplate(template);
         // Serialize and add to hash
         const serialized = template.serialize();
         window.location.hash = serialized;
+        
+        // Load images if they're not loaded
+        if (!template.templateImage) {
+            await template.loadTemplateImage();
+        }
+        if (!template.actualCanvas) {
+            await template.loadActualCanvas();
+        }
+        
+        // Update statistics
+        if (template.templateImage && template.actualCanvas) {
+            statisticsManagerRef.current = new StatisticsManager(template.templateImage, template.actualCanvas);
+            setStatistics(statisticsManagerRef.current.getStatistics());
+        }
     };
 
     return (
