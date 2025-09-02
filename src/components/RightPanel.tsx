@@ -97,7 +97,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
     // Define colors for difference mode (will be configurable later for dark mode)
     const differenceColors = {
-        transparent: [0, 0, 0, 255],          // Black for transparent pixels
+        transparent: [0, 0, 0, 0],          // Black for transparent pixels
         unselected: [255, 255, 255, 255],     // White for unselected colors
         match: [0, 255, 0, 255],              // Green for matching colors
         mismatch: [255, 0, 0, 255]            // Red for mismatching colors
