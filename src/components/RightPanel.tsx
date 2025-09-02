@@ -99,6 +99,28 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         mismatch: [255, 0, 0, 255]            // Red for mismatching colors
     };
 
+    // Helper function to check if two colors match exactly
+    const colorsMatchExactly = (
+        r1: number, g1: number, b1: number, a1: number,
+        r2: number, g2: number, b2: number, a2: number
+    ): boolean => {
+        return r1 === r2 && g1 === g2 && b1 === b2 && a1 === a2;
+    };
+
+    // Helper function to check if template pixel matches selected color
+    const isTemplatePixelSelectedColor = (
+        templateR: number, templateG: number, templateB: number,
+        selectedColorId: number
+    ): boolean => {
+        const selectedColor = WplacePalette.find(color => color.id === selectedColorId);
+        if (!selectedColor) return false;
+        
+        // Exact match with the selected color from the palette
+        return templateR === selectedColor.rgb[0] &&
+               templateG === selectedColor.rgb[1] &&
+               templateB === selectedColor.rgb[2];
+    };
+
     // Handle difference mode drawing with color filtering
     const drawDifference = React.useCallback((
         ctx: CanvasRenderingContext2D,
@@ -149,16 +171,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             }
             // 2) If a specific color is selected and this pixel doesn't match, treat as unselected
             else if (selectedColorId !== null && selectedColorId !== undefined) {
-                // Find the closest color in the palette to the template pixel
-                // We need to import WplacePalette
-                // For now, we'll use a simple approach
-                // Find the color in WplacePalette that matches the selectedColorId
-                const selectedColor = WplacePalette.find(color => color.id === selectedColorId);
                 // Check if this pixel matches the selected color in the template
-                const isSelectedColor = selectedColor && 
-                    Math.abs(templateR - selectedColor.rgb[0]) < 10 &&
-                    Math.abs(templateG - selectedColor.rgb[1]) < 10 &&
-                    Math.abs(templateB - selectedColor.rgb[2]) < 10;
+                const isSelectedColor = isTemplatePixelSelectedColor(
+                    templateR, templateG, templateB, selectedColorId
+                );
                 
                 if (!isSelectedColor) {
                     // Treat as unselected - use white
@@ -168,10 +184,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     resultData.data[i + 3] = differenceColors.unselected[3];
                 } else {
                     // Check if colors match between template and actual
-                    if (templateR === wplaceR &&
-                        templateG === wplaceG &&
-                        templateB === wplaceB &&
-                        templateA === wplaceA) {
+                    if (colorsMatchExactly(
+                        templateR, templateG, templateB, templateA,
+                        wplaceR, wplaceG, wplaceB, wplaceA
+                    )) {
                         // 3) Colors match - use green
                         resultData.data[i] = differenceColors.match[0];
                         resultData.data[i + 1] = differenceColors.match[1];
@@ -188,10 +204,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             } else {
                 // No color selected - show all
                 // Check if colors match
-                if (templateR === wplaceR &&
-                    templateG === wplaceG &&
-                    templateB === wplaceB &&
-                    templateA === wplaceA) {
+                if (colorsMatchExactly(
+                    templateR, templateG, templateB, templateA,
+                    wplaceR, wplaceG, wplaceB, wplaceA
+                )) {
                     // 3) Colors match - use green
                     resultData.data[i] = differenceColors.match[0];
                     resultData.data[i + 1] = differenceColors.match[1];
