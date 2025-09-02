@@ -159,7 +159,6 @@ export const AppComponent: React.FC = () => {
                 lastUpdated={lastUpdated} 
                 onTemplateButtonClick={() => setLeftPanelView('template')}
                 onTemplatesButtonClick={() => setLeftPanelView('templates')}
-                onCloseButtonClick={() => setLeftPanelView(null)}
                 hasActiveTemplate={!!currentTemplate}
             />
             <div className="main-content" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>

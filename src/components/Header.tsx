@@ -5,7 +5,6 @@ interface HeaderProps {
     lastUpdated: Date;
     onTemplateButtonClick: () => void;
     onTemplatesButtonClick: () => void;
-    onCloseButtonClick: () => void;
     hasActiveTemplate: boolean;
 }
 
@@ -13,8 +12,7 @@ export const Header: React.FC<HeaderProps> = ({
     templateName, 
     lastUpdated, 
     onTemplateButtonClick, 
-    onTemplatesButtonClick, 
-    onCloseButtonClick,
+    onTemplatesButtonClick,
     hasActiveTemplate 
 }) => {
     return (
@@ -30,24 +28,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <h1 data-i18n="appTitle">
                     {templateName}
                 </h1>
-            </div>
-            <div className="header-right">
                 {hasActiveTemplate && (
                     <button 
-                        className="close-button"
-                        onClick={onCloseButtonClick}
-                        title="Close"
+                        className="template-button"
+                        onClick={onTemplateButtonClick}
+                        title="Template"
                     >
-                        ✕
+                        ✏️
                     </button>
                 )}
-                <button 
-                    className="template-button"
-                    onClick={onTemplateButtonClick}
-                    title="Template"
-                >
-                    ✏️
-                </button>
+            </div>
+            <div className="header-right">
                 <div className="last-updated">
                     Last updated: {lastUpdated.toLocaleTimeString()}
                 </div>

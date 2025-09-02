@@ -106,6 +106,20 @@ body {
     box-sizing: border-box;
     border-right: 1px solid #ddd;
     
+    .close-button {
+        background: none;
+        border: none;
+        color: #333;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 3px;
+        
+        &:hover {
+            background-color: #ddd;
+        }
+    }
+    
     .view-selector {
         margin-bottom: 10px;
         display: flex;

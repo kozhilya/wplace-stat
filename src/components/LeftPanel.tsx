@@ -56,6 +56,26 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
 
     return (
         <div className="left-panel" style={{ width: `${width}px` }}>
+            {/* Show close button when statistics is active (activeView is null and currentTemplate exists) */}
+            {currentTemplate && activeView === null && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                    <button 
+                        className="close-button"
+                        onClick={onCloseView}
+                        title="Close"
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '1.2rem',
+                            cursor: 'pointer',
+                            padding: '5px',
+                            borderRadius: '3px'
+                        }}
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
             {activeView === 'template' && <TemplateConfig onTemplateSave={handleTemplateSave} />}
             {activeView === 'templates' && <TemplateList onTemplateSelect={handleTemplateLoad} />}
             {currentTemplate && activeView === null && <StatisticsView statistics={statistics} />}
