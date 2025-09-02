@@ -27,8 +27,23 @@ export class CanvasInteractionManager {
         this.resetView();
     }
 
+    setScale(newScale: number): void {
+        this.scale = newScale;
+        // Apply bounds when scale changes
+        this.applyBounds();
+        // Notify listeners
+        if (this.onScaleChange) {
+            this.onScaleChange(this.scale);
+        }
+    }
+
     resetView(): void {
+        // Update scale through callback
+        if (this.onScaleChange) {
+            this.onScaleChange(1);
+        }
         this.scale = 1;
+        
         // Ensure canvas dimensions are up to date
         // The canvas might not have been sized yet, so we need to check its parent
         const container = this.canvas.parentElement;
@@ -48,8 +63,11 @@ export class CanvasInteractionManager {
         } else {
             this.offset = { x: 0, y: 0 };
         }
-        this.onScaleChange?.(this.scale);
-        this.onOffsetChange?.(this.offset);
+        
+        // Update offset through callback
+        if (this.onOffsetChange) {
+            this.onOffsetChange(this.offset);
+        }
     }
 
     private setupEventListeners(): void {
@@ -123,19 +141,19 @@ export class CanvasInteractionManager {
         this.offset.x = mouseX - mouseCanvasX * newScale;
         this.offset.y = mouseY - mouseCanvasY * newScale;
         
-        // Update scale
+        // Always update scale through the callback to ensure synchronization with RightPanel
+        if (this.onScaleChange) {
+            this.onScaleChange(newScale);
+        }
+        // Always update our internal scale
         this.scale = newScale;
         
-        // Apply bounds to keep the image within the canvas
-        this.applyBounds();
-        
-        // Notify listeners
-        if (this.onScaleChange) {
-            this.onScaleChange(this.scale);
-        }
+        // Update offset through the callback
         if (this.onOffsetChange) {
             this.onOffsetChange(this.offset);
         }
+        // Apply bounds to keep the image within the canvas
+        this.applyBounds();
     }
 
     private handleTouchStart(e: TouchEvent): void {

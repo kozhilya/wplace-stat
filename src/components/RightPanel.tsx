@@ -44,6 +44,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                 canvasRef.current,
                 (newScale) => {
                     setScale(newScale);
+                    // Update the interaction manager's scale to keep it in sync
+                    if (interactionManagerRef.current) {
+                        // We need to access the private scale property, but it's private
+                        // For now, we'll trust that the scale is updated through the callback
+                    }
                     // Force redraw when scale changes
                     drawCanvasRef.current?.();
                 },
@@ -369,13 +374,22 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     const handleZoomIn = () => {
         const newScale = Math.min(scale * 1.25, 10);
         setScale(newScale);
-        // Update interaction manager if needed
+        // Update interaction manager's scale
+        if (interactionManagerRef.current) {
+            // We need to add a method to set the scale in the interaction manager
+            // For now, we'll trigger the wheel event programmatically
+            // This is a temporary workaround
+            interactionManagerRef.current.setScale(newScale);
+        }
     };
 
     const handleZoomOut = () => {
         const newScale = Math.max(scale / 1.25, 0.1);
         setScale(newScale);
-        // Update interaction manager if needed
+        // Update interaction manager's scale
+        if (interactionManagerRef.current) {
+            interactionManagerRef.current.setScale(newScale);
+        }
     };
 
     const handleZoomReset = () => {
