@@ -18,9 +18,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     
     // Use a ref to store the draw function to avoid dependency issues
 
-
     const drawCanvasRef = useRef<() => void>();
-    drawCanvasRef.current = drawCanvas;
 
     // Initialize and update interaction manager
     useEffect(() => {
@@ -298,6 +296,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     const handleZoomReset = () => {
         interactionManagerRef.current?.resetView();
     };
+    
+    drawCanvasRef.current = drawCanvas;
 
     return (
         <div
