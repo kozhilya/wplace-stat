@@ -99,15 +99,17 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                                     {getSortIndicator(index)}
                                 </th>
                             ))}
+                            <th className="scroll-fix"></th>
                         </tr>
                         {/* Total row in thead to avoid indentation */}
                         {totalTotal > 0 && (
                             <tr className="statistics-total-row">
-                                <th>{LanguageManager.getText('total')}</th>
-                                <th className="number-column">{totalTotal.toLocaleString()}</th>
-                                <th className="number-column">{totalCompleted.toLocaleString()}</th>
-                                <th className="number-column">{totalPercentage.toFixed(2)}%</th>
-                                <th className="number-column">{totalRemain.toLocaleString()}</th>
+                                <td>{LanguageManager.getText('total')}</td>
+                                <td className="number-column">{totalTotal.toLocaleString()}</td>
+                                <td className="number-column">{totalCompleted.toLocaleString()}</td>
+                                <td className="number-column">{totalPercentage.toFixed(2)}%</td>
+                                <td className="number-column">{totalRemain.toLocaleString()}</td>
+                                <td className="scroll-fix"></td>
                             </tr>
                         )}
                     </thead>
