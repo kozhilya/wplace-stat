@@ -12,6 +12,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('template');
     const [scale, setScale] = useState<number>(1);
     const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    // Track the current image to draw separately from view mode
+    const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
 
     // Initialize interaction manager
     useEffect(() => {
@@ -221,9 +223,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         img.src = tempCanvas.toDataURL('image/png');
     }, [drawDifference, updateCurrentImageToDraw, drawCanvas]);
 
-    // Track the current image to draw separately from view mode
-    const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
-    
     // Update the current image when view mode or template changes
     useEffect(() => {
         updateCurrentImageToDraw();
