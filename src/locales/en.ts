@@ -23,5 +23,18 @@ export const en = {
     drawn: 'Drawn',
     percentage: 'Percentage',
     remaining: 'Remaining',
-    completed: 'Completed'
+    completed: 'Completed',
+    templateName: 'Template Name',
+    savedTemplates: 'Saved Templates',
+    noSavedTemplates: 'No saved templates',
+    load: 'Load',
+    delete: 'Delete',
+    close: 'Close',
+    editTemplateHeader: 'Edit Template',
+    savedTemplatesHeader: 'Saved Templates',
+    confirmDelete: 'Are you sure you want to delete template "{templateName}"?',
+    template: 'Template',
+    templates: 'Templates',
+    wplace: 'Wplace',
+    difference: 'Difference'
 };

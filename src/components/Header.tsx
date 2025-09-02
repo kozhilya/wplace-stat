@@ -1,4 +1,5 @@
 import React from 'react';
+import { LanguageManager } from '../script/managers/language-manager';
 
 interface HeaderProps {
     templateName: string;
@@ -21,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button 
                     className="templates-button"
                     onClick={onTemplatesButtonClick}
-                    title="Templates"
+                    title={LanguageManager.getText('templates')}
                 >
                     ☰
                 </button>
@@ -32,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <button 
                         className="template-button"
                         onClick={onTemplateButtonClick}
-                        title="Template"
+                        title={LanguageManager.getText('template')}
                     >
                         ✏️
                     </button>
@@ -40,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div className="header-right">
                 <div className="last-updated">
-                    Last updated: {lastUpdated.toLocaleTimeString()}
+                    {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
                 </div>
             </div>
         </header>

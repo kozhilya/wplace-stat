@@ -2,6 +2,7 @@ import React from 'react';
 import { Template } from '../script/template';
 import { TemplateCollection } from '../script/template';
 import { debug } from '../utils';
+import { LanguageManager } from '../script/managers/language-manager';
 
 interface TemplateListProps {
     onTemplateSelect: (template: Template) => void;
@@ -16,7 +17,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
     }, []);
 
     const handleDelete = (index: number, templateName: string) => {
-        if (window.confirm(`Are you sure you want to delete template "${templateName}"?`)) {
+        if (window.confirm(LanguageManager.getText('confirmDelete').replace('{templateName}', templateName))) {
             collection.current.removeTemplate(index);
             setTemplates(collection.current.getTemplates());
         }
@@ -40,7 +41,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
     return (
         <div className="template-list">
             {templates.length === 0 ? (
-                <p data-i18n="noSavedTemplates">No saved templates</p>
+                <p data-i18n="noSavedTemplates">{LanguageManager.getText('noSavedTemplates')}</p>
             ) : (
                 <ul>
                     {templates.map((template, index) => (
@@ -56,13 +57,13 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
                                     onClick={() => handleLoad(template)}
                                     data-i18n="load"
                                 >
-                                    Load
+                                    {LanguageManager.getText('load')}
                                 </button>
                                 <button 
                                     onClick={() => handleDelete(index, template.name)}
                                     data-i18n="delete"
                                 >
-                                    Delete
+                                    {LanguageManager.getText('delete')}
                                 </button>
                             </div>
                         </li>

@@ -61,12 +61,12 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             {activeView !== null && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                     <h2 style={{ margin: 0 }}>
-                        {activeView === 'template' ? 'Edit Template' : 'Saved Templates'}
+                        {activeView === 'template' ? LanguageManager.getText('editTemplateHeader') : LanguageManager.getText('savedTemplatesHeader')}
                     </h2>
                     <button 
                         className="close-button"
                         onClick={onCloseView}
-                        title="Close"
+                        title={LanguageManager.getText('close')}
                         style={{
                             background: 'none',
                             border: 'none',
@@ -84,7 +84,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             {activeView === 'templates' && <TemplateList onTemplateSelect={handleTemplateLoad} />}
             {currentTemplate && activeView === null && (
                 <>
-                    <h2 style={{ marginTop: 0 }}>Statistics</h2>
+                    <h2 style={{ marginTop: 0 }} data-i18n="statistics">{LanguageManager.getText('statistics')}</h2>
                     <StatisticsView statistics={statistics} />
                 </>
             )}

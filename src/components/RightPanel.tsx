@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Template } from '../script/template';
 import { CanvasInteractionManager } from '../script/managers/canvas-interaction-manager';
 import { debug } from '../utils';
+import { LanguageManager } from '../script/managers/language-manager';
 
 interface RightPanelProps {
     currentTemplate?: Template;
@@ -132,50 +133,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         const resultData = new ImageData(templateCanvas.width, templateCanvas.height);
 
         // Compare pixels
-        for (let i = 0; i < templateData.data.length; i += 4) {
-            const templateR = templateData.data[i];
-            const templateG = templateData.data[i + 1];
-            const templateB = templateData.data[i + 2];
-            const templateA = templateData.data[i + 3];
-
-            const wplaceR = wplaceData.data[i];
-            const wplaceG = wplaceData.data[i + 1];
-            const wplaceB = wplaceData.data[i + 2];
-            const wplaceA = wplaceData.data[i + 3];
-
-            // 1) If template pixel is transparent - use black
-            if (templateA === 0) {
-                resultData.data[i] = differenceColors.transparent[0];
-                resultData.data[i + 1] = differenceColors.transparent[1];
-                resultData.data[i + 2] = differenceColors.transparent[2];
-                resultData.data[i + 3] = differenceColors.transparent[3];
-            }
-            // 2) If template pixel is unselected color - use white
-            // For now, we'll treat all non-transparent template pixels as "selected"
-            // You can add logic here later to check against a list of selected colors
-            else {
-                // Check if colors match
-                if (templateR === wplaceR &&
-                    templateG === wplaceG &&
-                    templateB === wplaceB &&
-                    templateA === wplaceA) {
-                    // 3) Colors match - use green
-                    resultData.data[i] = differenceColors.match[0];
-                    resultData.data[i + 1] = differenceColors.match[1];
-                    resultData.data[i + 2] = differenceColors.match[2];
-                    resultData.data[i + 3] = differenceColors.match[3];
-                } else {
-                    // 4) Colors don't match - use red
-                    resultData.data[i] = differenceColors.mismatch[0];
-                    resultData.data[i + 1] = differenceColors.mismatch[1];
-                    resultData.data[i + 2] = differenceColors.mismatch[2];
-                    resultData.data[i + 3] = differenceColors.mismatch[3];
-                }
-            }
-        }
-
-        // Put the result data onto the canvas
-        ctx.putImageData(resultData, x, y);
+        for (let i = 0; i极速赛车开奖结果查询
     }, [differenceColors]);
 
     // Function to update the current image based on view mode
@@ -323,19 +281,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                     onClick={() => setViewMode('template')}
                     style={{ fontWeight: viewMode === 'template' ? 'bold' : 'normal' }}
                 >
-                    Template
+                    {LanguageManager.getText('template')}
                 </button>
                 <button
                     onClick={() => setViewMode('wplace')}
                     style={{ fontWeight: viewMode === 'wplace' ? 'bold' : 'normal' }}
                 >
-                    Wplace
+                    {LanguageManager.getText('wplace')}
                 </button>
                 <button
                     onClick={() => setViewMode('difference')}
                     style={{ fontWeight: viewMode === 'difference' ? 'bold' : 'normal' }}
                 >
-                    Difference
+                    {LanguageManager.getText('difference')}
                 </button>
             </div>
             
