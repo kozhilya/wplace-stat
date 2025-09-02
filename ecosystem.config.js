@@ -3,11 +3,10 @@ module.exports = {
         {
             name: 'wplace-stat',
             script: 'npx',
-            args: 'serve -s dist -l 3000',
+            args: 'serve -s dist -l ${process.env.PORT || 8080}',
             interpreter: 'none',
             env: {
-                NODE_ENV: 'production',
-                PORT: 3000
+                NODE_ENV: 'production'
             },
             watch: false,
             instances: 1,
