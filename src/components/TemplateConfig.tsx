@@ -81,7 +81,6 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
 
     return (
         <div className="template-configuration">
-            <h2 data-i18n="templateConfiguration">Template Configuration</h2>
             <form id="template-form" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="template-name" data-i18n="templateName">Template Name:</label>

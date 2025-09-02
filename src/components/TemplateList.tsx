@@ -39,7 +39,6 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
 
     return (
         <div className="template-list">
-            <h3 data-i18n="savedTemplates">Saved Templates</h3>
             {templates.length === 0 ? (
                 <p data-i18n="noSavedTemplates">No saved templates</p>
             ) : (

@@ -5,6 +5,7 @@ import { TemplateList } from './TemplateList';
 import { Template } from '../script/template';
 import { StatisticsRow } from '../script/managers/statistics-manager';
 import { TemplateCollection } from '../script/template';
+import { LanguageManager } from '../script/managers/language-manager';
 
 interface LeftPanelProps {
     width: number;
@@ -56,9 +57,12 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
 
     return (
         <div className="left-panel" style={{ width: `${width}px` }}>
-            {/* Show close button when statistics is active (activeView is null and currentTemplate exists) */}
-            {currentTemplate && activeView === null && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+            {/* Show close button when NOT in statistics view (activeView is not null) */}
+            {activeView !== null && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <h2 style={{ margin: 0 }}>
+                        {activeView === 'template' ? 'Edit Template' : 'Saved Templates'}
+                    </h2>
                     <button 
                         className="close-button"
                         onClick={onCloseView}
@@ -78,7 +82,12 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             )}
             {activeView === 'template' && <TemplateConfig onTemplateSave={handleTemplateSave} />}
             {activeView === 'templates' && <TemplateList onTemplateSelect={handleTemplateLoad} />}
-            {currentTemplate && activeView === null && <StatisticsView statistics={statistics} />}
+            {currentTemplate && activeView === null && (
+                <>
+                    <h2 style={{ marginTop: 0 }}>Statistics</h2>
+                    <StatisticsView statistics={statistics} />
+                </>
+            )}
         </div>
     );
 };
