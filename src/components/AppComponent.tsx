@@ -5,7 +5,7 @@ import { RightPanel } from './RightPanel';
 import { Splitter } from './Splitter';
 import { LanguageManager } from '../script/managers/language-manager';
 import { Template, TemplateCollection } from '../script/template';
-import { StatisticsRow } from '../script/managers/statistics-manager';
+import { StatisticsRow, StatisticsManager } from '../script/managers/statistics-manager';
 
 export const AppComponent: React.FC = () => {
     const [templateName, setTemplateName] = useState<string>('Untitled Template');
