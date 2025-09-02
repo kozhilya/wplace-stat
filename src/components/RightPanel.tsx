@@ -44,7 +44,15 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             const ctx = actualCanvasRef.current.getContext('2d');
             if (ctx) {
                 ctx.clearRect(0, 0, actualCanvasRef.current.width, actualCanvasRef.current.height);
-                ctx.drawImage(currentTemplate.actualCanvas, 0, 0);
+                // Draw the actual canvas image
+                ctx.drawImage(currentTemplate.actualCanvas, 0, 0, 
+                             currentTemplate.actualCanvas.width, currentTemplate.actualCanvas.height);
+            }
+        } else if (actualCanvasRef.current && (viewMode === 'template' || viewMode === 'both')) {
+            // Clear the actual canvas if not in actual view
+            const ctx = actualCanvasRef.current.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, actualCanvasRef.current.width, actualCanvasRef.current.height);
             }
         }
     }, [currentTemplate, viewMode]);
@@ -94,38 +102,40 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 padding: '10px',
                 overflow: 'auto'
             }}>
-                {/* Template canvas */}
-                {(viewMode === 'template' || viewMode === 'both') && (
-                    <div style={{ textAlign: 'center' }}>
-                        <div>Template</div>
-                        <canvas 
-                            id="template-canvas" 
-                            ref={templateCanvasRef}
-                            style={{ 
-                                maxWidth: '100%', 
-                                maxHeight: '70vh', 
-                                border: '1px solid #ccc' 
-                            }}
-                        />
-                    </div>
-                )}
+                {/* Template canvas - always rendered but conditionally visible */}
+                <div style={{ 
+                    textAlign: 'center', 
+                    display: (viewMode === 'template' || viewMode === 'both') ? 'block' : 'none' 
+                }}>
+                    <div>Template</div>
+                    <canvas 
+                        id="template-canvas" 
+                        ref={templateCanvasRef}
+                        style={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '70vh', 
+                            border: '1px solid #ccc' 
+                        }}
+                    />
+                </div>
                 
-                {/* Actual canvas */}
-                {(viewMode === 'actual' || viewMode === 'both') && currentTemplate?.actualCanvas && (
-                    <div style={{ textAlign: 'center' }}>
-                        <div>Actual Canvas</div>
-                        <canvas 
-                            ref={actualCanvasRef}
-                            width={currentTemplate.actualCanvas.width}
-                            height={currentTemplate.actualCanvas.height}
-                            style={{ 
-                                maxWidth: '100%', 
-                                maxHeight: '70vh', 
-                                border: '1px solid #ccc' 
-                            }}
-                        />
-                    </div>
-                )}
+                {/* Actual canvas - always rendered but conditionally visible */}
+                <div style={{ 
+                    textAlign: 'center', 
+                    display: (viewMode === 'actual' || viewMode === 'both') && currentTemplate?.actualCanvas ? 'block' : 'none' 
+                }}>
+                    <div>Actual Canvas</div>
+                    <canvas 
+                        ref={actualCanvasRef}
+                        width={currentTemplate?.actualCanvas?.width || 0}
+                        height={currentTemplate?.actualCanvas?.height || 0}
+                        style={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '70vh', 
+                            border: '1px solid #ccc' 
+                        }}
+                    />
+                </div>
             </div>
         </div>
     );
