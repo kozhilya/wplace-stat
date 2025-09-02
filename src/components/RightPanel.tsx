@@ -34,6 +34,39 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         interactionManagerRef.current?.setTemplate(currentTemplate);
     }, [currentTemplate]);
 
+    // Cache for difference image
+    const differenceImageRef = useRef<HTMLImageElement | null>(null);
+    
+    // Generate difference image when template or view mode changes
+    useEffect(() => {
+        if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
+            generateDifferenceImage(currentTemplate.templateImage, currentTemplate.wplaceImage);
+        } else {
+            differenceImageRef.current = null;
+        }
+    }, [currentTemplate, viewMode]);
+
+    // Generate difference image and cache it
+    const generateDifferenceImage = useCallback((templateImage: HTMLImageElement, wplaceImage: HTMLImageElement) => {
+        // Create a canvas to draw the difference
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = templateImage.width;
+        tempCanvas.height = templateImage.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        if (!tempCtx) return;
+        
+        // Draw difference onto the temporary canvas
+        drawDifference(tempCtx, templateImage, wplaceImage, 0, 0);
+        
+        // Convert to image and cache it
+        const img = new Image();
+        img.onload = () => {
+            differenceImageRef.current = img;
+            drawCanvas();
+        };
+        img.src = tempCanvas.toDataURL('image/png');
+    }, [drawDifference]);
+
     // Draw the appropriate image based on view mode
     const drawCanvas = useCallback(() => {
         const canvas = canvasRef.current;
@@ -62,9 +95,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 imageToDraw = currentTemplate?.wplaceImage || null;
                 break;
             case 'difference':
-                // For difference mode, we'll need to handle this differently
-                // For now, just draw the template image
-                imageToDraw = currentTemplate?.templateImage || null;
+                imageToDraw = differenceImageRef.current;
                 break;
         }
 
@@ -79,14 +110,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             // Draw the image centered
             const x = (canvas.width / scale - imageToDraw.width) / 2 - offset.x / scale;
             const y = (canvas.height / scale - imageToDraw.height) / 2 - offset.y / scale;
-                
-            if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
-                // Draw difference between template and wplace images
-                drawDifference(ctx, currentTemplate.templateImage, currentTemplate.wplaceImage, x, y);
-            } else {
-                // Draw the image normally
-                ctx.drawImage(imageToDraw, x, y);
-            }
+            
+            // Always draw the cached image normally
+            ctx.drawImage(imageToDraw, x, y);
                 
             // Restore the context
             ctx.restore();
