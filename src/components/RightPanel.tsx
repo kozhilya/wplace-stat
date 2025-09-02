@@ -135,7 +135,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     };
 
     // Get difference colors from CSS variables
-    const getDifferenceColors = () => {
+    const getDifferenceColors = React.useCallback(() => {
         // These are example CSS variable names - you may need to adjust them
         return {
             transparent: [0, 0, 0, 0],          // Always fully transparent
@@ -143,7 +143,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             match: parseRgbFromCssVariable(getCssVariable('--color-difference-match') || '#4CAF50'),
             mismatch: parseRgbFromCssVariable(getCssVariable('--color-difference-missing') || '#ff0000')
         };
-    };
+    }, []);
 
     // Helper function to check if two colors match exactly
     const colorsMatchExactly = (
@@ -272,7 +272,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
 
         // Put the result data onto the canvas
         ctx.putImageData(resultData, x, y);
-    }, [differenceColors]);
+    }, [getDifferenceColors]);
 
     // Helper function to draw image with transform
     const drawImageWithTransform = (ctx: CanvasRenderingContext2D, image: HTMLImageElement) => {
