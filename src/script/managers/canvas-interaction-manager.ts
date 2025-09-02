@@ -170,35 +170,29 @@ export class CanvasInteractionManager {
         
         // Calculate bounds for offset
         if (scaledWidth <= canvasWidth) {
-            // Allow movement within the bounds of the canvas when image is smaller
-            // The image can be positioned anywhere as long as it stays within the canvas
+            // When image is smaller than canvas, center it by allowing offsets between 0 and canvasWidth - scaledWidth
+            // But since the image can be positioned anywhere, we need to keep it within the canvas
             const minOffsetX = 0;
             const maxOffsetX = canvasWidth - scaledWidth;
             this.offset.x = clamp(this.offset.x, minOffsetX, maxOffsetX);
         } else {
-            // Allow panning but don't show empty space beyond the image edges
-            // When image is larger than canvas, offset can be negative to show the right part of the image
-            const minOffsetX = scaledWidth - canvasWidth;
+            // When image is larger than canvas, offset can be negative to pan across the image
+            // The valid range is [canvasWidth - scaledWidth, 0] which is [-N, 0] where N > 0
+            const minOffsetX = canvasWidth - scaledWidth; // This will be negative
             const maxOffsetX = 0;
-            // Ensure min is always less than max
-            const actualMinOffsetX = Math.min(minOffsetX, maxOffsetX);
-            const actualMaxOffsetX = Math.max(minOffsetX, maxOffsetX);
-            this.offset.x = clamp(this.offset.x, actualMinOffsetX, actualMaxOffsetX);
+            this.offset.x = clamp(this.offset.x, minOffsetX, maxOffsetX);
         }
         
         if (scaledHeight <= canvasHeight) {
-            // Allow movement within the bounds of the canvas when image is smaller
+            // When image is smaller than canvas
             const minOffsetY = 0;
             const maxOffsetY = canvasHeight - scaledHeight;
             this.offset.y = clamp(this.offset.y, minOffsetY, maxOffsetY);
         } else {
-            // Allow panning but don't show empty space beyond the image edges
-            const minOffsetY = scaledHeight - canvasHeight;
+            // When image is larger than canvas
+            const minOffsetY = canvasHeight - scaledHeight; // This will be negative
             const maxOffsetY = 0;
-            // Ensure min is always less than max
-            const actualMinOffsetY = Math.min(minOffsetY, maxOffsetY);
-            const actualMaxOffsetY = Math.max(minOffsetY, maxOffsetY);
-            this.offset.y = clamp(this.offset.y, actualMinOffsetY, actualMaxOffsetY);
+            this.offset.y = clamp(this.offset.y, minOffsetY, maxOffsetY);
         }
         
         // Debug logging
@@ -209,22 +203,13 @@ export class CanvasInteractionManager {
             if (scaledWidth <= canvasWidth) {
                 console.log(`  X bounds: [0, ${canvasWidth - scaledWidth}]`);
             } else {
-                // Show bounds in the correct order (min, max)
-                const minOffsetX = scaledWidth - canvasWidth;
-                const maxOffsetX = 0;
-                const actualMinOffsetX = Math.min(minOffsetX, maxOffsetX);
-                const actualMaxOffsetX = Math.max(minOffsetX, maxOffsetX);
-                console.log(`  X bounds: [${actualMinOffsetX}, ${actualMaxOffsetX}]`);
+                console.log(`  X bounds: [${canvasWidth - scaledWidth}, 0]`);
             }
             
             if (scaledHeight <= canvasHeight) {
                 console.log(`  Y bounds: [0, ${canvasHeight - scaledHeight}]`);
             } else {
-                const minOffsetY = scaledHeight - canvasHeight;
-                const maxOffsetY = 0;
-                const actualMinOffsetY = Math.min(minOffsetY, maxOffsetY);
-                const actualMaxOffsetY = Math.max(minOffsetY, maxOffsetY);
-                console.log(`  Y bounds: [${actualMinOffsetY}, ${actualMaxOffsetY}]`);
+                console.log(`  Y bounds: [${canvasHeight - scaledHeight}, 0]`);
             }
         }
         
