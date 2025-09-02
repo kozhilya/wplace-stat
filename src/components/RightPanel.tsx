@@ -18,8 +18,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         if (canvasRef.current) {
             interactionManagerRef.current = new CanvasInteractionManager(
                 canvasRef.current,
-                setScale,
-                setOffset
+                (newScale) => {
+                    setScale(newScale);
+                    // Force redraw when scale changes
+                    drawCanvas();
+                },
+                (newOffset) => {
+                    setOffset(newOffset);
+                    // Force redraw when offset changes
+                    drawCanvas();
+                }
             );
             interactionManagerRef.current.setTemplate(currentTemplate);
 
@@ -32,6 +40,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     // Update interaction manager when template changes
     useEffect(() => {
         interactionManagerRef.current?.setTemplate(currentTemplate);
+        // Reset view when template changes
+        setScale(1);
+        setOffset({ x: 0, y: 0 });
     }, [currentTemplate]);
 
     // Cache for difference image
@@ -191,22 +202,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             ctx.translate(offset.x, offset.y);
             ctx.scale(scale, scale);
 
-            // Draw the image centered
-            const x = (canvas.width / scale - imageToDraw.width) / 2 - offset.x / scale;
-            const y = (canvas.height / scale - imageToDraw.height) / 2 - offset.y / scale;
-
-            // Always draw the cached image normally
-            ctx.drawImage(imageToDraw, x, y);
+            // Draw the image at the top-left corner (0,0)
+            // The offset and scale will handle positioning
+            ctx.drawImage(imageToDraw, 0, 0);
 
             // Restore the context
             ctx.restore();
         }
     }, [currentTemplate, viewMode, scale, offset]);
 
-    // Draw on mount and when dependencies change
+    // Draw on mount and when scale/offset changes
     useEffect(() => {
         drawCanvas();
-    }, [drawCanvas]);
+    }, [scale, offset, drawCanvas]);
 
 
     // Zoom handlers

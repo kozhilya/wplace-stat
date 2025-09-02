@@ -155,15 +155,27 @@ export class CanvasInteractionManager {
         const scaledWidth = img.width * this.scale;
         const scaledHeight = img.height * this.scale;
         
-        // Calculate maximum offset to keep image within canvas
-        const maxOffsetX = Math.max(0, (scaledWidth - canvasWidth) / 2);
-        const maxOffsetY = Math.max(0, (scaledHeight - canvasHeight) / 2);
-        const minOffsetX = -maxOffsetX;
-        const minOffsetY = -maxOffsetY;
+        // Calculate bounds for offset
+        if (scaledWidth <= canvasWidth) {
+            // Center the image horizontally
+            this.offset.x = (canvasWidth - scaledWidth) / 2;
+        } else {
+            // Allow panning but don't show empty space beyond the image edges
+            const maxOffsetX = scaledWidth - canvasWidth;
+            this.offset.x = Math.max(0, Math.min(maxOffsetX, this.offset.x));
+        }
         
-        // Apply bounds
-        this.offset.x = Math.max(minOffsetX, Math.min(maxOffsetX, this.offset.x));
-        this.offset.y = Math.max(minOffsetY, Math.min(maxOffsetY, this.offset.y));
+        if (scaledHeight <= canvasHeight) {
+            // Center the image vertically
+            this.offset.y = (canvasHeight - scaledHeight) / 2;
+        } else {
+            // Allow panning but don't show empty space beyond the image edges
+            const maxOffsetY = scaledHeight - canvasHeight;
+            this.offset.y = Math.max(0, Math.min(maxOffsetY, this.offset.y));
+        }
+        
+        // Update the offset through the callback
+        this.onOffsetChange?.(this.offset);
     }
 
     getScale(): number {
