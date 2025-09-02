@@ -88,6 +88,16 @@ export class ImageLoaderManager {
         });
     }
 
+    // Method to set whether to use CORS proxy directly
+    static setUseCorsProxyDirectly(useProxy: boolean): void {
+        ImageLoaderManager.useCorsProxyDirectly = useProxy;
+        console.log(`CORS proxy usage set to: ${useProxy}`);
+    }
+
+    // Global flag to control whether to use CORS proxy directly
+    // Set to true by default to always use CORS proxies due to CORS restrictions
+    private static useCorsProxyDirectly: boolean = true;
+
     private static async loadAndDrawTile(
         ctx: CanvasRenderingContext2D, 
         tileX: number, 
@@ -136,12 +146,22 @@ export class ImageLoaderManager {
                 const timestamp = Date.now();
                 const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
                 
-                // URL sequence: direct -> corsproxy.io -> api.allorigins.win
-                const urlSequence = [
-                    originalUrl,
-                    `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`,
-                    `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`
-                ];
+                // Determine URL sequence based on the flag
+                let urlSequence: string[];
+                if (ImageLoaderManager.useCorsProxyDirectly) {
+                    // Skip direct request and use proxies directly
+                    urlSequence = [
+                        `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`,
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`
+                    ];
+                } else {
+                    // Try direct request first, then fall back to proxies
+                    urlSequence = [
+                        originalUrl,
+                        `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`,
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`
+                    ];
+                }
                 
                 // Find the next URL that hasn't been tried yet
                 for (const url of urlSequence) {
