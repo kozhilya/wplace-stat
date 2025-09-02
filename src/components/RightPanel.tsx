@@ -22,13 +22,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 canvasRef.current,
                 (newScale) => {
                     setScale(newScale);
-                    // Force redraw when scale changes
-                    drawCanvas();
                 },
                 (newOffset) => {
                     setOffset(newOffset);
-                    // Force redraw when offset changes
-                    drawCanvas();
                 }
             );
             interactionManagerRef.current.setTemplate(currentTemplate);
@@ -45,6 +41,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         // Reset view when template changes
         setScale(1);
         setOffset({ x: 0, y: 0 });
+        // Update current image
+        updateCurrentImageToDraw();
     }, [currentTemplate]);
 
     // Cache for difference image
@@ -162,7 +160,35 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         }
         
         setCurrentImageToDraw(imageToDraw);
-    }, [viewMode, currentTemplate, differenceImageRef.current]);
+        // Force a redraw by calling drawCanvas directly
+        const canvas = canvasRef.current;
+        if (canvas && imageToDraw) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Set canvas dimensions to match the container
+                const container = canvas.parentElement;
+                if (container) {
+                    canvas.width = container.clientWidth;
+                    canvas.height = container.clientHeight;
+                }
+                
+                // Save the current context
+                ctx.save();
+                
+                // Apply scaling and offset
+                ctx.translate(offset.x, offset.y);
+                ctx.scale(scale, scale);
+                
+                // Draw the image at the top-left corner (0,0)
+                ctx.drawImage(imageToDraw, 0, 0);
+                
+                // Restore the context
+                ctx.restore();
+            }
+        }
+    }, [viewMode, currentTemplate, differenceImageRef.current, scale, offset]);
 
     // Draw the appropriate image based on view mode
     const drawCanvas = useCallback(() => {
@@ -226,12 +252,12 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     // Update the current image when view mode or template changes
     useEffect(() => {
         updateCurrentImageToDraw();
-    }, [updateCurrentImageToDraw]);
+    }, [viewMode, currentTemplate, updateCurrentImageToDraw]);
 
-    // Draw on mount and when scale/offset or current image changes
+    // Draw when scale, offset, or current image changes
     useEffect(() => {
         drawCanvas();
-    }, [scale, offset, currentImageToDraw, drawCanvas]);
+    }, [scale, offset, currentImageToDraw]);
 
 
     // Zoom handlers
