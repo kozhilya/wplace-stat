@@ -108,6 +108,23 @@ body {
             font-size: 0.9rem;
             color: #ccc;
         }
+
+        .github-link {
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-radius: 3px;
+            
+            &:hover {
+                background-color: #555;
+            }
+            
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
     }
 }
 
