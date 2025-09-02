@@ -26,8 +26,8 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
             // Load the template image
             await template.loadTemplateImage();
             
-            // Load the actual canvas
-            await template.loadActualCanvas();
+            // Load the Wplace image
+            await template.loadWplaceImage();
             
             onTemplateSelect(template);
         } catch (error) {
