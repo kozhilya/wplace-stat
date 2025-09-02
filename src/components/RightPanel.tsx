@@ -22,7 +22,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 setOffset
             );
             interactionManagerRef.current.setTemplate(currentTemplate);
-            
+
             return () => {
                 interactionManagerRef.current?.cleanup();
             };
@@ -36,7 +36,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
     // Cache for difference image
     const differenceImageRef = useRef<HTMLImageElement | null>(null);
-    
+
     // Generate difference image when template or view mode changes
     useEffect(() => {
         if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
@@ -47,6 +47,89 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     }, [currentTemplate, viewMode]);
 
 
+    // Define colors for difference mode (will be configurable later for dark mode)
+    const differenceColors = {
+        transparent: [0, 0, 0, 255],          // Black for transparent pixels
+        unselected: [255, 255, 255, 255],     // White for unselected colors
+        match: [0, 255, 0, 255],              // Green for matching colors
+        mismatch: [255, 0, 0, 255]            // Red for mismatching colors
+    };
+
+    // Handle difference mode drawing
+    const drawDifference = React.useCallback((
+        ctx: CanvasRenderingContext2D,
+        templateImage: HTMLImageElement,
+        wplaceImage: HTMLImageElement,
+        x: number,
+        y: number
+    ) => {
+        // Create temporary canvases to get image data
+        const templateCanvas = document.createElement('canvas');
+        templateCanvas.width = templateImage.width;
+        templateCanvas.height = templateImage.height;
+        const templateCtx = templateCanvas.getContext('2d')!;
+        templateCtx.drawImage(templateImage, 0, 0);
+
+        const wplaceCanvas = document.createElement('canvas');
+        wplaceCanvas.width = wplaceImage.width;
+        wplaceCanvas.height = wplaceImage.height;
+        const wplaceCtx = wplaceCanvas.getContext('2d')!;
+        wplaceCtx.drawImage(wplaceImage, 0, 0);
+
+        // Get image data
+        const templateData = templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
+        const wplaceData = wplaceCtx.getImageData(0, 0, wplaceCanvas.width, wplaceCanvas.height);
+
+        // Create result image data
+        const resultData = new ImageData(templateCanvas.width, templateCanvas.height);
+
+        // Compare pixels
+        for (let i = 0; i < templateData.data.length; i += 4) {
+            const templateR = templateData.data[i];
+            const templateG = templateData.data[i + 1];
+            const templateB = templateData.data[i + 2];
+            const templateA = templateData.data[i + 3];
+
+            const wplaceR = wplaceData.data[i];
+            const wplaceG = wplaceData.data[i + 1];
+            const wplaceB = wplaceData.data[i + 2];
+            const wplaceA = wplaceData.data[i + 3];
+
+            // 1) If template pixel is transparent - use black
+            if (templateA === 0) {
+                resultData.data[i] = differenceColors.transparent[0];
+                resultData.data[i + 1] = differenceColors.transparent[1];
+                resultData.data[i + 2] = differenceColors.transparent[2];
+                resultData.data[i + 3] = differenceColors.transparent[3];
+            }
+            // 2) If template pixel is unselected color - use white
+            // For now, we'll treat all non-transparent template pixels as "selected"
+            // You can add logic here later to check against a list of selected colors
+            else {
+                // Check if colors match
+                if (templateR === wplaceR &&
+                    templateG === wplaceG &&
+                    templateB === wplaceB &&
+                    templateA === wplaceA) {
+                    // 3) Colors match - use green
+                    resultData.data[i] = differenceColors.match[0];
+                    resultData.data[i + 1] = differenceColors.match[1];
+                    resultData.data[i + 2] = differenceColors.match[2];
+                    resultData.data[i + 3] = differenceColors.match[3];
+                } else {
+                    // 4) Colors don't match - use red
+                    resultData.data[i] = differenceColors.mismatch[0];
+                    resultData.data[i + 1] = differenceColors.mismatch[1];
+                    resultData.data[i + 2] = differenceColors.mismatch[2];
+                    resultData.data[i + 3] = differenceColors.mismatch[3];
+                }
+            }
+        }
+
+        // Put the result data onto the canvas
+        ctx.putImageData(resultData, x, y);
+    }, [differenceColors]);
+
     // Generate difference image and cache it
     const generateDifferenceImage = useCallback((templateImage: HTMLImageElement, wplaceImage: HTMLImageElement) => {
         // Create a canvas to draw the difference
@@ -55,10 +138,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         tempCanvas.height = templateImage.height;
         const tempCtx = tempCanvas.getContext('2d');
         if (!tempCtx) return;
-        
+
         // Draw difference onto the temporary canvas
         drawDifference(tempCtx, templateImage, wplaceImage, 0, 0);
-        
+
         // Convert to image and cache it
         const img = new Image();
         img.onload = () => {
@@ -103,18 +186,18 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         if (imageToDraw) {
             // Save the current context
             ctx.save();
-                
+
             // Apply scaling and offset
             ctx.translate(offset.x, offset.y);
             ctx.scale(scale, scale);
-                
+
             // Draw the image centered
             const x = (canvas.width / scale - imageToDraw.width) / 2 - offset.x / scale;
             const y = (canvas.height / scale - imageToDraw.height) / 2 - offset.y / scale;
-            
+
             // Always draw the cached image normally
             ctx.drawImage(imageToDraw, x, y);
-                
+
             // Restore the context
             ctx.restore();
         }
@@ -125,88 +208,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         drawCanvas();
     }, [drawCanvas]);
 
-    // Define colors for difference mode (will be configurable later for dark mode)
-    const differenceColors = {
-        transparent: [0, 0, 0, 255],          // Black for transparent pixels
-        unselected: [255, 255, 255, 255],     // White for unselected colors
-        match: [0, 255, 0, 255],              // Green for matching colors
-        mismatch: [255, 0, 0, 255]            // Red for mismatching colors
-    };
-
-    // Handle difference mode drawing
-    const drawDifference = React.useCallback((
-        ctx: CanvasRenderingContext2D, 
-        templateImage: HTMLImageElement, 
-        wplaceImage: HTMLImageElement,
-        x: number,
-        y: number
-    ) => {
-        // Create temporary canvases to get image data
-        const templateCanvas = document.createElement('canvas');
-        templateCanvas.width = templateImage.width;
-        templateCanvas.height = templateImage.height;
-        const templateCtx = templateCanvas.getContext('2d')!;
-        templateCtx.drawImage(templateImage, 0, 0);
-
-        const wplaceCanvas = document.createElement('canvas');
-        wplaceCanvas.width = wplaceImage.width;
-        wplaceCanvas.height = wplaceImage.height;
-        const wplaceCtx = wplaceCanvas.getContext('2d')!;
-        wplaceCtx.drawImage(wplaceImage, 0, 0);
-
-        // Get image data
-        const templateData = templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
-        const wplaceData = wplaceCtx.getImageData(0, 0, wplaceCanvas.width, wplaceCanvas.height);
-
-        // Create result image data
-        const resultData = new ImageData(templateCanvas.width, templateCanvas.height);
-
-        // Compare pixels
-        for (let i = 0; i < templateData.data.length; i += 4) {
-            const templateR = templateData.data[i];
-            const templateG = templateData.data[i + 1];
-            const templateB = templateData.data[i + 2];
-            const templateA = templateData.data[i + 3];
-            
-            const wplaceR = wplaceData.data[i];
-            const wplaceG = wplaceData.data[i + 1];
-            const wplaceB = wplaceData.data[i + 2];
-            const wplaceA = wplaceData.data[i + 3];
-
-            // 1) If template pixel is transparent - use black
-            if (templateA === 0) {
-                resultData.data[i] = differenceColors.transparent[0];
-                resultData.data[i + 1] = differenceColors.transparent[1];
-                resultData.data[i + 2] = differenceColors.transparent[2];
-                resultData.data[i + 3] = differenceColors.transparent[3];
-            }
-            // 2) If template pixel is unselected color - use white
-            // For now, we'll treat all non-transparent template pixels as "selected"
-            // You can add logic here later to check against a list of selected colors
-            else {
-                // Check if colors match
-                if (templateR === wplaceR && 
-                    templateG === wplaceG && 
-                    templateB === wplaceB && 
-                    templateA === wplaceA) {
-                    // 3) Colors match - use green
-                    resultData.data[i] = differenceColors.match[0];
-                    resultData.data[i + 1] = differenceColors.match[1];
-                    resultData.data[i + 2] = differenceColors.match[2];
-                    resultData.data[i + 3] = differenceColors.match[3];
-                } else {
-                    // 4) Colors don't match - use red
-                    resultData.data[i] = differenceColors.mismatch[0];
-                    resultData.data[i + 1] = differenceColors.mismatch[1];
-                    resultData.data[i + 2] = differenceColors.mismatch[2];
-                    resultData.data[i + 3] = differenceColors.mismatch[3];
-                }
-            }
-        }
-
-        // Put the result data onto the canvas
-        ctx.putImageData(resultData, x, y);
-    }, [differenceColors]);
 
     // Zoom handlers
     const handleZoomIn = () => {
@@ -226,11 +227,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     };
 
     return (
-        <div 
-            className="right-panel" 
-            style={{ 
-                flex: 1, 
-                height: '100%', 
+        <div
+            className="right-panel"
+            style={{
+                flex: 1,
+                height: '100%',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
@@ -240,19 +241,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         >
             {/* View mode selector */}
             <div style={{ padding: '10px', display: 'flex', gap: '10px' }}>
-                <button 
+                <button
                     onClick={() => setViewMode('template')}
                     style={{ fontWeight: viewMode === 'template' ? 'bold' : 'normal' }}
                 >
                     Template
                 </button>
-                <button 
+                <button
                     onClick={() => setViewMode('wplace')}
                     style={{ fontWeight: viewMode === 'wplace' ? 'bold' : 'normal' }}
                 >
                     Wplace
                 </button>
-                <button 
+                <button
                     onClick={() => setViewMode('difference')}
                     style={{ fontWeight: viewMode === 'difference' ? 'bold' : 'normal' }}
                 >
@@ -261,20 +262,20 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             </div>
 
             {/* Canvas area */}
-            <div style={{ 
-                flex: 1, 
+            <div style={{
+                flex: 1,
                 position: 'relative',
                 overflow: 'hidden'
             }}>
-                <canvas 
+                <canvas
                     ref={canvasRef}
-                    style={{ 
+                    style={{
                         width: '100%',
                         height: '100%',
                         display: 'block'
                     }}
                 />
-                
+
                 {/* Zoom controls */}
                 <div style={{
                     position: 'absolute',
