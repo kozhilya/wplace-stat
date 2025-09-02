@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 // Base button styles
 button {
     background-color: var(--color-button-bg, #f0f0f0);

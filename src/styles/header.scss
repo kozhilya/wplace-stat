@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 .header {
     background-color: var(--color-background);
     color: var(--color-text-primary);
