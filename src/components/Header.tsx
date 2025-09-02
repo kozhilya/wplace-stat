@@ -74,6 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                     <option value="en">EN</option>
                     <option value="ru">RU</option>
+                    <option value="es">ES</option>
                 </select>
                 <div className="last-updated">
                     {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}

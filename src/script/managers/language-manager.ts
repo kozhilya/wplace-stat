@@ -1,7 +1,8 @@
 import { en } from '../../locales/en';
 import { ru } from '../../locales/ru';
+import { es } from '../../locales/es';
 
-type Language = 'en' | 'ru';
+type Language = 'en' | 'ru' | 'es';
 type Translations = typeof en;
 
 type LanguageChangeCallback = () => void;
@@ -10,7 +11,8 @@ export class LanguageManager {
     private static currentLanguage: Language = 'en';
     private static translations: Record<Language, Translations> = {
         en: en,
-        ru: ru
+        ru: ru,
+        es: es
     };
     private static languageChangeCallbacks: LanguageChangeCallback[] = [];
 
