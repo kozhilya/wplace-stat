@@ -9,7 +9,6 @@ export class CanvasInteractionManager {
     private lastMousePosition: { x: number; y: number } = { x: 0, y: 0 };
     private currentTemplate?: Template;
     private onPositionChange?: (scale: number, offset: { x: number; y: number }) => void;
-    private wheelAnimationFrameId: number | undefined;
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -100,7 +99,7 @@ export class CanvasInteractionManager {
             this.onPositionChange?.(this.scale, this.offset);
             
             // Test output in one line
-            console.log(`Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
+            debug(`Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
         }
     }
 
@@ -109,64 +108,47 @@ export class CanvasInteractionManager {
         this.canvas.style.cursor = 'grab';
     }
 
-    private wheelHandling: boolean = false;
-
     private handleWheel(e: WheelEvent): void {
         e.preventDefault();
         e.stopPropagation(); // Prevent event from bubbling up
 
-        if (this.wheelHandling) {
-            return;
-        }
-        this.wheelHandling = true;
-        
         // Add debug message
         debug(`handleWheel called: deltaY=${e.deltaY}, deltaMode=${e.deltaMode}`);
         
-        // Use requestAnimationFrame to throttle the zoom operation
-        if (this.wheelAnimationFrameId !== undefined) {
-            cancelAnimationFrame(this.wheelAnimationFrameId);
-        }
+        // Use a smaller zoom intensity for smoother zooming
+        const zoomIntensity = 0.05;
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
         
-        this.wheelAnimationFrameId = requestAnimationFrame(() => {
-            // Use a smaller zoom intensity for smoother zooming
-            const zoomIntensity = 0.05;
-            const rect = this.canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            
-            // Determine zoom direction based on deltaY
-            // Normalize wheel delta to handle different mouse sensitivities
-            const wheelDelta = Math.sign(e.deltaY);
-            const zoomFactor = Math.exp(-wheelDelta * zoomIntensity);
-            
-            // Calculate new scale with bounds
-            const newScale = Math.max(0.1, Math.min(10, this.scale * zoomFactor));
-            
-            // Calculate mouse position in canvas coordinates before scaling
-            const mouseCanvasX = (mouseX - this.offset.x) / this.scale;
-            const mouseCanvasY = (mouseY - this.offset.y) / this.scale;
-            
-            // Adjust offset to zoom towards mouse position
-            // This keeps the point under the mouse fixed during zoom
-            this.offset.x = mouseX - mouseCanvasX * newScale;
-            this.offset.y = mouseY - mouseCanvasY * newScale;
-            
-            // Always update our internal scale
-            this.scale = newScale;
-            
-            // Apply bounds to keep the image within the canvas
-            this.applyBounds();
-            
-            // Notify position change (scale and offset) at once
-            // This prevents double rendering
-            if (this.onPositionChange) {
-                this.onPositionChange(this.scale, this.offset);
-            }
-            
-            this.wheelAnimationFrameId = undefined;
-            this.wheelHandling = false;
-        });
+        // Determine zoom direction based on deltaY
+        // Normalize wheel delta to handle different mouse sensitivities
+        const wheelDelta = Math.sign(e.deltaY);
+        const zoomFactor = Math.exp(-wheelDelta * zoomIntensity);
+        
+        // Calculate new scale with bounds
+        const newScale = Math.max(0.1, Math.min(10, this.scale * zoomFactor));
+        
+        // Calculate mouse position in canvas coordinates before scaling
+        const mouseCanvasX = (mouseX - this.offset.x) / this.scale;
+        const mouseCanvasY = (mouseY - this.offset.y) / this.scale;
+        
+        // Adjust offset to zoom towards mouse position
+        // This keeps the point under the mouse fixed during zoom
+        this.offset.x = mouseX - mouseCanvasX * newScale;
+        this.offset.y = mouseY - mouseCanvasY * newScale;
+        
+        // Always update our internal scale
+        this.scale = newScale;
+        
+        // Apply bounds to keep the image within the canvas
+        this.applyBounds();
+        
+        // Notify position change (scale and offset) at once
+        // This prevents double rendering
+        if (this.onPositionChange) {
+            this.onPositionChange(this.scale, this.offset);
+        }
     }
 
     private handleTouchStart(e: TouchEvent): void {
@@ -282,11 +264,6 @@ export class CanvasInteractionManager {
     }
 
     cleanup(): void {
-        // Cancel any pending animation frames
-        if (this.wheelAnimationFrameId !== undefined) {
-            cancelAnimationFrame(this.wheelAnimationFrameId);
-            this.wheelAnimationFrameId = undefined;
-        }
         // Remove event listeners if needed
         // For now, we'll rely on garbage collection
     }

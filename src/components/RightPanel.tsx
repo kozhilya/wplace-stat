@@ -212,7 +212,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     }, [differenceColors]);
 
     // Helper function to draw image with transform
-    const drawImageWithTransform = useCallback((ctx: CanvasRenderingContext2D, image: HTMLImageElement) => {
+    const drawImageWithTransform = (ctx: CanvasRenderingContext2D, image: HTMLImageElement) => {
         // Clear the canvas
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         
@@ -230,7 +230,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         
         // Restore the context
         ctx.restore();
-    }, [scale, offset]);
+    };
 
     // Function to update the current image based on view mode
     const updateCurrentImageToDraw = useCallback(() => {
@@ -316,20 +316,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     useEffect(() => {
         updateCurrentImageToDraw();
     }, [viewMode, currentTemplate, updateCurrentImageToDraw]);
-
-    // Draw when scale, offset, or current image changes
-    useEffect(() => {
-        // Use requestAnimationFrame to batch multiple updates into a single draw call
-        const frameId = requestAnimationFrame(() => {
-            debug('Drawing canvas due to change in scale, offset, or image');
-            drawCanvas();
-        });
-        
-        return () => {
-            cancelAnimationFrame(frameId);
-        };
-    }, [scale, offset, currentImageToDraw]);
-
 
     // Zoom handlers
     const handleZoomIn = () => {
