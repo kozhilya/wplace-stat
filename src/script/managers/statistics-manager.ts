@@ -26,9 +26,15 @@ export class StatisticsManager {
     private actualCanvas: HTMLCanvasElement;
     private statistics: StatisticsRow[] = [];
 
-    constructor(templateImage: HTMLImageElement, actualCanvas: HTMLCanvasElement) {
+    constructor(templateImage: HTMLImageElement, actualCanvas: HTMLImageElement) {
         this.templateImage = templateImage;
-        this.actualCanvas = actualCanvas;
+        // Convert the image to a canvas for pixel analysis
+        const canvas = document.createElement('canvas');
+        canvas.width = actualCanvas.width;
+        canvas.height = actualCanvas.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(actualCanvas, 0, 0);
+        this.actualCanvas = canvas;
         this.updateStatistics();
     }
 
@@ -36,8 +42,14 @@ export class StatisticsManager {
         this.calculateStatistics();
     }
 
-    setActualCanvas(actualCanvas: HTMLCanvasElement): void {
-        this.actualCanvas = actualCanvas;
+    setActualCanvas(actualCanvas: HTMLImageElement): void {
+        // Convert the image to a canvas for pixel analysis
+        const canvas = document.createElement('canvas');
+        canvas.width = actualCanvas.width;
+        canvas.height = actualCanvas.height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(actualCanvas, 0, 0);
+        this.actualCanvas = canvas;
         this.updateStatistics();
     }
 
