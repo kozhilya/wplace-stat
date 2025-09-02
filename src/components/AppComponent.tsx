@@ -58,7 +58,10 @@ export const AppComponent: React.FC = () => {
                     
                     // Update statistics
                     if (template.templateImage && template.actualCanvas) {
-                        statisticsManagerRef.current = new StatisticsManager(template.templateImage, template.actualCanvas);
+                        statisticsManagerRef.current = new StatisticsManager(
+                            template.templateImage, 
+                            template.actualCanvas
+                        );
                         setStatistics(statisticsManagerRef.current.getStatistics());
                     }
                 } catch (error) {
@@ -140,7 +143,10 @@ export const AppComponent: React.FC = () => {
         
         // Update statistics
         if (template.templateImage && template.actualCanvas) {
-            statisticsManagerRef.current = new StatisticsManager(template.templateImage, template.actualCanvas);
+            statisticsManagerRef.current = new StatisticsManager(
+                template.templateImage, 
+                template.actualCanvas
+            );
             setStatistics(statisticsManagerRef.current.getStatistics());
         }
     };
