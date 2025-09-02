@@ -159,30 +159,42 @@ export class CanvasInteractionManager {
         const originalOffsetX = this.offset.x;
         const originalOffsetY = this.offset.y;
         
+        // Helper function to clamp a value between min and max
+        const clamp = (value: number, min: number, max: number): number => {
+            return Math.max(min, Math.min(max, value));
+        };
+        
         // Calculate bounds for offset
         if (scaledWidth <= canvasWidth) {
             // Allow movement within the bounds of the canvas when image is smaller
             // The image can be positioned anywhere as long as it stays within the canvas
             const minOffsetX = 0;
             const maxOffsetX = canvasWidth - scaledWidth;
-            this.offset.x = Math.max(minOffsetX, Math.min(maxOffsetX, this.offset.x));
+            this.offset.x = clamp(this.offset.x, minOffsetX, maxOffsetX);
         } else {
             // Allow panning but don't show empty space beyond the image edges
+            // When image is larger than canvas, offset can be negative to show the right part of the image
             const minOffsetX = scaledWidth - canvasWidth;
             const maxOffsetX = 0;
-            this.offset.x = Math.max(minOffsetX, Math.min(maxOffsetX, this.offset.x));
+            // Ensure min is always less than max
+            const actualMinOffsetX = Math.min(minOffsetX, maxOffsetX);
+            const actualMaxOffsetX = Math.max(minOffsetX, maxOffsetX);
+            this.offset.x = clamp(this.offset.x, actualMinOffsetX, actualMaxOffsetX);
         }
         
         if (scaledHeight <= canvasHeight) {
             // Allow movement within the bounds of the canvas when image is smaller
             const minOffsetY = 0;
             const maxOffsetY = canvasHeight - scaledHeight;
-            this.offset.y = Math.max(minOffsetY, Math.min(maxOffsetY, this.offset.y));
+            this.offset.y = clamp(this.offset.y, minOffsetY, maxOffsetY);
         } else {
             // Allow panning but don't show empty space beyond the image edges
             const minOffsetY = scaledHeight - canvasHeight;
             const maxOffsetY = 0;
-            this.offset.y = Math.max(minOffsetY, Math.min(maxOffsetY, this.offset.y));
+            // Ensure min is always less than max
+            const actualMinOffsetY = Math.min(minOffsetY, maxOffsetY);
+            const actualMaxOffsetY = Math.max(minOffsetY, maxOffsetY);
+            this.offset.y = clamp(this.offset.y, actualMinOffsetY, actualMaxOffsetY);
         }
         
         // Debug logging
@@ -193,13 +205,22 @@ export class CanvasInteractionManager {
             if (scaledWidth <= canvasWidth) {
                 console.log(`  X bounds: [0, ${canvasWidth - scaledWidth}]`);
             } else {
-                console.log(`  X bounds: [${scaledWidth - canvasWidth}, 0]`);
+                // Show bounds in the correct order (min, max)
+                const minOffsetX = scaledWidth - canvasWidth;
+                const maxOffsetX = 0;
+                const actualMinOffsetX = Math.min(minOffsetX, maxOffsetX);
+                const actualMaxOffsetX = Math.max(minOffsetX, maxOffsetX);
+                console.log(`  X bounds: [${actualMinOffsetX}, ${actualMaxOffsetX}]`);
             }
             
             if (scaledHeight <= canvasHeight) {
                 console.log(`  Y bounds: [0, ${canvasHeight - scaledHeight}]`);
             } else {
-                console.log(`  Y bounds: [${scaledHeight - canvasHeight}, 0]`);
+                const minOffsetY = scaledHeight - canvasHeight;
+                const maxOffsetY = 0;
+                const actualMinOffsetY = Math.min(minOffsetY, maxOffsetY);
+                const actualMaxOffsetY = Math.max(minOffsetY, maxOffsetY);
+                console.log(`  Y bounds: [${actualMinOffsetY}, ${actualMaxOffsetY}]`);
             }
         }
         
