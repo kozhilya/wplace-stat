@@ -35,6 +35,7 @@
     --color-scrollbar-track: #f1f1f1;
     --color-scrollbar-thumb: #c1c1c1;
     --color-scrollbar-thumb-hover: #a8a8a8;
+    --scrollbar-width: 12px;
     --color-font: #333;
     --color-button-bg: #f0f0f0;
     --color-button-text: #333;
@@ -85,6 +86,7 @@ body.dark-mode {
     --color-scrollbar-track: #2a2a2a;
     --color-scrollbar-thumb: #555;
     --color-scrollbar-thumb-hover: #666;
+    --scrollbar-width: 12px;
     --color-font: #e0e0e0;
     --color-button-bg: #3d3d3d;
     --color-button-text: #e0e0e0;
@@ -385,7 +387,7 @@ body {
                     th.scroll-fix,
                     td.scroll-fix {
                         background-color: var(--color-scroll-fix);
-                        width: 20px;
+                        width: var(--scrollbar-width);
                         padding: 0;
                     }
                 }
@@ -632,7 +634,7 @@ button[type="submit"] {
         scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
 
         &::-webkit-scrollbar {
-            width: 12px;
+            width: var(--scrollbar-width);
         }
 
         &::-webkit-scrollbar-track {
