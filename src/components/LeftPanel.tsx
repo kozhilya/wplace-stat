@@ -25,7 +25,8 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
     statistics = [], 
     currentTemplate,
     activeView,
-    onCloseView
+    onCloseView,
+    onStatisticsRowClick
 }) => {
     const collection = React.useRef(new TemplateCollection());
     const [templates, setTemplates] = useState<Template[]>([]);
@@ -89,7 +90,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             {activeView === 'template' && <TemplateConfig onTemplateSave={handleTemplateSave} />}
             {activeView === 'templates' && <TemplateList onTemplateSelect={handleTemplateLoad} />}
             {currentTemplate && activeView === null && (
-                <StatisticsView statistics={statistics} onRowClick={props.onStatisticsRowClick} />
+                <StatisticsView statistics={statistics} onRowClick={onStatisticsRowClick} />
             )}
         </div>
     );

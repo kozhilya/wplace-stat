@@ -8,7 +8,7 @@ interface StatisticsViewProps {
     onRowClick?: (colorId: number | null) => void;
 }
 
-export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] }) => {
+export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [], onRowClick }) => {
     const [sortColumn, setSortColumn] = useState<number>(1); // Default to Total column (index 1)
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); // Default to descending
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -104,7 +104,7 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                         </tr>
                         {/* Total row in thead to avoid indentation */}
                         {totalTotal > 0 && (
-                            <tr className="statistics-total-row" onClick={() => props.onRowClick?.(null)}>
+                            <tr className="statistics-total-row" onClick={() => onRowClick?.(null)}>
                                 <td>{LanguageManager.getText('total')}</td>
                                 <td className="number-column">{totalTotal.toLocaleString()}</td>
                                 <td className="number-column">{totalCompleted.toLocaleString()}</td>
@@ -119,7 +119,7 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                         {sortedStatistics
                             .filter(row => row.total > 0)
                             .map((row, index) => (
-                                <tr key={index} onClick={() => props.onRowClick?.(row.color?.id ?? null)}>
+                                <tr key={index} onClick={() => onRowClick?.(row.color?.id ?? null)}>
                                     <td>
                                         <span 
                                             className="color-swatch"

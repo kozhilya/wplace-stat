@@ -10,7 +10,7 @@ interface RightPanelProps {
     selectedColorId?: number | null;
 }
 
-export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
     const isInteractionManagerInitialized = useRef(false);
