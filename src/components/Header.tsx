@@ -17,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
     hasActiveTemplate 
 }) => {
     const [currentLanguage, setCurrentLanguage] = useState(LanguageManager.getCurrentLanguage());
+    const [isDarkMode, setIsDarkMode] = useState(document.body.classList.contains('dark-mode'));
     
     useEffect(() => {
         const handleLanguageChange = () => {
@@ -68,6 +69,17 @@ export const Header: React.FC<HeaderProps> = ({
                     <option value="ru">RU</option>
                     <option value="es">ES</option>
                 </select>
+                <button 
+                    className="dark-mode-toggle"
+                    onClick={() => {
+                        const isDark = document.body.classList.toggle('dark-mode');
+                        localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+                        setIsDarkMode(isDark);
+                    }}
+                    title={isDarkMode ? LanguageManager.getText('lightMode') : LanguageManager.getText('darkMode')}
+                >
+                    {isDarkMode ? '☀️' : '🌙'}
+                </button>
                 <div className="last-updated">
                     {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
                 </div>

@@ -39,5 +39,7 @@ export const es = {
     difference: 'Diferencia',
     zoomIn: 'Acercar',
     zoomOut: 'Alejar',
-    resetZoom: 'Restablecer Zoom'
+    resetZoom: 'Restablecer Zoom',
+    darkMode: 'Modo oscuro',
+    lightMode: 'Modo claro'
 };

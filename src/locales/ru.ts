@@ -39,5 +39,7 @@ export const ru = {
     difference: 'Разница',
     zoomIn: 'Приблизить',
     zoomOut: 'Отдалить',
-    resetZoom: 'Сбросить Масштаб'
+    resetZoom: 'Сбросить Масштаб',
+    darkMode: 'Тёмный режим',
+    lightMode: 'Светлый режим'
 };

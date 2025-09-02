@@ -23,6 +23,12 @@ export const AppComponent: React.FC = () => {
     useEffect(() => {
         LanguageManager.initialize();
         
+        // Initialize dark mode
+        const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (savedDarkMode) {
+            document.body.classList.add('dark-mode');
+        }
+        
         // Load templates from localStorage
         const loadedTemplates = templateCollection.current.getTemplates();
         setTemplates(loadedTemplates);
