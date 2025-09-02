@@ -28,6 +28,10 @@ export class CanvasInteractionManager {
         this.resetView();
     }
 
+    setKeepPixelsSquare(keepSquare: boolean): void {
+        this.keepPixelsSquare = keepSquare;
+    }
+
     resetView(): void {
         this.scale = 1;
         // Ensure canvas dimensions are up to date
@@ -102,30 +106,37 @@ export class CanvasInteractionManager {
         e.preventDefault();
         
         const zoomIntensity = 0.1;
-        const mouseX = e.clientX - this.canvas.getBoundingClientRect().left;
-        const mouseY = e.clientY - this.canvas.getBoundingClientRect().top;
-        
-        const wheel = e.deltaY < 0 ? 1 : -1;
-        const zoom = Math.exp(wheel * zoomIntensity);
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
         
         // Calculate mouse position in canvas coordinates
-        const mousePointX = (mouseX - this.offset.x) / this.scale;
-        const mousePointY = (mouseY - this.offset.y) / this.scale;
+        const mouseCanvasX = (mouseX - this.offset.x) / this.scale;
+        const mouseCanvasY = (mouseY - this.offset.y) / this.scale;
         
-        // Apply zoom
-        const newScale = Math.max(0.1, Math.min(10, this.scale * zoom));
+        const wheel = e.deltaY < 0 ? 1 : -1;
+        const zoomFactor = Math.exp(wheel * zoomIntensity);
+        
+        // Calculate new scale
+        const newScale = Math.max(0.1, Math.min(10, this.scale * zoomFactor));
         
         // Adjust offset to zoom towards mouse position
-        this.offset.x = mouseX - mousePointX * newScale;
-        this.offset.y = mouseY - mousePointY * newScale;
+        this.offset.x = mouseX - mouseCanvasX * newScale;
+        this.offset.y = mouseY - mouseCanvasY * newScale;
         
+        // Update scale
         this.scale = newScale;
         
-        // Keep image within canvas bounds
+        // Apply bounds
         this.applyBounds();
         
-        this.onScaleChange?.(this.scale);
-        this.onOffsetChange?.(this.offset);
+        // Notify listeners
+        if (this.onScaleChange) {
+            this.onScaleChange(this.scale);
+        }
+        if (this.onOffsetChange) {
+            this.onOffsetChange(this.offset);
+        }
     }
 
     private handleTouchStart(e: TouchEvent): void {
