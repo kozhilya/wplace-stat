@@ -98,26 +98,47 @@ export class ImageLoaderManager {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
-            img.onload = () => {
-                // Calculate position to draw the tile
-                const drawX = offsetX * WplaceTileWidth;
-                const drawY = offsetY * WplaceTileWidth;
-                ctx.drawImage(img, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
-                console.log(`Loaded tile at (${tileX}, ${tileY})`);
-                resolve();
-            };
-            img.onerror = (error) => {
-                // If tile fails to load, draw a blank space and resolve
-                // This prevents the entire composition from failing due to missing tiles
-                console.warn(`Failed to load tile at (${tileX}, ${tileY})`, error);
-                resolve();
+            
+            // Track if we've tried the fallback
+            let triedFallback = false;
+            
+            const loadImage = (url: string) => {
+                img.onload = () => {
+                    // Calculate position to draw the tile
+                    const drawX = offsetX * WplaceTileWidth;
+                    const drawY = offsetY * WplaceTileWidth;
+                    ctx.drawImage(img, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
+                    console.log(`Loaded tile at (${tileX}, ${tileY})`);
+                    resolve();
+                };
+                
+                img.onerror = (error) => {
+                    if (!triedFallback) {
+                        // Try fallback proxy
+                        triedFallback = true;
+                        console.warn(`Failed to load tile using primary proxy, trying fallback: (${tileX}, ${tileY})`, error);
+                        
+                        const timestamp = Date.now();
+                        const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
+                        const fallbackProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`;
+                        console.log(`Trying fallback proxy: ${fallbackProxyUrl}`);
+                        img.src = fallbackProxyUrl;
+                    } else {
+                        // If tile fails to load even with fallback, draw a blank space and resolve
+                        console.warn(`Failed to load tile at (${tileX}, ${tileY}) even with fallback`, error);
+                        resolve();
+                    }
+                };
+                
+                console.log(`Loading tile from: ${url}`);
+                img.src = url;
             };
             
-            // Construct the tile URL with timestamp to avoid caching issues
+            // Start with primary proxy
             const timestamp = Date.now();
-            const tileUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
-            console.log(`Loading tile from: ${tileUrl}`);
-            img.src = tileUrl;
+            const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
+            const primaryProxyUrl = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`;
+            loadImage(primaryProxyUrl);
         });
     }
 }
