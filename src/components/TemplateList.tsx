@@ -43,34 +43,24 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
             {templates.length === 0 ? (
                 <p data-i18n="noSavedTemplates">No saved templates</p>
             ) : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
+                <ul>
                     {templates.map((template, index) => (
-                        <li key={index} style={{ 
-                            marginBottom: '10px', 
-                            padding: '10px', 
-                            border: '1px solid #ddd', 
-                            borderRadius: '4px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
+                        <li key={index}>
                             <div>
                                 <strong>{template.name}</strong>
-                                <div style={{ fontSize: '0.9em', color: '#666' }}>
+                                <div>
                                     TL: ({template.tlX}, {template.tlY}) | PX: ({template.pxX}, {template.pxY})
                                 </div>
                             </div>
                             <div>
                                 <button 
                                     onClick={() => handleLoad(template)}
-                                    style={{ marginRight: '5px' }}
                                     data-i18n="load"
                                 >
                                     Load
                                 </button>
                                 <button 
                                     onClick={() => handleDelete(index, template.name)}
-                                    style={{ backgroundColor: '#ff4444', color: 'white' }}
                                     data-i18n="delete"
                                 >
                                     Delete

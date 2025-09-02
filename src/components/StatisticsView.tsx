@@ -84,19 +84,13 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
         <div className="statistics">
             <h2 data-i18n="statistics">Statistics</h2>
             <div className="table-container">
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table>
                     <thead>
                         <tr>
                             {['color', 'total', 'completed', 'percentage', 'remaining'].map((text, index) => (
                                 <th 
                                     key={index}
                                     onClick={() => handleHeaderClick(index)}
-                                    style={{ 
-                                        cursor: 'pointer',
-                                        userSelect: 'none',
-                                        position: 'relative',
-                                        paddingRight: '24px'
-                                    }}
                                 >
                                     <span className="text" data-i18n={text}>
                                         {LanguageManager.getText(text as any)}
@@ -131,13 +125,9 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                                 <tr key={index}>
                                     <td>
                                         <span 
+                                            className="color-swatch"
                                             style={{
-                                                display: 'inline-block',
-                                                width: '12px',
-                                                height: '12px',
-                                                backgroundColor: `rgb(${row.color?.rgb.join(',') || '0,0,0'})`,
-                                                marginRight: '5px',
-                                                border: '1px solid #ccc'
+                                                backgroundColor: `rgb(${row.color?.rgb.join(',') || '0,0,0'})`
                                             }}
                                         />
                                         {row.color?.id}. {row.color?.premium ? '★ ' : ''}{row.color?.name}

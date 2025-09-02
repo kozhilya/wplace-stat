@@ -70,32 +70,23 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
     };
 
     return (
-        <div 
-            className="left-panel" 
-            style={{ 
-                width: `${width}px`, 
-                height: '100%', 
-                borderRight: '1px solid #ddd',
-                overflow: 'auto',
-                padding: '10px'
-            }}
-        >
-            <div className="view-selector" style={{ marginBottom: '10px', display: 'flex', gap: '5px' }}>
+        <div className="left-panel" style={{ width: `${width}px` }}>
+            <div className="view-selector">
                 <button 
                     onClick={() => setActiveView('template')}
-                    style={{ fontWeight: activeView === 'template' ? 'bold' : 'normal' }}
+                    className={activeView === 'template' ? 'active' : ''}
                 >
                     Template
                 </button>
                 <button 
                     onClick={() => setActiveView('statistics')}
-                    style={{ fontWeight: activeView === 'statistics' ? 'bold' : 'normal' }}
+                    className={activeView === 'statistics' ? 'active' : ''}
                 >
                     Statistics
                 </button>
                 <button 
                     onClick={() => setActiveView('templates')}
-                    style={{ fontWeight: activeView === 'templates' ? 'bold' : 'normal' }}
+                    className={activeView === 'templates' ? 'active' : ''}
                 >
                     Templates
                 </button>

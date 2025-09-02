@@ -50,9 +50,12 @@ body {
     overflow: auto;
     height: 100%;
     box-sizing: border-box;
+    border-right: 1px solid #ddd;
     
     .view-selector {
         margin-bottom: 10px;
+        display: flex;
+        gap: 5px;
         
         button {
             padding: 5px 10px;
@@ -62,6 +65,10 @@ body {
             
             &:hover {
                 background: #f5f5f5;
+            }
+            
+            &.active {
+                font-weight: bold;
             }
         }
     }
@@ -198,11 +205,44 @@ button[type="submit"] {
 
 .right-panel {
     flex: 1;
-    background: #fff;
+    height: 100%;
+    overflow: hidden;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;
+    flex-direction: column;
+    background-color: #f0f0f0;
+    position: relative;
+    
+    .view-mode-selector {
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+        
+        button {
+            font-weight: normal;
+            
+            &.active {
+                font-weight: bold;
+            }
+        }
+    }
+    
+    .canvas-area {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .zoom-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 5px;
+        border-radius: 4px;
+    }
     
     canvas {
         max-width: 100%;
@@ -233,6 +273,46 @@ button[type="submit"] {
         height: 30px;
         background-color: #999;
         border-radius: 2px;
+    }
+}
+
+// Template list styles
+.template-list {
+    ul {
+        list-style: none;
+        padding: 0;
+        
+        li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            div:first-child {
+                strong {
+                    display: block;
+                }
+                
+                div {
+                    font-size: 0.9em;
+                    color: #666;
+                }
+            }
+            
+            div:last-child {
+                button {
+                    margin-right: 5px;
+                    
+                    &:last-child {
+                        background-color: #ff4444;
+                        color: white;
+                    }
+                }
+            }
+        }
     }
 }
 

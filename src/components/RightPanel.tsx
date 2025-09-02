@@ -316,20 +316,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     drawCanvasRef.current = drawCanvas;
 
     return (
-        <div
-            className="right-panel"
-            style={{
-                flex: 1,
-                height: '100%',
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                backgroundColor: '#f0f0f0',
-                position: 'relative'
-            }}
-        >
+        <div className="right-panel">
             {/* View mode selector */}
-            <div style={{ padding: '10px', display: 'flex', gap: '10px' }}>
+            <div className="view-mode-selector">
                 <button
                     onClick={() => setViewMode('template')}
                     style={{ fontWeight: viewMode === 'template' ? 'bold' : 'normal' }}
@@ -352,11 +341,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             
 
             {/* Canvas area */}
-            <div style={{
-                flex: 1,
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
+            <div className="canvas-area">
                 <canvas
                     ref={canvasRef}
                     style={{
@@ -368,17 +353,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 />
 
                 {/* Zoom controls */}
-                <div style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '5px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    padding: '5px',
-                    borderRadius: '4px'
-                }}>
+                <div className="zoom-controls">
                     <button onClick={handleZoomIn} title="Zoom In">+</button>
                     <button onClick={handleZoomReset} title="Reset Zoom">1:1</button>
                     <button onClick={handleZoomOut} title="Zoom Out">-</button>

@@ -91,10 +91,9 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                         required 
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        style={{ width: '100%' }} 
                     />
                 </div>
-                <div className="number-inputs-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                <div className="number-inputs-row">
                     <div className="form-group">
                         <label htmlFor="tl-x" data-i18n="tlX">Tl X:</label>
                         <input 
@@ -103,7 +102,6 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                             required 
                             value={tlX}
                             onChange={(e) => setTlX(e.target.value)}
-                            style={{ width: '60px' }} 
                         />
                     </div>
                     <div className="form-group">
@@ -114,7 +112,6 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                             required 
                             value={tlY}
                             onChange={(e) => setTlY(e.target.value)}
-                            style={{ width: '60px' }} 
                         />
                     </div>
                     <div className="form-group">
@@ -125,7 +122,6 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                             required 
                             value={pxX}
                             onChange={(e) => setPxX(e.target.value)}
-                            style={{ width: '60px' }} 
                         />
                     </div>
                     <div className="form-group">
@@ -136,7 +132,6 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                             required 
                             value={pxY}
                             onChange={(e) => setPxY(e.target.value)}
-                            style={{ width: '60px' }} 
                         />
                     </div>
                 </div>
@@ -148,10 +143,9 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                         required 
                         value={imageDataUrl}
                         onChange={(e) => setImageDataUrl(e.target.value)}
-                        style={{ width: '100%' }} 
                     />
                 </div>
-                <button type="submit" data-i18n="saveTemplate" style={{ marginTop: '10px' }}>
+                <button type="submit" data-i18n="saveTemplate">
                     Save Template
                 </button>
             </form>
