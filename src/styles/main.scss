@@ -57,6 +57,20 @@ body {
         align-items: center;
         gap: 10px;
         
+        .language-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            
+            &:hover {
+                background-color: #555;
+            }
+        }
+        
         .close-button {
             background: none;
             border: none;

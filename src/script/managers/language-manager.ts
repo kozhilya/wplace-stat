@@ -1,10 +1,35 @@
 import { en } from '../../locales/en';
+import { ru } from '../../locales/ru';
+
+type Language = 'en' | 'ru';
+type Translations = typeof en;
 
 export class LanguageManager {
-    private static currentLanguage = en;
+    private static currentLanguage: Language = 'en';
+    private static translations: Record<Language, Translations> = {
+        en: en,
+        ru: ru
+    };
 
     static initialize(): void {
+        // Load language preference from localStorage
+        const savedLanguage = localStorage.getItem('language') as Language;
+        if (savedLanguage && this.translations[savedLanguage]) {
+            this.currentLanguage = savedLanguage;
+        }
         this.updateTexts();
+    }
+
+    static setLanguage(language: Language): void {
+        if (this.translations[language]) {
+            this.currentLanguage = language;
+            localStorage.setItem('language', language);
+            this.updateTexts();
+        }
+    }
+
+    static getCurrentLanguage(): Language {
+        return this.currentLanguage;
     }
 
     static updateTexts(): void {
@@ -12,8 +37,8 @@ export class LanguageManager {
         const elements = document.querySelectorAll('[data-i18n]');
         elements.forEach(element => {
             const key = element.getAttribute('data-i18n');
-            if (key && key in this.currentLanguage) {
-                const text = this.currentLanguage[key as keyof typeof this.currentLanguage];
+            if (key && key in this.translations[this.currentLanguage]) {
+                const text = this.translations[this.currentLanguage][key as keyof Translations];
                 if (element instanceof HTMLInputElement && element.type === 'submit') {
                     element.value = text;
                 } else if (element instanceof HTMLButtonElement) {
@@ -33,7 +58,7 @@ export class LanguageManager {
         });
     }
 
-    static getText(key: keyof typeof en): string {
-        return this.currentLanguage[key];
+    static getText(key: keyof Translations): string {
+        return this.translations[this.currentLanguage][key];
     }
 }

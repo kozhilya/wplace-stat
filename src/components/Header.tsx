@@ -16,6 +16,13 @@ export const Header: React.FC<HeaderProps> = ({
     onTemplatesButtonClick,
     hasActiveTemplate 
 }) => {
+    const currentLanguage = LanguageManager.getCurrentLanguage();
+    
+    const handleLanguageChange = () => {
+        const newLanguage = currentLanguage === 'en' ? 'ru' : 'en';
+        LanguageManager.setLanguage(newLanguage);
+    };
+
     return (
         <header className="header">
             <div className="header-left">
@@ -40,6 +47,22 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
             </div>
             <div className="header-right">
+                <button 
+                    className="language-button"
+                    onClick={handleLanguageChange}
+                    title="Switch language"
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        padding: '5px',
+                        borderRadius: '3px',
+                        marginRight: '10px'
+                    }}
+                >
+                    {currentLanguage.toUpperCase()}
+                </button>
                 <div className="last-updated">
                     {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
                 </div>
