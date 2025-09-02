@@ -62,8 +62,8 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
             // Load the template image
             await template.loadTemplateImage();
             
-            // Load the actual canvas
-            await template.loadActualCanvas();
+            // Load the Wplace image
+            await template.loadWplaceImage();
             
             if (onTemplateSave) {
                 onTemplateSave(template);
