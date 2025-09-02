@@ -45,8 +45,15 @@ export class ImageLoaderManager {
         
         await Promise.all(tilePromises);
         
+        // Log the canvas dimensions
+        console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
+        
         // Convert canvas to image
         template.actualCanvas = await this.canvasToImage(canvas);
+        console.log(`Actual canvas set: ${template.actualCanvas ? 'Yes' : 'No'}`);
+        if (template.actualCanvas) {
+            console.log(`Actual canvas dimensions: ${template.actualCanvas.width}x${template.actualCanvas.height}`);
+        }
     }
 
     private static async canvasToImage(canvas: HTMLCanvasElement): Promise<HTMLImageElement> {
@@ -73,18 +80,21 @@ export class ImageLoaderManager {
                 const drawX = offsetX * WplaceTileWidth;
                 const drawY = offsetY * WplaceTileWidth;
                 ctx.drawImage(img, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
+                console.log(`Loaded tile at (${tileX}, ${tileY})`);
                 resolve();
             };
-            img.onerror = () => {
+            img.onerror = (error) => {
                 // If tile fails to load, draw a blank space and resolve
                 // This prevents the entire composition from failing due to missing tiles
-                console.warn(`Failed to load tile at (${tileX}, ${tileY})`);
+                console.warn(`Failed to load tile at (${tileX}, ${tileY})`, error);
                 resolve();
             };
             
             // Construct the tile URL with timestamp to avoid caching issues
             const timestamp = Date.now();
-            img.src = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
+            const tileUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
+            console.log(`Loading tile from: ${tileUrl}`);
+            img.src = tileUrl;
         });
     }
 }

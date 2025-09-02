@@ -36,6 +36,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
     // Update actual canvas when template or view mode changes
     useEffect(() => {
+        console.log('View mode or current template changed:', viewMode, currentTemplate);
         if (actualCanvasRef.current && currentTemplate?.actualCanvas && (viewMode === 'actual' || viewMode === 'both')) {
             // Set the canvas dimensions to match the actual canvas
             actualCanvasRef.current.width = currentTemplate.actualCanvas.width;
@@ -45,8 +46,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             if (ctx) {
                 ctx.clearRect(0, 0, actualCanvasRef.current.width, actualCanvasRef.current.height);
                 // Draw the actual canvas image
-                ctx.drawImage(currentTemplate.actualCanvas, 0, 0, 
-                             currentTemplate.actualCanvas.width, currentTemplate.actualCanvas.height);
+                console.log('Drawing actual canvas:', currentTemplate.actualCanvas.width, currentTemplate.actualCanvas.height);
+                ctx.drawImage(currentTemplate.actualCanvas, 0, 0);
             }
         } else if (actualCanvasRef.current && (viewMode === 'template' || viewMode === 'both')) {
             // Clear the actual canvas if not in actual view
@@ -122,7 +123,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 {/* Actual canvas - always rendered but conditionally visible */}
                 <div style={{ 
                     textAlign: 'center', 
-                    display: (viewMode === 'actual' || viewMode === 'both') && currentTemplate?.actualCanvas ? 'block' : 'none' 
+                    display: (viewMode === 'actual' || viewMode === 'both') ? 'block' : 'none' 
                 }}>
                     <div>Actual Canvas</div>
                     <canvas 
