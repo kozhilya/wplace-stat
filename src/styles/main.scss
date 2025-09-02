@@ -3,9 +3,10 @@
 // CSS Variables for colors
 :root {
     --color-background: #f0f0f0;
+    --color-background-2: #d0d0d0;
+    --color-background-3: #b0b0b0;
     --color-text-primary: #333;
     --color-text-light: #666;
-    --color-text-white: white;
     --color-border: #ddd;
     --color-highlight: #007bff;
     --color-difference-match: #4CAF50;
@@ -15,9 +16,10 @@
 // Dark mode variables
 body.dark-mode {
     --color-background: #1a1a1a;
+    --color-background-2: #2a2a2a;
+    --color-background-3: #3a3a3a;
     --color-text-primary: #e0e0e0;
     --color-text-light: #a0a0a0;
-    --color-text-white: #ffffff;
     --color-border: #444;
     --color-highlight: #007bff;
     --color-difference-match: #2e7d32;
@@ -31,7 +33,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: var(--color-background);
-    color: var(--color-font);
+    color: var(--color-text-primary);
     height: 100vh;
     overflow: hidden;
 }
@@ -652,7 +654,7 @@ button[type="submit"] {
 .language-selector {
     background: var(--color-language-selector-bg);
     border: none;
-    color: var(--color-text-white);
+    color: var(--color-text-primary);
     cursor: pointer;
     padding: 5px;
     border-radius: 3px;
