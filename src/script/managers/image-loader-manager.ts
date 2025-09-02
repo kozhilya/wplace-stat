@@ -17,7 +17,7 @@ export class ImageLoaderManager {
         });
     }
 
-    static async loadActualCanvas(template: Template): Promise<void> {
+    static async loadWplaceImage(template: Template): Promise<void> {
         if (!template.templateImage) {
             await this.loadTemplateImage(template);
         }
@@ -49,10 +49,10 @@ export class ImageLoaderManager {
         console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
         
         // Convert canvas to image
-        template.actualCanvas = await this.canvasToImage(canvas);
-        console.log(`Actual canvas set: ${template.actualCanvas ? 'Yes' : 'No'}`);
-        if (template.actualCanvas) {
-            console.log(`Actual canvas dimensions: ${template.actualCanvas.width}x${template.actualCanvas.height}`);
+        template.wplaceImage = await this.canvasToImage(canvas);
+        console.log(`Wplace image set: ${template.wplaceImage ? 'Yes' : 'No'}`);
+        if (template.wplaceImage) {
+            console.log(`Wplace image dimensions: ${template.wplaceImage.width}x${template.wplaceImage.height}`);
         }
     }
 

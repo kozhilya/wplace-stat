@@ -51,16 +51,16 @@ export const AppComponent: React.FC = () => {
                     
                     // Load and set the current template
                     await template.loadTemplateImage();
-                    await template.loadActualCanvas();
+                    await template.loadWplaceImage();
                     setCurrentTemplate(template);
                     setTemplateName(template.name);
                     setLastUpdated(new Date());
                     
                     // Update statistics
-                    if (template.templateImage && template.actualCanvas) {
+                    if (template.templateImage && template.wplaceImage) {
                         statisticsManagerRef.current = new StatisticsManager(
                             template.templateImage, 
-                            template.actualCanvas
+                            template.wplaceImage
                         );
                         setStatistics(statisticsManagerRef.current.getStatistics());
                     }
@@ -83,7 +83,7 @@ export const AppComponent: React.FC = () => {
                     const hash = window.location.hash.substring(1);
                     const template = Template.deserialize(hash);
                     await template.loadTemplateImage();
-                    await template.loadActualCanvas();
+                    await template.loadWplaceImage();
                     setCurrentTemplate(template);
                     setTemplateName(template.name);
                     setLastUpdated(new Date());
@@ -137,15 +137,15 @@ export const AppComponent: React.FC = () => {
         if (!template.templateImage) {
             await template.loadTemplateImage();
         }
-        if (!template.actualCanvas) {
-            await template.loadActualCanvas();
+        if (!template.wplaceImage) {
+            await template.loadWplaceImage();
         }
         
         // Update statistics
-        if (template.templateImage && template.actualCanvas) {
+        if (template.templateImage && template.wplaceImage) {
             statisticsManagerRef.current = new StatisticsManager(
                 template.templateImage, 
-                template.actualCanvas
+                template.wplaceImage
             );
             setStatistics(statisticsManagerRef.current.getStatistics());
         }

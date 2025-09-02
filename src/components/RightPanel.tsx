@@ -8,9 +8,9 @@ interface RightPanelProps {
 
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     const templateCanvasRef = useRef<HTMLCanvasElement>(null);
-    const actualCanvasRef = useRef<HTMLCanvasElement>(null);
+    const wplaceImageCanvasRef = useRef<HTMLCanvasElement>(null);
     const [canvasManager, setCanvasManager] = useState<CanvasManager | null>(null);
-    const [viewMode, setViewMode] = useState<'template' | 'actual' | 'both'>('template');
+    const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'both'>('template');
 
     useEffect(() => {
         if (templateCanvasRef.current) {
@@ -34,26 +34,26 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         }
     }, [canvasManager, currentTemplate, viewMode]);
 
-    // Update actual canvas when template or view mode changes
+    // Update Wplace image canvas when template or view mode changes
     useEffect(() => {
         console.log('View mode or current template changed:', viewMode, currentTemplate);
-        if (actualCanvasRef.current && currentTemplate?.actualCanvas && (viewMode === 'actual' || viewMode === 'both')) {
-            // Set the canvas dimensions to match the actual canvas
-            actualCanvasRef.current.width = currentTemplate.actualCanvas.width;
-            actualCanvasRef.current.height = currentTemplate.actualCanvas.height;
+        if (wplaceImageCanvasRef.current && currentTemplate?.wplaceImage && (viewMode === 'wplace' || viewMode === 'both')) {
+            // Set the canvas dimensions to match the Wplace image
+            wplaceImageCanvasRef.current.width = currentTemplate.wplaceImage.width;
+            wplaceImageCanvasRef.current.height = currentTemplate.wplaceImage.height;
             
-            const ctx = actualCanvasRef.current.getContext('2d');
+            const ctx = wplaceImageCanvasRef.current.getContext('2d');
             if (ctx) {
-                ctx.clearRect(0, 0, actualCanvasRef.current.width, actualCanvasRef.current.height);
-                // Draw the actual canvas image
-                console.log('Drawing actual canvas:', currentTemplate.actualCanvas.width, currentTemplate.actualCanvas.height);
-                ctx.drawImage(currentTemplate.actualCanvas, 0, 0);
+                ctx.clearRect(0, 0, wplaceImageCanvasRef.current.width, wplaceImageCanvasRef.current.height);
+                // Draw the Wplace image
+                console.log('Drawing Wplace image:', currentTemplate.wplaceImage.width, currentTemplate.wplaceImage.height);
+                ctx.drawImage(currentTemplate.wplaceImage, 0, 0);
             }
-        } else if (actualCanvasRef.current && (viewMode === 'template' || viewMode === 'both')) {
-            // Clear the actual canvas if not in actual view
-            const ctx = actualCanvasRef.current.getContext('2d');
+        } else if (wplaceImageCanvasRef.current && (viewMode === 'template' || viewMode === 'both')) {
+            // Clear the Wplace image canvas if not in Wplace view
+            const ctx = wplaceImageCanvasRef.current.getContext('2d');
             if (ctx) {
-                ctx.clearRect(0, 0, actualCanvasRef.current.width, actualCanvasRef.current.height);
+                ctx.clearRect(0, 0, wplaceImageCanvasRef.current.width, wplaceImageCanvasRef.current.height);
             }
         }
     }, [currentTemplate, viewMode]);
@@ -79,10 +79,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                     Template
                 </button>
                 <button 
-                    onClick={() => setViewMode('actual')}
-                    style={{ fontWeight: viewMode === 'actual' ? 'bold' : 'normal' }}
+                    onClick={() => setViewMode('wplace')}
+                    style={{ fontWeight: viewMode === 'wplace' ? 'bold' : 'normal' }}
                 >
-                    Actual
+                    Wplace
                 </button>
                 <button 
                     onClick={() => setViewMode('both')}
@@ -120,16 +120,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                     />
                 </div>
                 
-                {/* Actual canvas - always rendered but conditionally visible */}
+                {/* Wplace image canvas - always rendered but conditionally visible */}
                 <div style={{ 
                     textAlign: 'center', 
-                    display: (viewMode === 'actual' || viewMode === 'both') ? 'block' : 'none' 
+                    display: (viewMode === 'wplace' || viewMode === 'both') ? 'block' : 'none' 
                 }}>
-                    <div>Actual Canvas</div>
+                    <div>Wplace Image</div>
                     <canvas 
-                        ref={actualCanvasRef}
-                        width={currentTemplate?.actualCanvas?.width || 0}
-                        height={currentTemplate?.actualCanvas?.height || 0}
+                        ref={wplaceImageCanvasRef}
+                        width={currentTemplate?.wplaceImage?.width || 0}
+                        height={currentTemplate?.wplaceImage?.height || 0}
                         style={{ 
                             maxWidth: '100%', 
                             maxHeight: '70vh', 

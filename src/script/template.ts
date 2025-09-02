@@ -15,7 +15,7 @@ export class Template {
     imageWidth: number = -1;
     imageHeight: number = -1;
     templateImage: HTMLImageElement | null = null;
-    actualCanvas: HTMLImageElement | null = null;
+    wplaceImage: HTMLImageElement | null = null;
 
     constructor(name: string, tlX: number, tlY: number, pxX: number, pxY: number, imageDataUrl: string) {
         this.tlX = tlX;
@@ -32,10 +32,10 @@ export class Template {
         await ImageLoaderManager.loadTemplateImage(this);
     }
 
-    // Load the actual canvas from the server using ImageLoaderManager
-    async loadActualCanvas(): Promise<void> {
+    // Load the Wplace image from the server using ImageLoaderManager
+    async loadWplaceImage(): Promise<void> {
         const { ImageLoaderManager } = await import('./managers/image-loader-manager');
-        await ImageLoaderManager.loadActualCanvas(this);
+        await ImageLoaderManager.loadWplaceImage(this);
     }
 
     // Serialize to base64
