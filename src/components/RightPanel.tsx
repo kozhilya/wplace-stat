@@ -37,18 +37,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         };
     }, []);
 
-    // Initialize and update interaction manager
+    // Initialize interaction manager when canvas is available
     useEffect(() => {
-        if (canvasRef.current && !isInteractionManagerInitialized.current) {
+        const canvas = canvasRef.current;
+        if (canvas && !interactionManagerRef.current) {
             interactionManagerRef.current = new CanvasInteractionManager(
-                canvasRef.current,
+                canvas,
                 (newScale) => {
                     setScale(newScale);
-                    // Update the interaction manager's scale to keep it in sync
-                    if (interactionManagerRef.current) {
-                        // We need to access the private scale property, but it's private
-                        // For now, we'll trust that the scale is updated through the callback
-                    }
                     // Force redraw when scale changes
                     drawCanvasRef.current?.();
                 },
@@ -58,45 +54,28 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     drawCanvasRef.current?.();
                 }
             );
-            isInteractionManagerInitialized.current = true;
-        }
-        
-        // Update the current template whenever it changes
-        if (interactionManagerRef.current) {
+            
+            // Update the current template
             interactionManagerRef.current.setTemplate(currentTemplate);
         }
 
         return () => {
             // Cleanup on component unmount
-            if (isInteractionManagerInitialized.current) {
-                interactionManagerRef.current?.cleanup();
-                isInteractionManagerInitialized.current = false;
+            if (interactionManagerRef.current) {
+                interactionManagerRef.current.cleanup();
                 interactionManagerRef.current = null;
             }
         };
-    }, [currentTemplate]);
+    }, []);
 
     // Update interaction manager when template changes
     useEffect(() => {
-        interactionManagerRef.current?.setTemplate(currentTemplate);
-        // Reset view when template changes
-        setScale(1);
-        // Center the image on the canvas
-        if (canvasRef.current && currentTemplate?.templateImage) {
-            const canvas = canvasRef.current;
-            const img = currentTemplate.templateImage;
-            // Ensure canvas dimensions are up to date
-            const container = canvas.parentElement;
-            if (container) {
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-                const centerX = (canvas.width - img.width) / 2;
-                const centerY = (canvas.height - img.height) / 2;
-                setOffset({ x: centerX, y: centerY });
-            }
-        } else {
-            setOffset({ x: 0, y: 0 });
+        if (interactionManagerRef.current) {
+            interactionManagerRef.current.setTemplate(currentTemplate);
         }
+        // Reset view when template changes
+        // Reset through the interaction manager to ensure proper synchronization
+        interactionManagerRef.current?.resetView();
         // Update current image
         updateCurrentImageToDraw();
     }, [currentTemplate]);
