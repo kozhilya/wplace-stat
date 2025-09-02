@@ -3,103 +3,25 @@
 // CSS Variables for colors
 :root {
     --color-background: #f0f0f0;
-    --color-header-bg: #333;
     --color-text-primary: #333;
     --color-text-light: #666;
     --color-text-white: white;
     --color-border: #ddd;
-    --color-button-hover: #555;
-    --color-table-header-bg: #c0c0c0;
-    --color-table-header-hover: #a0a0a0;
-    --color-table-row-even: #f8f8f8;
-    --color-table-row-odd: #ffffff;
-    --color-table-row-hover: #e6f7ff;
-    --color-table-total-row: #e0e0e0;
-    --color-button-submit: #4CAF50;
-    --color-button-submit-hover: #45a049;
-    --color-button-delete: #ff4444;
-    --color-zoom-controls-bg: rgba(255, 255, 255, 0.8);
-    --color-close-button-hover: #ddd;
-    --color-scroll-fix: transparent;
-    --color-swatch-border: #ccc;
-    --color-statistics-divider: #ccc;
-    --color-language-selector-bg: #555;
-    --color-language-selector-hover: #666;
-    --color-language-option-bg: white;
-    --color-language-option-text: #333;
-    --color-github-link-hover: #555;
-    --color-splitter-bg: #ddd;
-    --color-splitter-hover: #ccc;
-    --color-splitter-active: #bbb;
-    --color-splitter-handle: #999;
-    --color-scrollbar-track: #f1f1f1;
-    --color-scrollbar-thumb: #c1c1c1;
-    --color-scrollbar-thumb-hover: #a8a8a8;
-    --scrollbar-width: 12px;
-    --color-font: #333;
-    --color-button-bg: #f0f0f0;
-    --color-button-text: #333;
-    --color-button-border: #ccc;
-    --color-button-hover-bg: #e0e0e0;
-    --color-button-hover-border: #999;
-    --color-button-active-bg: #d0d0d0;
-    --color-button-submit-text: white;
-    --color-button-delete-hover: #d32f2f;
-    --color-difference-missing: #ff0000;
-    --color-difference-extra: #0000ff;
+    --color-highlight: #007bff;
     --color-difference-match: #4CAF50;
-    --color-difference-unselected: #ffffff;
+    --color-difference-mismatch: #ff0000;
 }
 
 // Dark mode variables
 body.dark-mode {
     --color-background: #1a1a1a;
-    --color-header-bg: #2d2d2d;
     --color-text-primary: #e0e0e0;
     --color-text-light: #a0a0a0;
     --color-text-white: #ffffff;
     --color-border: #444;
-    --color-button-hover: #555;
-    --color-table-header-bg: #3d3d3d;
-    --color-table-header-hover: #4d4d4d;
-    --color-table-row-even: #2a2a2a;
-    --color-table-row-odd: #222;
-    --color-table-row-hover: #333;
-    --color-table-total-row: #3a3a3a;
-    --color-button-submit: #2e7d32;
-    --color-button-submit-hover: #1b5e20;
-    --color-button-delete: #c62828;
-    --color-zoom-controls-bg: rgba(50, 50, 50, 0.8);
-    --color-close-button-hover: #555;
-    --color-scroll-fix: transparent;
-    --color-swatch-border: #666;
-    --color-statistics-divider: #555;
-    --color-language-selector-bg: #444;
-    --color-language-selector-hover: #555;
-    --color-language-option-bg: #333;
-    --color-language-option-text: #e0e0e0;
-    --color-github-link-hover: #555;
-    --color-splitter-bg: #444;
-    --color-splitter-hover: #555;
-    --color-splitter-active: #666;
-    --color-splitter-handle: #888;
-    --color-scrollbar-track: #2a2a2a;
-    --color-scrollbar-thumb: #555;
-    --color-scrollbar-thumb-hover: #666;
-    --scrollbar-width: 12px;
-    --color-font: #e0e0e0;
-    --color-button-bg: #3d3d3d;
-    --color-button-text: #e0e0e0;
-    --color-button-border: #555;
-    --color-button-hover-bg: #4d4d4d;
-    --color-button-hover-border: #666;
-    --color-button-active-bg: #5d5d5d;
-    --color-button-submit-text: white;
-    --color-button-delete-hover: #b71c1c;
-    --color-difference-missing: #ff5555;
-    --color-difference-extra: #5555ff;
+    --color-highlight: #007bff;
     --color-difference-match: #2e7d32;
-    --color-difference-unselected: #222222;
+    --color-difference-mismatch: #ff5555;
 }
 
 // Main styles
@@ -121,8 +43,8 @@ body {
 }
 
 .header {
-    background-color: var(--color-header-bg);
-    color: var(--color-text-white);
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
     padding: 0 20px;
     height: 60px;
     display: flex;
@@ -137,20 +59,20 @@ body {
         .templates-button {
             background: none;
             border: none;
-            color: var(--color-text-white);
+            color: var(--color-text-primary);
             font-size: 1.2rem;
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
 
             &:hover {
-                background-color: var(--color-button-hover);
+                background-color: var(--color-border);
             }
         }
 
         h1 {
             margin: 0;
-            color: var(--color-text-white);
+            color: var(--color-text-primary);
             font-size: 1.2rem;
         }
     }
@@ -161,80 +83,80 @@ body {
         gap: 10px;
 
         select {
-            background: var(--color-language-selector-bg);
-            border: none;
-            color: var(--color-text-white);
+            background: var(--color-background);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
             font-size: 0.9rem;
 
             &:hover {
-                background-color: var(--color-language-selector-hover);
+                background-color: var(--color-border);
             }
 
             option {
-                background: var(--color-language-option-bg);
-                color: var(--color-language-option-text);
+                background: var(--color-background);
+                color: var(--color-text-primary);
             }
         }
 
         .close-button {
             background: none;
             border: none;
-            color: var(--color-text-white);
+            color: var(--color-text-primary);
             font-size: 1.2rem;
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
 
             &:hover {
-                background-color: var(--color-button-hover);
+                background-color: var(--color-border);
             }
         }
 
         .template-button {
             background: none;
             border: none;
-            color: var(--color-text-white);
+            color: var(--color-text-primary);
             font-size: 1.2rem;
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
 
             &:hover {
-                background-color: var(--color-button-hover);
+                background-color: var(--color-border);
             }
         }
 
         .last-updated {
             font-size: 0.9rem;
-            color: #ccc;
+            color: var(--color-text-light);
         }
 
         .dark-mode-toggle {
             background: none;
             border: none;
-            color: var(--color-text-white);
+            color: var(--color-text-primary);
             font-size: 1.2rem;
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
             
             &:hover {
-                background-color: var(--color-button-hover);
+                background-color: var(--color-border);
             }
         }
 
         .github-link {
-            color: var(--color-text-white);
+            color: var(--color-text-primary);
             display: flex;
             align-items: center;
             padding: 5px;
             border-radius: 3px;
             
             &:hover {
-                background-color: var(--color-github-link-hover);
+                background-color: var(--color-border);
             }
             
             svg {
