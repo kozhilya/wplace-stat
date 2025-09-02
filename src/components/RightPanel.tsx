@@ -70,6 +70,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         }
     }, [currentTemplate, viewMode, scale, offset]);
 
+    // Define colors for difference mode (will be configurable later for dark mode)
+    const differenceColors = {
+        transparent: [0, 0, 0, 255],          // Black for transparent pixels
+        unselected: [255, 255, 255, 255],     // White for unselected colors
+        match: [0, 255, 0, 255],              // Green for matching colors
+        mismatch: [255, 0, 0, 255]            // Red for mismatching colors
+    };
+
     // Handle difference mode drawing
     const drawDifference = React.useCallback((
         ctx: CanvasRenderingContext2D, 
@@ -100,27 +108,50 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
         // Compare pixels
         for (let i = 0; i < templateData.data.length; i += 4) {
-            // If pixels are different, mark in red
-            if (templateData.data[i] !== wplaceData.data[i] ||
-                templateData.data[i + 1] !== wplaceData.data[i + 1] ||
-                templateData.data[i + 2] !== wplaceData.data[i + 2] ||
-                templateData.data[i + 3] !== wplaceData.data[i + 3]) {
-                resultData.data[i] = 255;     // R
-                resultData.data[i + 1] = 0;   // G
-                resultData.data[i + 2] = 0;   // B
-                resultData.data[i + 3] = 255; // A
-            } else {
-                // If pixels are the same, draw semi-transparent
-                resultData.data[i] = templateData.data[i];
-                resultData.data[i + 1] = templateData.data[i + 1];
-                resultData.data[i + 2] = templateData.data[i + 2];
-                resultData.data[i + 3] = 128; // Semi-transparent
+            const templateR = templateData.data[i];
+            const templateG = templateData.data[i + 1];
+            const templateB = templateData.data[i + 2];
+            const templateA = templateData.data[i + 3];
+            
+            const wplaceR = wplaceData.data[i];
+            const wplaceG = wplaceData.data[i + 1];
+            const wplaceB = wplaceData.data[i + 2];
+            const wplaceA = wplaceData.data[i + 3];
+
+            // 1) If template pixel is transparent - use black
+            if (templateA === 0) {
+                resultData.data[i] = differenceColors.transparent[0];
+                resultData.data[i + 1] = differenceColors.transparent[1];
+                resultData.data[i + 2] = differenceColors.transparent[2];
+                resultData.data[i + 3] = differenceColors.transparent[3];
+            }
+            // 2) If template pixel is unselected color - use white
+            // For now, we'll treat all non-transparent template pixels as "selected"
+            // You can add logic here later to check against a list of selected colors
+            else {
+                // Check if colors match
+                if (templateR === wplaceR && 
+                    templateG === wplaceG && 
+                    templateB === wplaceB && 
+                    templateA === wplaceA) {
+                    // 3) Colors match - use green
+                    resultData.data[i] = differenceColors.match[0];
+                    resultData.data[i + 1] = differenceColors.match[1];
+                    resultData.data[i + 2] = differenceColors.match[2];
+                    resultData.data[i + 3] = differenceColors.match[3];
+                } else {
+                    // 4) Colors don't match - use red
+                    resultData.data[i] = differenceColors.mismatch[0];
+                    resultData.data[i + 1] = differenceColors.mismatch[1];
+                    resultData.data[i + 2] = differenceColors.mismatch[2];
+                    resultData.data[i + 3] = differenceColors.mismatch[3];
+                }
             }
         }
 
         // Put the result data onto the canvas
         ctx.putImageData(resultData, x, y);
-    }, []);
+    }, [differenceColors]);
 
     // Zoom handlers
     const handleZoomIn = () => {
