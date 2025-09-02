@@ -179,6 +179,7 @@ export const AppComponent: React.FC = () => {
                     onCloseView={() => setLeftPanelView(null)}
                     onStatisticsRowClick={(colorId) => setSelectedColorId(colorId)}
                     onCreateTemplate={() => setLeftPanelView('template')}
+                    selectedColorId={selectedColorId}
                 />
                 <Splitter onResize={handleSplitterResize} />
                 <RightPanel currentTemplate={currentTemplate} selectedColorId={selectedColorId} />

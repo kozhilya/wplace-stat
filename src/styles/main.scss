@@ -398,6 +398,13 @@ body {
                         background-color: var(--color-table-row-hover);
                         cursor: pointer;
                     }
+                    
+                    // Selected row effect
+                    &.selected-row {
+                        background-color: var(--color-table-row-hover);
+                        outline: 2px solid #007bff;
+                        outline-offset: -2px;
+                    }
 
                     td {
                         padding: 8px;

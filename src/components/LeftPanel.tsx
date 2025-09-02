@@ -17,6 +17,7 @@ interface LeftPanelProps {
     onCloseView: () => void;
     onStatisticsRowClick?: (colorId: number | null) => void;
     onCreateTemplate: () => void;
+    selectedColorId?: number | null;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ 
@@ -28,7 +29,8 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
     activeView,
     onCloseView,
     onStatisticsRowClick,
-    onCreateTemplate
+    onCreateTemplate,
+    selectedColorId
 }) => {
     const collection = React.useRef(new TemplateCollection());
     const [templates, setTemplates] = useState<Template[]>([]);
@@ -105,7 +107,11 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                 <TemplateConfig onTemplateSave={handleTemplateSave} />
             )}
             {currentTemplate && activeView === null && (
-                <StatisticsView statistics={statistics} onRowClick={onStatisticsRowClick} />
+                <StatisticsView 
+                    statistics={statistics} 
+                    onRowClick={onStatisticsRowClick} 
+                    selectedColorId={selectedColorId}
+                />
             )}
         </div>
     );

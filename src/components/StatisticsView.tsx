@@ -6,6 +6,7 @@ import { StatisticsRow } from '../script/managers/statistics-manager';
 interface StatisticsViewProps {
     statistics?: StatisticsRow[];
     onRowClick?: (colorId: number | null) => void;
+    selectedColorId?: number | null;
 }
 
 export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [], onRowClick }) => {
@@ -126,7 +127,11 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
                         {sortedStatistics
                             .filter(row => row.total > 0)
                             .map((row, index) => (
-                                <tr key={index} onClick={() => onRowClick?.(row.color?.id ?? null)}>
+                                <tr 
+                                    key={index} 
+                                    onClick={() => onRowClick?.(row.color?.id ?? null)}
+                                    className={row.color?.id === selectedColorId ? 'selected-row' : ''}
+                                >
                                     <td>
                                         <span 
                                             className="color-swatch"
