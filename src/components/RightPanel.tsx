@@ -18,6 +18,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     
     // Use a ref to store the draw function to avoid dependency issues
 
+
     const drawCanvasRef = useRef<() => void>();
     drawCanvasRef.current = drawCanvas;
 
