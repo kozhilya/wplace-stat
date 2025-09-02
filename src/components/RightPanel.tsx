@@ -20,7 +20,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
-    const [keepPixelsSquare, setKeepPixelsSquare] = useState<boolean>(false);
     
     // Use a ref to store the draw function to avoid dependency issues
 
@@ -60,8 +59,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         // Update the current template whenever it changes
         if (interactionManagerRef.current) {
             interactionManagerRef.current.setTemplate(currentTemplate);
-            // Update keep pixels square setting
-            interactionManagerRef.current.setKeepPixelsSquare(keepPixelsSquare);
         }
 
         return () => {
@@ -72,7 +69,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                 interactionManagerRef.current = null;
             }
         };
-    }, [currentTemplate, keepPixelsSquare]);
+    }, [currentTemplate]);
 
     // Update interaction manager when template changes
     useEffect(() => {
@@ -268,9 +265,15 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                 // Save the current context
                 ctx.save();
                 
+                // Disable image smoothing to keep pixels sharp
+                ctx.imageSmoothingEnabled = false;
+                
                 // Apply scaling and offset
                 ctx.translate(offset.x, offset.y);
-                ctx.scale(scale, scale);
+                
+                // Always use integer scaling to maintain square pixels
+                const integerScale = Math.max(1, Math.floor(scale));
+                ctx.scale(integerScale, integerScale);
                 
                 // Draw the image at the top-left corner (0,0)
                 ctx.drawImage(imageToDraw, 0, 0);
@@ -303,9 +306,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             // Save the current context
             ctx.save();
 
+            // Disable image smoothing to keep pixels sharp
+            ctx.imageSmoothingEnabled = false;
+            
             // Apply scaling and offset
             ctx.translate(offset.x, offset.y);
-            ctx.scale(scale, scale);
+            
+            // Always use integer scaling to maintain square pixels
+            // Round scale to nearest integer to prevent sub-pixel rendering
+            const integerScale = Math.max(1, Math.floor(scale));
+            ctx.scale(integerScale, integerScale);
 
             // Draw the image at the top-left corner (0,0)
             // The offset and scale will handle positioning
@@ -324,6 +334,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         tempCanvas.height = templateImage.height;
         const tempCtx = tempCanvas.getContext('2d');
         if (!tempCtx) return;
+        
+        // Disable image smoothing for the difference image
+        tempCtx.imageSmoothingEnabled = false;
         
         // Draw difference onto the temporary canvas with selected color
         drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, selectedColorId);
@@ -408,14 +421,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     <button onClick={handleZoomIn} title={LanguageManager.getText('zoomIn')}>+</button>
                     <button onClick={handleZoomReset} title={LanguageManager.getText('resetZoom')}>1:1</button>
                     <button onClick={handleZoomOut} title={LanguageManager.getText('zoomOut')}>-</button>
-                    <label>
-                        <input 
-                            type="checkbox" 
-                            checked={keepPixelsSquare}
-                            onChange={(e) => setKeepPixelsSquare(e.target.checked)}
-                        />
-                        Square pixels
-                    </label>
                 </div>
             </div>
         </div>
