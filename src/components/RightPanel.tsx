@@ -90,10 +90,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         }
     }, [currentTemplate, viewMode, selectedColorId]);
 
-
     // Function to get CSS variable value
     const getCssVariable = (name: string): string => {
-        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return getComputedStyle(document.body).getPropertyValue(name).trim();
     };
 
     // Function to parse RGB/RGBA from CSS variable
@@ -410,35 +409,34 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
 
     return (
         <div className="right-panel">
-            {/* View mode selector */}
-            <div className="view-mode-selector">
-                <button
-                    onClick={() => setViewMode('template')}
-                    className={viewMode === 'template' ? 'active' : ''}
-                >
-                    {LanguageManager.getText('template')}
-                </button>
-                <button
-                    onClick={() => setViewMode('wplace')}
-                    className={viewMode === 'wplace' ? 'active' : ''}
-                >
-                    {LanguageManager.getText('wplace')}
-                </button>
-                <button
-                    onClick={() => setViewMode('difference')}
-                    className={viewMode === 'difference' ? 'active' : ''}
-                >
-                    {LanguageManager.getText('difference')}
-                </button>
-            </div>
-            
-
             {/* Canvas area */}
             <div className="canvas-area">
                 <canvas
                     ref={canvasRef}
                     className="canvas-element"
                 />
+
+                {/* View mode selector */}
+                <div className="view-mode-selector">
+                    <button
+                        onClick={() => setViewMode('template')}
+                        className={viewMode === 'template' ? 'active' : ''}
+                    >
+                        {LanguageManager.getText('template')}
+                    </button>
+                    <button
+                        onClick={() => setViewMode('wplace')}
+                        className={viewMode === 'wplace' ? 'active' : ''}
+                    >
+                        {LanguageManager.getText('wplace')}
+                    </button>
+                    <button
+                        onClick={() => setViewMode('difference')}
+                        className={viewMode === 'difference' ? 'active' : ''}
+                    >
+                        {LanguageManager.getText('difference')}
+                    </button>
+                </div>
 
                 {/* Zoom controls */}
                 <div className="zoom-controls">

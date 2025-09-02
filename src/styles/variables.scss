@@ -1,25 +1,33 @@
 // CSS Variables for colors
 :root {
-    --color-background: #f0f0f0;
-    --color-background-2: #d0d0d0;
-    --color-background-3: #b0b0b0;
-    --color-text-primary: #333;
+    --color-text-primary: #222;
     --color-text-light: #666;
-    --color-border: #ddd;
+    --color-background: #f0f0f0;
+    --color-background-2: #e0e0e0;
+    --color-background-3: #d0d0d0;
+    --color-background-4: #c0c0c0;
+    --color-border: #a0a0a0;
     --color-highlight: #007bff;
+
+    --color-difference-unselected: var(--color-background-2);
     --color-difference-match: #4CAF50;
-    --color-difference-mismatch: #ff0000;
+    --color-difference-missing: #ff0000;
+
+    --scroll-bar-width: 12px;
 }
 
 // Dark mode variables
 body.dark-mode {
-    --color-background: #1a1a1a;
-    --color-background-2: #2a2a2a;
-    --color-background-3: #3a3a3a;
     --color-text-primary: #e0e0e0;
     --color-text-light: #a0a0a0;
-    --color-border: #444;
+    --color-background: #101010;
+    --color-background-2: #202020;
+    --color-background-3: #303030;
+    --color-background-4: #404040;
+    --color-border: #606060;
     --color-highlight: #007bff;
-    --color-difference-match: #2e7d32;
-    --color-difference-mismatch: #ff5555;
+    
+    --color-difference-unselected: var(--color-background-2);
+    --color-difference-match: #20a020;
+    --color-difference-missing: #a02020;
 }

@@ -6,6 +6,7 @@
     overflow: auto;
     height: 100%;
     box-sizing: border-box;
+    border-top: 1px solid var(--color-border);
     border-right: 1px solid var(--color-border);
 
     .close-button {
@@ -56,21 +57,30 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-                
+
             // Set column widths
-            th:nth-child(1), td:nth-child(1) {
+            th:nth-child(1),
+            td:nth-child(1) {
                 width: 30%;
             }
-            th:nth-child(2), td:nth-child(2) {
+
+            th:nth-child(2),
+            td:nth-child(2) {
                 width: 15%;
             }
-            th:nth-child(3), td:nth-child(3) {
+
+            th:nth-child(3),
+            td:nth-child(3) {
                 width: 15%;
             }
-            th:nth-child(4), td:nth-child(4) {
+
+            th:nth-child(4),
+            td:nth-child(4) {
                 width: 15%;
             }
-            th:nth-child(5), td:nth-child(5) {
+
+            th:nth-child(5),
+            td:nth-child(5) {
                 width: 15%;
             }
 
@@ -85,7 +95,7 @@
                     table-layout: fixed;
 
                     th {
-                        background-color: var(--color-background-2);
+                        background-color: var(--color-background-3);
                         cursor: pointer;
                         user-select: none;
                         position: relative;
@@ -95,7 +105,7 @@
                         text-align: left;
 
                         &:hover {
-                            background-color: var(--color-background-3);
+                            background-color: var(--color-background-4);
                         }
 
                         .text {
@@ -117,26 +127,28 @@
                     }
 
                     &.statistics-total-row {
+                        background-color: var(--color-background-2);
+
                         td {
-                            background-color: var(--color-background-2);
                             font-weight: bold;
                             cursor: default;
                             padding: 8px;
 
-                            &:hover {
-                                background-color: var(--color-background-2);
-                            }
 
                             &.number-column {
                                 text-align: right;
                             }
                         }
+
+                        &:hover {
+                            background-color: var(--color-background-3);
+                        }
                     }
 
                     th.scroll-fix,
                     td.scroll-fix {
-                        background-color: var(--color-scroll-fix);
-                        width: var(--scrollbar-width);
+                        background-color: var(--color-background);
+                        width: var(--scroll-bar-width);
                         padding: 0;
                     }
                 }
@@ -151,19 +163,22 @@
                     display: table;
                     width: 100%;
                     table-layout: fixed;
+
                     // Alternate row colors
                     &:nth-child(even) {
                         background-color: var(--color-background);
                     }
+
                     &:nth-child(odd) {
                         background-color: var(--color-background-2);
                     }
+
                     // Hover effect
                     &:hover {
                         background-color: var(--color-background-3);
                         cursor: pointer;
                     }
-                    
+
                     // Selected row effect
                     &.selected-row {
                         background-color: var(--color-background-3);

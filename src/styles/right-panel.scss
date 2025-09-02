@@ -8,8 +8,13 @@
     flex-direction: column;
     background-color: var(--color-background);
     position: relative;
+    border-top: 1px solid var(--color-border);
+    border-left: 1px solid var(--color-border);
 
     .view-mode-selector {
+        position: absolute;
+        top: 10px;
+        left: 10px;
         padding: 10px;
         display: flex;
         gap: 10px;
@@ -48,7 +53,7 @@
         background-color: var(--color-zoom-controls-bg);
         padding: 5px;
         border-radius: 4px;
-        
+
         button {
             background-color: var(--color-background-2);
             color: var(--color-text-primary);
@@ -58,7 +63,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            
+
             &:hover {
                 background-color: var(--color-background-3);
                 border-color: var(--color-border);
@@ -69,7 +74,6 @@
     canvas {
         max-width: 100%;
         max-height: 100%;
-        border: 1px solid var(--color-border);
     }
 }
 

@@ -40,15 +40,6 @@ export const Splitter: React.FC<SplitterProps> = ({ onResize }) => {
         <div 
             className="splitter" 
             onMouseDown={handleMouseDown}
-            style={{
-                width: '5px',
-                height: '100%',
-                backgroundColor: '#ddd',
-                cursor: 'col-resize',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}
         >
             <div style={{
                 width: '3px',

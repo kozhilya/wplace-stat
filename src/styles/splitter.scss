@@ -31,7 +31,7 @@
 .table-container {
     tbody {
         scrollbar-width: thin;
-        scrollbar-color: var(--color-border) var(--color-background-2);
+        scrollbar-color: var(--color-border) var(--color-background);
 
         &::-webkit-scrollbar {
             width: 12px;
