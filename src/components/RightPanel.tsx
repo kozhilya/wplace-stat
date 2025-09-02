@@ -17,6 +17,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
     
     // Use a ref to store the draw function to avoid dependency issues
+
     const drawCanvasRef = useRef<() => void>();
     drawCanvasRef.current = drawCanvas;
 
