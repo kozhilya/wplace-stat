@@ -57,8 +57,8 @@ body {
         align-items: center;
         gap: 10px;
         
-        .language-button {
-            background: none;
+        select {
+            background: #555;
             border: none;
             color: white;
             cursor: pointer;
@@ -67,7 +67,12 @@ body {
             font-size: 0.9rem;
             
             &:hover {
-                background-color: #555;
+                background-color: #666;
+            }
+            
+            option {
+                background: white;
+                color: #333;
             }
         }
         

@@ -30,8 +30,8 @@ export const Header: React.FC<HeaderProps> = ({
         };
     }, []);
 
-    const handleLanguageChange = () => {
-        const newLanguage = currentLanguage === 'en' ? 'ru' : 'en';
+    const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const newLanguage = event.target.value as 'en' | 'ru';
         LanguageManager.setLanguage(newLanguage);
     };
 
@@ -45,8 +45,8 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                     ☰
                 </button>
-                <h1 data-i18n="appTitle">
-                    {templateName}
+                <h1>
+                    WPlace Progress Tracker - {templateName}
                 </h1>
                 {hasActiveTemplate && (
                     <button 
@@ -59,12 +59,11 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
             </div>
             <div className="header-right">
-                <button 
-                    className="language-button"
-                    onClick={handleLanguageChange}
-                    title="Switch language"
+                <select 
+                    value={currentLanguage}
+                    onChange={handleLanguageChange}
                     style={{
-                        background: 'none',
+                        background: '#555',
                         border: 'none',
                         color: 'white',
                         cursor: 'pointer',
@@ -73,8 +72,9 @@ export const Header: React.FC<HeaderProps> = ({
                         marginRight: '10px'
                     }}
                 >
-                    {currentLanguage.toUpperCase()}
-                </button>
+                    <option value="en">EN</option>
+                    <option value="ru">RU</option>
+                </select>
                 <div className="last-updated">
                     {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
                 </div>

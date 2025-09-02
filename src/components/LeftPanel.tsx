@@ -96,10 +96,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             {activeView === 'template' && <TemplateConfig onTemplateSave={handleTemplateSave} />}
             {activeView === 'templates' && <TemplateList onTemplateSelect={handleTemplateLoad} />}
             {currentTemplate && activeView === null && (
-                <>
-                    <h2 style={{ marginTop: 0 }} data-i18n="statistics">{LanguageManager.getText('statistics')}</h2>
-                    <StatisticsView statistics={statistics} />
-                </>
+                <StatisticsView statistics={statistics} />
             )}
         </div>
     );
