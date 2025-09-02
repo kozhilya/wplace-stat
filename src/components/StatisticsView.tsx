@@ -104,7 +104,7 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                         {/* Total row */}
                         {totalTotal > 0 && (
                             <>
-                                <tr style={{ fontWeight: 'bold' }}>
+                                <tr className="statistics-total-row">
                                     <td>{LanguageManager.getText('total')}</td>
                                     <td>{totalTotal.toLocaleString()}</td>
                                     <td>{totalCompleted.toLocaleString()}</td>
@@ -113,7 +113,7 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                                 </tr>
                                 <tr>
                                     <td colSpan={5}>
-                                        <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #ccc' }} />
+                                        <hr className="statistics-divider" />
                                     </td>
                                 </tr>
                             </>

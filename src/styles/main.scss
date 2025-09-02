@@ -403,6 +403,54 @@ button[type="submit"] {
     }
 }
 
+// Header styles
+.language-selector {
+    background: #555;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+// Left panel styles
+.left-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    
+    h2 {
+        margin: 0;
+    }
+}
+
+// Right panel styles
+.view-mode-selector {
+    button.active {
+        font-weight: bold;
+    }
+}
+
+.canvas-element {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+}
+
+// Statistics view styles
+.statistics-total-row {
+    font-weight: bold;
+}
+
+.statistics-divider {
+    margin: 8px 0;
+    border: none;
+    border-top: 1px solid #ccc;
+}
+
 // Prevent text selection during resize
 * {
     user-select: none;

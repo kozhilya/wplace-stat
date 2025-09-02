@@ -62,15 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <select 
                     value={currentLanguage}
                     onChange={handleLanguageChange}
-                    style={{
-                        background: '#555',
-                        border: 'none',
-                        color: 'white',
-                        cursor: 'pointer',
-                        padding: '5px',
-                        borderRadius: '3px',
-                        marginRight: '10px'
-                    }}
+                    className="language-selector"
                 >
                     <option value="en">EN</option>
                     <option value="ru">RU</option>

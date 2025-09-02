@@ -335,19 +335,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             <div className="view-mode-selector">
                 <button
                     onClick={() => setViewMode('template')}
-                    style={{ fontWeight: viewMode === 'template' ? 'bold' : 'normal' }}
+                    className={viewMode === 'template' ? 'active' : ''}
                 >
                     {LanguageManager.getText('template')}
                 </button>
                 <button
                     onClick={() => setViewMode('wplace')}
-                    style={{ fontWeight: viewMode === 'wplace' ? 'bold' : 'normal' }}
+                    className={viewMode === 'wplace' ? 'active' : ''}
                 >
                     {LanguageManager.getText('wplace')}
                 </button>
                 <button
                     onClick={() => setViewMode('difference')}
-                    style={{ fontWeight: viewMode === 'difference' ? 'bold' : 'normal' }}
+                    className={viewMode === 'difference' ? 'active' : ''}
                 >
                     {LanguageManager.getText('difference')}
                 </button>
@@ -358,12 +358,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             <div className="canvas-area">
                 <canvas
                     ref={canvasRef}
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'block',
-                        cursor: 'grab' // Show grab cursor to indicate draggable
-                    }}
+                    className="canvas-element"
                 />
 
                 {/* Zoom controls */}
