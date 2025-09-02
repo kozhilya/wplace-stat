@@ -91,6 +91,7 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                                 <th 
                                     key={index}
                                     onClick={() => handleHeaderClick(index)}
+                                    className={index > 0 ? 'number-column' : ''}
                                 >
                                     <span className="text" data-i18n={text}>
                                         {LanguageManager.getText(text as any)}
@@ -101,22 +102,15 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                         </tr>
                     </thead>
                     <tbody>
-                        {/* Total row */}
+                        {/* Total row - fixed at the top */}
                         {totalTotal > 0 && (
-                            <>
-                                <tr className="statistics-total-row">
-                                    <td>{LanguageManager.getText('total')}</td>
-                                    <td>{totalTotal.toLocaleString()}</td>
-                                    <td>{totalCompleted.toLocaleString()}</td>
-                                    <td>{totalPercentage.toFixed(2)}%</td>
-                                    <td>{totalRemain.toLocaleString()}</td>
-                                </tr>
-                                <tr>
-                                    <td colSpan={5}>
-                                        <hr className="statistics-divider" />
-                                    </td>
-                                </tr>
-                            </>
+                            <tr className="statistics-total-row">
+                                <td>{LanguageManager.getText('total')}</td>
+                                <td className="number-column">{totalTotal.toLocaleString()}</td>
+                                <td className="number-column">{totalCompleted.toLocaleString()}</td>
+                                <td className="number-column">{totalPercentage.toFixed(2)}%</td>
+                                <td className="number-column">{totalRemain.toLocaleString()}</td>
+                            </tr>
                         )}
                         {/* Statistics rows */}
                         {sortedStatistics
@@ -127,15 +121,16 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                                         <span 
                                             className="color-swatch"
                                             style={{
-                                                backgroundColor: `rgb(${row.color?.rgb.join(',') || '0,0,0'})`
-                                            }}
+                                                backgroundColor: `rgb(${row.color?.rgb.join(',') || '0,0,0'})`,
+                                                '--color-rgb': row.color?.rgb.join(',') || '0,0,0'
+                                            } as React.CSSProperties}
                                         />
                                         {row.color?.id}. {row.color?.premium ? '★ ' : ''}{row.color?.name}
                                     </td>
-                                    <td>{row.total.toLocaleString()}</td>
-                                    <td>{row.completed.toLocaleString()}</td>
-                                    <td>{(row.percentage * 100).toFixed(2)}%</td>
-                                    <td>{row.remain.toLocaleString()}</td>
+                                    <td className="number-column">{row.total.toLocaleString()}</td>
+                                    <td className="number-column">{row.completed.toLocaleString()}</td>
+                                    <td className="number-column">{(row.percentage * 100).toFixed(2)}%</td>
+                                    <td className="number-column">{row.remain.toLocaleString()}</td>
                                 </tr>
                             ))
                         }
