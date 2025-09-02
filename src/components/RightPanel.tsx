@@ -48,30 +48,30 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         if (imageToDraw) {
             // Save the current context
             ctx.save();
-            
+                
             // Apply scaling and offset
             ctx.translate(offset.x, offset.y);
             ctx.scale(scale, scale);
-            
+                
             // Draw the image centered
             const x = (canvas.width / scale - imageToDraw.width) / 2 - offset.x / scale;
             const y = (canvas.height / scale - imageToDraw.height) / 2 - offset.y / scale;
-            
+                
             if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
                 // Draw difference between template and wplace images
-                this.drawDifference(ctx, currentTemplate.templateImage, currentTemplate.wplaceImage, x, y);
+                drawDifference(ctx, currentTemplate.templateImage, currentTemplate.wplaceImage, x, y);
             } else {
                 // Draw the image normally
                 ctx.drawImage(imageToDraw, x, y);
             }
-            
+                
             // Restore the context
             ctx.restore();
         }
     }, [currentTemplate, viewMode, scale, offset]);
 
     // Handle difference mode drawing
-    const drawDifference = (
+    const drawDifference = React.useCallback((
         ctx: CanvasRenderingContext2D, 
         templateImage: HTMLImageElement, 
         wplaceImage: HTMLImageElement,
@@ -120,7 +120,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
         // Put the result data onto the canvas
         ctx.putImageData(resultData, x, y);
-    };
+    }, []);
 
     // Zoom handlers
     const handleZoomIn = () => {
