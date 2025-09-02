@@ -41,6 +41,10 @@
     --color-button-active-bg: #d0d0d0;
     --color-button-submit-text: white;
     --color-button-delete-hover: #d32f2f;
+    --color-difference-missing: #ff0000;
+    --color-difference-extra: #0000ff;
+    --color-difference-match: #4CAF50;
+    --color-difference-unselected: #ffffff;
 }
 
 // Dark mode variables
@@ -84,6 +88,10 @@ body.dark-mode {
     --color-button-active-bg: #5d5d5d;
     --color-button-submit-text: white;
     --color-button-delete-hover: #b71c1c;
+    --color-difference-missing: #ff5555;
+    --color-difference-extra: #5555ff;
+    --color-difference-match: #2e7d32;
+    --color-difference-unselected: #222222;
 }
 
 // Main styles
