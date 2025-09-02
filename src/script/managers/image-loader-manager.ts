@@ -22,9 +22,32 @@ export class ImageLoaderManager {
             await this.loadTemplateImage(template);
         }
         
-        // Calculate the number of tiles in width and height
-        const tileCountX = template.pxX - template.tlX + 1;
-        const tileCountY = template.pxY - template.tlY + 1;
+        // Ensure template image dimensions are loaded
+        if (template.imageWidth === -1 || template.imageHeight === -1) {
+            throw new Error('Template image dimensions are not loaded');
+        }
+        
+        // Calculate the number of tiles needed in X and Y directions
+        // The template starts at (pxX, pxY) within the starting tile (tlX, tlY)
+        // The image spans template.imageWidth x template.imageHeight pixels
+        
+        // Calculate the end position in pixels within the starting tile coordinate system
+        const endPixelX = template.pxX + template.imageWidth;
+        const endPixelY = template.pxY + template.imageHeight;
+        
+        // Determine which tiles are needed
+        // The starting tile is always included
+        const startTileX = template.tlX;
+        const startTileY = template.tlY;
+        
+        // Calculate the ending tile indices
+        // Since pxX and pxY are within the starting tile, we need to see how many additional tiles are needed
+        const endTileX = startTileX + Math.floor((endPixelX - 1) / WplaceTileWidth);
+        const endTileY = startTileY + Math.floor((endPixelY - 1) / WplaceTileWidth);
+        
+        // Number of tiles in each direction
+        const tileCountX = endTileX - startTileX + 1;
+        const tileCountY = endTileY - startTileY + 1;
         
         // Create a canvas with the correct dimensions
         const canvas = document.createElement('canvas');
@@ -37,8 +60,8 @@ export class ImageLoaderManager {
         
         for (let y = 0; y < tileCountY; y++) {
             for (let x = 0; x < tileCountX; x++) {
-                const tileX = template.tlX + x;
-                const tileY = template.tlY + y;
+                const tileX = startTileX + x;
+                const tileY = startTileY + y;
                 tilePromises.push(this.loadAndDrawTile(ctx, tileX, tileY, x, y));
             }
         }
