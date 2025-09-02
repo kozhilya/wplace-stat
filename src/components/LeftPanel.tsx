@@ -92,7 +92,12 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                 </div>
             )}
             {activeView === 'template' && <TemplateConfig onTemplateSave={handleTemplateSave} />}
-            {activeView === 'templates' && <TemplateList onTemplateSelect={handleTemplateLoad} />}
+            {activeView === 'templates' && (
+                <TemplateList 
+                    onTemplateSelect={handleTemplateLoad} 
+                    onCreateTemplate={() => setLeftPanelView('template')}
+                />
+            )}
             {/* Show TemplateConfig when no templates exist and no current template */}
             {templates.length === 0 && !currentTemplate && activeView === null && (
                 <TemplateConfig onTemplateSave={handleTemplateSave} />

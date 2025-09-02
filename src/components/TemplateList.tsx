@@ -6,6 +6,7 @@ import { LanguageManager } from '../script/managers/language-manager';
 
 interface TemplateListProps {
     onTemplateSelect: (template: Template) => void;
+    onCreateTemplate: () => void;
 }
 
 export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) => {
@@ -40,6 +41,15 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
 
     return (
         <div className="template-list">
+            <div className="create-template-button-container">
+                <button 
+                    className="create-template-button"
+                    onClick={props.onCreateTemplate}
+                    data-i18n="newTemplate"
+                >
+                    {LanguageManager.getText('newTemplate')}
+                </button>
+            </div>
             {templates.length === 0 ? (
                 <p data-i18n="noSavedTemplates">{LanguageManager.getText('noSavedTemplates')}</p>
             ) : (
