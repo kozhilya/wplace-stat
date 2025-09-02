@@ -45,7 +45,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             const ctx = wplaceImageCanvasRef.current.getContext('2d');
             if (ctx) {
                 ctx.clearRect(0, 0, wplaceImageCanvasRef.current.width, wplaceImageCanvasRef.current.height);
-                // Draw the Wplace image
+                // Draw the Wplace image at full size
                 console.log('Drawing Wplace image:', currentTemplate.wplaceImage.width, currentTemplate.wplaceImage.height);
                 ctx.drawImage(currentTemplate.wplaceImage, 0, 0);
             }

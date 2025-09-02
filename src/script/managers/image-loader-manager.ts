@@ -69,10 +69,33 @@ export class ImageLoaderManager {
         await Promise.all(tilePromises);
         
         // Log the canvas dimensions
-        console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
+        console.log(`Canvas dimensions before cropping: ${canvas.width}x${canvas.height}`);
         
-        // Convert canvas to image
-        template.wplaceImage = await this.canvasToImage(canvas);
+        // Crop the canvas to match the template dimensions and position
+        // The template starts at (pxX, pxY) within the starting tile
+        // We need to extract a region of template.imageWidth x template.imageHeight
+        const croppedCanvas = document.createElement('canvas');
+        croppedCanvas.width = template.imageWidth;
+        croppedCanvas.height = template.imageHeight;
+        const croppedCtx = croppedCanvas.getContext('2d')!;
+        
+        // Calculate the source coordinates in the original canvas
+        // The starting tile is at offset (0, 0) in the canvas
+        // The template starts at (pxX, pxY) within the starting tile
+        const sourceX = template.pxX;
+        const sourceY = template.pxY;
+        
+        // Draw the relevant portion to the cropped canvas
+        croppedCtx.drawImage(
+            canvas,
+            sourceX, sourceY,                   // Source x, y
+            template.imageWidth, template.imageHeight, // Source width, height
+            0, 0,                               // Destination x, y
+            template.imageWidth, template.imageHeight  // Destination width, height
+        );
+        
+        // Convert cropped canvas to image
+        template.wplaceImage = await this.canvasToImage(croppedCanvas);
         console.log(`Wplace image set: ${template.wplaceImage ? 'Yes' : 'No'}`);
         if (template.wplaceImage) {
             console.log(`Wplace image dimensions: ${template.wplaceImage.width}x${template.wplaceImage.height}`);
