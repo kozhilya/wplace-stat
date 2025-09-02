@@ -48,6 +48,7 @@ export class CanvasInteractionManager {
     }
 
     private handleMouseDown(e: MouseEvent): void {
+        console.log('Mouse down on canvas');
         this.isDragging = true;
         this.lastMousePosition = { x: e.clientX, y: e.clientY };
         this.canvas.style.cursor = 'grabbing';
@@ -55,6 +56,7 @@ export class CanvasInteractionManager {
 
     private handleMouseMove(e: MouseEvent): void {
         if (this.isDragging) {
+            console.log('Mouse move while dragging');
             const deltaX = e.clientX - this.lastMousePosition.x;
             const deltaY = e.clientY - this.lastMousePosition.y;
             

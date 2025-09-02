@@ -9,15 +9,16 @@ interface RightPanelProps {
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
+    const isInteractionManagerInitialized = useRef(false);
     const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('template');
     const [scale, setScale] = useState<number>(1);
     const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
 
-    // Initialize interaction manager
+    // Initialize and update interaction manager
     useEffect(() => {
-        if (canvasRef.current) {
+        if (canvasRef.current && !isInteractionManagerInitialized.current) {
             interactionManagerRef.current = new CanvasInteractionManager(
                 canvasRef.current,
                 (newScale) => {
@@ -27,13 +28,23 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                     setOffset(newOffset);
                 }
             );
-            interactionManagerRef.current.setTemplate(currentTemplate);
-
-            return () => {
-                interactionManagerRef.current?.cleanup();
-            };
+            isInteractionManagerInitialized.current = true;
         }
-    }, []);
+        
+        // Update the current template whenever it changes
+        if (interactionManagerRef.current) {
+            interactionManagerRef.current.setTemplate(currentTemplate);
+        }
+
+        return () => {
+            // Cleanup on component unmount
+            if (isInteractionManagerInitialized.current) {
+                interactionManagerRef.current?.cleanup();
+                isInteractionManagerInitialized.current = false;
+                interactionManagerRef.current = null;
+            }
+        };
+    }, [currentTemplate]);
 
     // Update interaction manager when template changes
     useEffect(() => {
@@ -323,7 +334,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                     style={{
                         width: '100%',
                         height: '100%',
-                        display: 'block'
+                        display: 'block',
+                        cursor: 'grab' // Show grab cursor to indicate draggable
                     }}
                 />
 
