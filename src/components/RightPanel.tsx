@@ -20,6 +20,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
+    const [keepPixelsSquare, setKeepPixelsSquare] = useState<boolean>(false);
     
     // Use a ref to store the draw function to avoid dependency issues
 
@@ -59,6 +60,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         // Update the current template whenever it changes
         if (interactionManagerRef.current) {
             interactionManagerRef.current.setTemplate(currentTemplate);
+            // Update keep pixels square setting
+            interactionManagerRef.current.setKeepPixelsSquare(keepPixelsSquare);
         }
 
         return () => {
@@ -69,7 +72,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                 interactionManagerRef.current = null;
             }
         };
-    }, [currentTemplate]);
+    }, [currentTemplate, keepPixelsSquare]);
 
     // Update interaction manager when template changes
     useEffect(() => {
@@ -405,6 +408,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     <button onClick={handleZoomIn} title={LanguageManager.getText('zoomIn')}>+</button>
                     <button onClick={handleZoomReset} title={LanguageManager.getText('resetZoom')}>1:1</button>
                     <button onClick={handleZoomOut} title={LanguageManager.getText('zoomOut')}>-</button>
+                    <label>
+                        <input 
+                            type="checkbox" 
+                            checked={keepPixelsSquare}
+                            onChange={(e) => setKeepPixelsSquare(e.target.checked)}
+                        />
+                        Square pixels
+                    </label>
                 </div>
             </div>
         </div>

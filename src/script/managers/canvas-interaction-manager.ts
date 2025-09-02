@@ -10,6 +10,7 @@ export class CanvasInteractionManager {
     private currentTemplate?: Template;
     private onScaleChange?: (scale: number) => void;
     private onOffsetChange?: (offset: { x: number; y: number }) => void;
+    private keepPixelsSquare: boolean = false;
 
     constructor(
         canvas: HTMLCanvasElement,
