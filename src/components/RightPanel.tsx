@@ -60,7 +60,22 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         interactionManagerRef.current?.setTemplate(currentTemplate);
         // Reset view when template changes
         setScale(1);
-        setOffset({ x: 0, y: 0 });
+        // Center the image on the canvas
+        if (canvasRef.current && currentTemplate?.templateImage) {
+            const canvas = canvasRef.current;
+            const img = currentTemplate.templateImage;
+            // Ensure canvas dimensions are up to date
+            const container = canvas.parentElement;
+            if (container) {
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                const centerX = (canvas.width - img.width) / 2;
+                const centerY = (canvas.height - img.height) / 2;
+                setOffset({ x: centerX, y: centerY });
+            }
+        } else {
+            setOffset({ x: 0, y: 0 });
+        }
         // Update current image
         updateCurrentImageToDraw();
     }, [currentTemplate]);
@@ -335,10 +350,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 </button>
             </div>
             
-            {/* Test output */}
-            <div style={{ padding: '0 10px', fontSize: '12px', color: '#666' }}>
-                Test: scale={scale.toFixed(2)}, offset=({offset.x.toFixed(0)}, {offset.y.toFixed(0)})
-            </div>
 
             {/* Canvas area */}
             <div style={{

@@ -29,7 +29,25 @@ export class CanvasInteractionManager {
 
     resetView(): void {
         this.scale = 1;
-        this.offset = { x: 0, y: 0 };
+        // Ensure canvas dimensions are up to date
+        // The canvas might not have been sized yet, so we need to check its parent
+        const container = this.canvas.parentElement;
+        if (container) {
+            this.canvas.width = container.clientWidth;
+            this.canvas.height = container.clientHeight;
+        }
+        
+        // Center the image on the canvas
+        if (this.currentTemplate?.templateImage) {
+            const img = this.currentTemplate.templateImage;
+            // When scale is 1, we want to center the original image
+            // The offset is in canvas coordinates, which are not scaled
+            const centerX = (this.canvas.width - img.width) / 2;
+            const centerY = (this.canvas.height - img.height) / 2;
+            this.offset = { x: centerX, y: centerY };
+        } else {
+            this.offset = { x: 0, y: 0 };
+        }
         this.onScaleChange?.(this.scale);
         this.onOffsetChange?.(this.offset);
     }
