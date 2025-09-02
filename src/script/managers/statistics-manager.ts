@@ -1,5 +1,6 @@
 import { LanguageManager } from './language-manager';
 import { WplaceColorDefinition, WplacePalette } from '../wplace';
+import { debug } from '../../utils';
 
 export class StatisticsRow {
     public color: WplaceColorDefinition | null;
@@ -140,7 +141,7 @@ export class StatisticsManager {
                 }
             }
         } catch (error) {
-            console.error('Could not analyze image:', error);
+            debug('Could not analyze image:', error);
         }
     }
 

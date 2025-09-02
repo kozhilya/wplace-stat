@@ -1,3 +1,5 @@
+import { debug } from './utils';
+
 export interface TileInfo {
     x: number;
     y: number;
@@ -108,7 +110,7 @@ export class TemplateCollection {
                     )
                 );
             } catch (error) {
-                console.error('Error loading templates from localStorage:', error);
+                debug('Error loading templates from localStorage:', error);
                 this.templates = [];
             }
         }

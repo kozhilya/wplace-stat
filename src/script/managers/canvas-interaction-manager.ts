@@ -1,4 +1,5 @@
 import { Template } from '../template';
+import { clamp, debug } from '../../utils';
 
 export class CanvasInteractionManager {
     private canvas: HTMLCanvasElement;
@@ -163,11 +164,6 @@ export class CanvasInteractionManager {
         const originalOffsetX = this.offset.x;
         const originalOffsetY = this.offset.y;
         
-        // Helper function to clamp a value between min and max
-        const clamp = (value: number, min: number, max: number): number => {
-            return Math.max(min, Math.min(max, value));
-        };
-        
         // Calculate bounds for offset
         if (scaledWidth <= canvasWidth) {
             // When image is smaller than canvas, center it by allowing offsets between 0 and canvasWidth - scaledWidth
@@ -197,19 +193,19 @@ export class CanvasInteractionManager {
         
         // Debug logging
         if (originalOffsetX !== this.offset.x || originalOffsetY !== this.offset.y) {
-            console.log(`applyBounds: offset adjusted from (${originalOffsetX}, ${originalOffsetY}) to (${this.offset.x}, ${this.offset.y})`);
-            console.log(`  Canvas: ${canvasWidth}x${canvasHeight}, Scaled image: ${scaledWidth}x${scaledHeight}`);
+            debug(`applyBounds: offset adjusted from (${originalOffsetX}, ${originalOffsetY}) to (${this.offset.x}, ${this.offset.y})`);
+            debug(`  Canvas: ${canvasWidth}x${canvasHeight}, Scaled image: ${scaledWidth}x${scaledHeight}`);
             
             if (scaledWidth <= canvasWidth) {
-                console.log(`  X bounds: [0, ${canvasWidth - scaledWidth}]`);
+                debug(`  X bounds: [0, ${canvasWidth - scaledWidth}]`);
             } else {
-                console.log(`  X bounds: [${canvasWidth - scaledWidth}, 0]`);
+                debug(`  X bounds: [${canvasWidth - scaledWidth}, 0]`);
             }
             
             if (scaledHeight <= canvasHeight) {
-                console.log(`  Y bounds: [0, ${canvasHeight - scaledHeight}]`);
+                debug(`  Y bounds: [0, ${canvasHeight - scaledHeight}]`);
             } else {
-                console.log(`  Y bounds: [${canvasHeight - scaledHeight}, 0]`);
+                debug(`  Y bounds: [${canvasHeight - scaledHeight}, 0]`);
             }
         }
         

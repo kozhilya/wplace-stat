@@ -1,5 +1,6 @@
 import { Template } from '../template';
 import { WplaceTileWidth } from '../wplace';
+import { debug } from '../../utils';
 
 export class ImageLoaderManager {
     static async loadTemplateImage(template: Template): Promise<void> {
@@ -69,7 +70,7 @@ export class ImageLoaderManager {
         await Promise.all(tilePromises);
         
         // Log the canvas dimensions
-        console.log(`Canvas dimensions before cropping: ${canvas.width}x${canvas.height}`);
+        debug(`Canvas dimensions before cropping: ${canvas.width}x${canvas.height}`);
         
         // Crop the canvas to match the template dimensions and position
         // The template starts at (pxX, pxY) within the starting tile
@@ -96,9 +97,9 @@ export class ImageLoaderManager {
         
         // Convert cropped canvas to image
         template.wplaceImage = await this.canvasToImage(croppedCanvas);
-        console.log(`Wplace image set: ${template.wplaceImage ? 'Yes' : 'No'}`);
+        debug(`Wplace image set: ${template.wplaceImage ? 'Yes' : 'No'}`);
         if (template.wplaceImage) {
-            console.log(`Wplace image dimensions: ${template.wplaceImage.width}x${template.wplaceImage.height}`);
+            debug(`Wplace image dimensions: ${template.wplaceImage.width}x${template.wplaceImage.height}`);
         }
     }
 
@@ -114,7 +115,7 @@ export class ImageLoaderManager {
     // Method to set whether to use CORS proxy directly
     static setUseCorsProxyDirectly(useProxy: boolean): void {
         ImageLoaderManager.useCorsProxyDirectly = useProxy;
-        console.log(`CORS proxy usage set to: ${useProxy}`);
+        debug(`CORS proxy usage set to: ${useProxy}`);
     }
 
     // Global flag to control whether to use CORS proxy directly
@@ -137,14 +138,14 @@ export class ImageLoaderManager {
             
             const tryLoadImage = (url: string) => {
                 triedUrls.push(url);
-                console.log(`Loading tile from: ${url}`);
+                debug(`Loading tile from: ${url}`);
                 
                 img.onload = () => {
                     // Calculate position to draw the tile
                     const drawX = offsetX * WplaceTileWidth;
                     const drawY = offsetY * WplaceTileWidth;
                     ctx.drawImage(img, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
-                    console.log(`Loaded tile at (${tileX}, ${tileY})`);
+                    debug(`Loaded tile at (${tileX}, ${tileY})`);
                     resolve();
                 };
                 

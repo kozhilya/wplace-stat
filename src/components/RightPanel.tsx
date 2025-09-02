@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Template } from '../script/template';
 import { CanvasInteractionManager } from '../script/managers/canvas-interaction-manager';
+import { debug } from '../utils';
 
 interface RightPanelProps {
     currentTemplate?: Template;
@@ -275,7 +276,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
     // Draw when scale, offset, or current image changes
     useEffect(() => {
-        console.log('Drawing canvas due to change in scale, offset, or image');
+        debug('Drawing canvas due to change in scale, offset, or image');
         drawCanvas();
     }, [scale, offset, currentImageToDraw]);
 

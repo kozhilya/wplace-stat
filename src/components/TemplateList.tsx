@@ -1,6 +1,7 @@
 import React from 'react';
 import { Template } from '../script/template';
 import { TemplateCollection } from '../script/template';
+import { debug } from '../utils';
 
 interface TemplateListProps {
     onTemplateSelect: (template: Template) => void;
@@ -31,7 +32,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
             
             onTemplateSelect(template);
         } catch (error) {
-            console.error('Error loading template images:', error);
+            debug('Error loading template images:', error);
             alert('Failed to load template images. Please try again.');
         }
     };

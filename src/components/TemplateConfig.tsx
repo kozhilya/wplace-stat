@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Template } from '../script/template';
+import { debug } from '../utils';
 
 interface TemplateConfigProps {
     onTemplateSave?: (template: Template) => void;
@@ -27,7 +28,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                     setPxY(template.pxY.toString());
                     setImageDataUrl(template.imageDataUrl);
                 } catch (error) {
-                    console.error('Error loading template from hash:', error);
+                    debug('Error loading template from hash:', error);
                 }
             }
         };
@@ -73,7 +74,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
             const serialized = template.serialize();
             window.location.hash = serialized;
         } catch (error) {
-            console.error('Error loading images:', error);
+            debug('Error loading images:', error);
             alert('Failed to load images. Please check the image URL and try again.');
         }
     };
