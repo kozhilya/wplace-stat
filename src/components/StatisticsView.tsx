@@ -5,6 +5,7 @@ import { StatisticsRow } from '../script/managers/statistics-manager';
 
 interface StatisticsViewProps {
     statistics?: StatisticsRow[];
+    onRowClick?: (colorId: number | null) => void;
 }
 
 export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] }) => {
@@ -103,7 +104,7 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                         </tr>
                         {/* Total row in thead to avoid indentation */}
                         {totalTotal > 0 && (
-                            <tr className="statistics-total-row">
+                            <tr className="statistics-total-row" onClick={() => props.onRowClick?.(null)}>
                                 <td>{LanguageManager.getText('total')}</td>
                                 <td className="number-column">{totalTotal.toLocaleString()}</td>
                                 <td className="number-column">{totalCompleted.toLocaleString()}</td>
@@ -118,7 +119,7 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                         {sortedStatistics
                             .filter(row => row.total > 0)
                             .map((row, index) => (
-                                <tr key={index}>
+                                <tr key={index} onClick={() => props.onRowClick?.(row.color?.id ?? null)}>
                                     <td>
                                         <span 
                                             className="color-swatch"

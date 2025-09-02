@@ -3,9 +3,11 @@ import { Template } from '../script/template';
 import { CanvasInteractionManager } from '../script/managers/canvas-interaction-manager';
 import { debug } from '../utils';
 import { LanguageManager } from '../script/managers/language-manager';
+import { WplacePalette } from '../script/wplace';
 
 interface RightPanelProps {
     currentTemplate?: Template;
+    selectedColorId?: number | null;
 }
 
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
@@ -97,7 +99,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     // Cache for difference image
     const differenceImageRef = useRef<HTMLImageElement | null>(null);
 
-    // Generate difference image when template or view mode changes
+    // Generate difference image when template, view mode, or selected color changes
     useEffect(() => {
         if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
             generateDifferenceImage(currentTemplate.templateImage, currentTemplate.wplaceImage);
@@ -106,7 +108,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             // Update current image when switching away from difference mode
             updateCurrentImageToDraw();
         }
-    }, [currentTemplate, viewMode]);
+    }, [currentTemplate, viewMode, props.selectedColorId]);
 
 
     // Define colors for difference mode (will be configurable later for dark mode)
@@ -117,13 +119,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         mismatch: [255, 0, 0, 255]            // Red for mismatching colors
     };
 
-    // Handle difference mode drawing
+    // Handle difference mode drawing with color filtering
     const drawDifference = React.useCallback((
         ctx: CanvasRenderingContext2D,
         templateImage: HTMLImageElement,
         wplaceImage: HTMLImageElement,
         x: number,
-        y: number
+        y: number,
+        selectedColorId?: number | null
     ) => {
         // Create temporary canvases to get image data
         const templateCanvas = document.createElement('canvas');
@@ -164,10 +167,46 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 resultData.data[i + 2] = differenceColors.transparent[2];
                 resultData.data[i + 3] = differenceColors.transparent[3];
             }
-            // 2) If template pixel is unselected color - use white
-            // For now, we'll treat all non-transparent template pixels as "selected"
-            // You can add logic here later to check against a list of selected colors
-            else {
+            // 2) If a specific color is selected and this pixel doesn't match, treat as unselected
+            else if (selectedColorId !== null && selectedColorId !== undefined) {
+                // Find the closest color in the palette to the template pixel
+                // We need to import WplacePalette
+                // For now, we'll use a simple approach
+                // Find the color in WplacePalette that matches the selectedColorId
+                const selectedColor = WplacePalette.find(color => color.id === selectedColorId);
+                // Check if this pixel matches the selected color in the template
+                const isSelectedColor = selectedColor && 
+                    Math.abs(templateR - selectedColor.rgb[0]) < 10 &&
+                    Math.abs(templateG - selectedColor.rgb[1]) < 10 &&
+                    Math.abs(templateB - selectedColor.rgb[2]) < 10;
+                
+                if (!isSelectedColor) {
+                    // Treat as unselected - use white
+                    resultData.data[i] = differenceColors.unselected[0];
+                    resultData.data[i + 1] = differenceColors.unselected[1];
+                    resultData.data[i + 2] = differenceColors.unselected[2];
+                    resultData.data[i + 3] = differenceColors.unselected[3];
+                } else {
+                    // Check if colors match between template and actual
+                    if (templateR === wplaceR &&
+                        templateG === wplaceG &&
+                        templateB === wplaceB &&
+                        templateA === wplaceA) {
+                        // 3) Colors match - use green
+                        resultData.data[i] = differenceColors.match[0];
+                        resultData.data[i + 1] = differenceColors.match[1];
+                        resultData.data[i + 2] = differenceColors.match[2];
+                        resultData.data[i + 3] = differenceColors.match[3];
+                    } else {
+                        // 4) Colors don't match - use red
+                        resultData.data[i] = differenceColors.mismatch[0];
+                        resultData.data[i + 1] = differenceColors.mismatch[1];
+                        resultData.data[i + 2] = differenceColors.mismatch[2];
+                        resultData.data[i + 3] = differenceColors.mismatch[3];
+                    }
+                }
+            } else {
+                // No color selected - show all
                 // Check if colors match
                 if (templateR === wplaceR &&
                     templateG === wplaceG &&
@@ -283,8 +322,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         const tempCtx = tempCanvas.getContext('2d');
         if (!tempCtx) return;
         
-        // Draw difference onto the temporary canvas
-        drawDifference(tempCtx, templateImage, wplaceImage, 0, 0);
+        // Draw difference onto the temporary canvas with selected color
+        drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, props.selectedColorId);
         
         // Convert to image and cache it
         const img = new Image();

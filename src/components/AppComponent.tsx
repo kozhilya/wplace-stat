@@ -18,6 +18,7 @@ export const AppComponent: React.FC = () => {
     const [templates, setTemplates] = useState<Template[]>([]);
     const templateCollection = React.useRef(new TemplateCollection());
     const [leftPanelView, setLeftPanelView] = useState<'template' | 'templates' | null>(null);
+    const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
 
     useEffect(() => {
         LanguageManager.initialize();
@@ -170,9 +171,10 @@ export const AppComponent: React.FC = () => {
                     currentTemplate={currentTemplate}
                     activeView={leftPanelView}
                     onCloseView={() => setLeftPanelView(null)}
+                    onStatisticsRowClick={(colorId) => setSelectedColorId(colorId)}
                 />
                 <Splitter onResize={handleSplitterResize} />
-                <RightPanel currentTemplate={currentTemplate} />
+                <RightPanel currentTemplate={currentTemplate} selectedColorId={selectedColorId} />
             </div>
         </div>
     );
