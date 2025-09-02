@@ -9,7 +9,7 @@ interface TemplateListProps {
     onCreateTemplate: () => void;
 }
 
-export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) => {
+export const TemplateList: React.FC<TemplateListProps> = (props) => {
     const [templates, setTemplates] = React.useState<Template[]>([]);
     const collection = React.useRef(new TemplateCollection());
 
@@ -32,7 +32,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({ onTemplateSelect }) 
             // Load the Wplace image
             await template.loadWplaceImage();
             
-            onTemplateSelect(template);
+            props.onTemplateSelect(template);
         } catch (error) {
             debug('Error loading template images:', error);
             alert('Failed to load template images. Please try again.');

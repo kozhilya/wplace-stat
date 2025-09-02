@@ -16,6 +16,7 @@ interface LeftPanelProps {
     activeView: 'template' | 'templates' | null;
     onCloseView: () => void;
     onStatisticsRowClick?: (colorId: number | null) => void;
+    onCreateTemplate: () => void;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ 
@@ -95,7 +96,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             {activeView === 'templates' && (
                 <TemplateList 
                     onTemplateSelect={handleTemplateLoad} 
-                    onCreateTemplate={() => setLeftPanelView('template')}
+                    onCreateTemplate={props.onCreateTemplate}
                 />
             )}
             {/* Show TemplateConfig when no templates exist and no current template */}
