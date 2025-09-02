@@ -146,6 +146,7 @@ export const AppComponent: React.FC = () => {
                     statistics={statistics} 
                     onTemplateSave={handleTemplateSave}
                     onTemplateLoad={handleTemplateLoad}
+                    currentTemplate={currentTemplate}
                 />
                 <Splitter onMouseDown={handleSplitterMouseDown} />
                 <RightPanel currentTemplate={currentTemplate} />
