@@ -54,6 +54,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             generateDifferenceImage(currentTemplate.templateImage, currentTemplate.wplaceImage);
         } else {
             differenceImageRef.current = null;
+            // Update current image when switching away from difference mode
+            updateCurrentImageToDraw();
         }
     }, [currentTemplate, viewMode]);
 
@@ -149,24 +151,27 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         tempCanvas.height = templateImage.height;
         const tempCtx = tempCanvas.getContext('2d');
         if (!tempCtx) return;
-
+        
         // Draw difference onto the temporary canvas
         drawDifference(tempCtx, templateImage, wplaceImage, 0, 0);
-
+        
         // Convert to image and cache it
         const img = new Image();
         img.onload = () => {
             differenceImageRef.current = img;
+            // Update the current image to draw
+            updateCurrentImageToDraw();
+            // Redraw the canvas
             drawCanvas();
         };
         img.src = tempCanvas.toDataURL('image/png');
-    }, [drawDifference]);
+    }, [drawDifference, updateCurrentImageToDraw, drawCanvas]);
 
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
     
-    // Update the current image when view mode or template changes
-    useEffect(() => {
+    // Function to update the current image based on view mode
+    const updateCurrentImageToDraw = useCallback(() => {
         let imageToDraw: HTMLImageElement | null = null;
         
         switch (viewMode) {
@@ -183,6 +188,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
         
         setCurrentImageToDraw(imageToDraw);
     }, [viewMode, currentTemplate, differenceImageRef.current]);
+
+    // Update the current image when view mode or template changes
+    useEffect(() => {
+        updateCurrentImageToDraw();
+    }, [updateCurrentImageToDraw]);
 
     // Draw the appropriate image based on view mode
     const drawCanvas = useCallback(() => {
