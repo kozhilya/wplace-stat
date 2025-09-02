@@ -41,5 +41,6 @@ export const ru = {
     zoomOut: 'Отдалить',
     resetZoom: 'Сбросить Масштаб',
     darkMode: 'Тёмный режим',
-    lightMode: 'Светлый режим'
+    lightMode: 'Светлый режим',
+    newTemplate: 'Новый шаблон'
 };

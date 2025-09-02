@@ -72,23 +72,31 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
 
     return (
         <div className="left-panel" style={{ width: `${width}px` }}>
-            {/* Show close button when NOT in statistics view (activeView is not null) */}
-            {activeView !== null && (
+            {/* Show header when NOT in statistics view (activeView is not null) or when showing new template */}
+            {(activeView !== null || (templates.length === 0 && !currentTemplate)) && (
                 <div className="left-panel-header">
                     <h2>
-                        {activeView === 'template' ? LanguageManager.getText('editTemplateHeader') : LanguageManager.getText('savedTemplatesHeader')}
+                        {activeView === 'template' || (templates.length === 0 && !currentTemplate) 
+                            ? (templates.length === 0 && !currentTemplate ? LanguageManager.getText('newTemplate') : LanguageManager.getText('editTemplateHeader'))
+                            : LanguageManager.getText('savedTemplatesHeader')}
                     </h2>
-                    <button 
-                        className="close-button"
-                        onClick={onCloseView}
-                        title={LanguageManager.getText('close')}
-                    >
-                        ✕
-                    </button>
+                    {activeView !== null && (
+                        <button 
+                            className="close-button"
+                            onClick={onCloseView}
+                            title={LanguageManager.getText('close')}
+                        >
+                            ✕
+                        </button>
+                    )}
                 </div>
             )}
             {activeView === 'template' && <TemplateConfig onTemplateSave={handleTemplateSave} />}
             {activeView === 'templates' && <TemplateList onTemplateSelect={handleTemplateLoad} />}
+            {/* Show TemplateConfig when no templates exist and no current template */}
+            {templates.length === 0 && !currentTemplate && activeView === null && (
+                <TemplateConfig onTemplateSave={handleTemplateSave} />
+            )}
             {currentTemplate && activeView === null && (
                 <StatisticsView statistics={statistics} onRowClick={onStatisticsRowClick} />
             )}

@@ -41,5 +41,6 @@ export const es = {
     zoomOut: 'Alejar',
     resetZoom: 'Restablecer Zoom',
     darkMode: 'Modo oscuro',
-    lightMode: 'Modo claro'
+    lightMode: 'Modo claro',
+    newTemplate: 'Nueva Plantilla'
 };
