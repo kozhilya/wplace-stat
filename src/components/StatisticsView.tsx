@@ -101,17 +101,33 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                             ))}
                         </tr>
                     </thead>
-                    <tbody>
-                        {/* Total row - fixed at the top */}
+                    <thead>
+                        <tr>
+                            {['color', 'total', 'completed', 'percentage', 'remaining'].map((text, index) => (
+                                <th 
+                                    key={index}
+                                    onClick={() => handleHeaderClick(index)}
+                                    className={index > 0 ? 'number-column' : ''}
+                                >
+                                    <span className="text" data-i18n={text}>
+                                        {LanguageManager.getText(text as any)}
+                                    </span>
+                                    {getSortIndicator(index)}
+                                </th>
+                            ))}
+                        </tr>
+                        {/* Total row in thead to avoid indentation */}
                         {totalTotal > 0 && (
                             <tr className="statistics-total-row">
-                                <td>{LanguageManager.getText('total')}</td>
-                                <td className="number-column">{totalTotal.toLocaleString()}</td>
-                                <td className="number-column">{totalCompleted.toLocaleString()}</td>
-                                <td className="number-column">{totalPercentage.toFixed(2)}%</td>
-                                <td className="number-column">{totalRemain.toLocaleString()}</td>
+                                <th>{LanguageManager.getText('total')}</th>
+                                <th className="number-column">{totalTotal.toLocaleString()}</th>
+                                <th className="number-column">{totalCompleted.toLocaleString()}</th>
+                                <th className="number-column">{totalPercentage.toFixed(2)}%</th>
+                                <th className="number-column">{totalRemain.toLocaleString()}</th>
                             </tr>
                         )}
+                    </thead>
+                    <tbody>
                         {/* Statistics rows */}
                         {sortedStatistics
                             .filter(row => row.total > 0)
@@ -125,7 +141,9 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                                                 '--color-rgb': row.color?.rgb.join(',') || '0,0,0'
                                             } as React.CSSProperties}
                                         />
-                                        {row.color?.id}. {row.color?.premium ? '★ ' : ''}{row.color?.name}
+                                        <span className="color-name">
+                                            {row.color?.id}. {row.color?.premium ? '★ ' : ''}{row.color?.name}
+                                        </span>
                                     </td>
                                     <td className="number-column">{row.total.toLocaleString()}</td>
                                     <td className="number-column">{row.completed.toLocaleString()}</td>
