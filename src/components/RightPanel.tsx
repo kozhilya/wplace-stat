@@ -322,6 +322,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                     Difference
                 </button>
             </div>
+            
+            {/* Test output */}
+            <div style={{ padding: '0 10px', fontSize: '12px', color: '#666' }}>
+                Test: scale={scale.toFixed(2)}, offset=({offset.x.toFixed(0)}, {offset.y.toFixed(0)})
+            </div>
 
             {/* Canvas area */}
             <div style={{
