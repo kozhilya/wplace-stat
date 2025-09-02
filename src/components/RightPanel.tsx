@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Template } from '../script/template';
+import { CanvasInteractionManager } from '../script/managers/canvas-interaction-manager';
 
 interface RightPanelProps {
     currentTemplate?: Template;
@@ -7,12 +8,34 @@ interface RightPanelProps {
 
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
     const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('template');
     const [scale, setScale] = useState<number>(1);
     const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-    // Draw the appropriate image based on view mode
+    // Initialize interaction manager
     useEffect(() => {
+        if (canvasRef.current) {
+            interactionManagerRef.current = new CanvasInteractionManager(
+                canvasRef.current,
+                setScale,
+                setOffset
+            );
+            interactionManagerRef.current.setTemplate(currentTemplate);
+            
+            return () => {
+                interactionManagerRef.current?.cleanup();
+            };
+        }
+    }, []);
+
+    // Update interaction manager when template changes
+    useEffect(() => {
+        interactionManagerRef.current?.setTemplate(currentTemplate);
+    }, [currentTemplate]);
+
+    // Draw the appropriate image based on view mode
+    const drawCanvas = useCallback(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -69,6 +92,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
             ctx.restore();
         }
     }, [currentTemplate, viewMode, scale, offset]);
+
+    // Draw on mount and when dependencies change
+    useEffect(() => {
+        drawCanvas();
+    }, [drawCanvas]);
 
     // Define colors for difference mode (will be configurable later for dark mode)
     const differenceColors = {
@@ -155,16 +183,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
     // Zoom handlers
     const handleZoomIn = () => {
-        setScale(prevScale => Math.min(prevScale * 1.25, 10));
+        const newScale = Math.min(scale * 1.25, 10);
+        setScale(newScale);
+        // Update interaction manager if needed
     };
 
     const handleZoomOut = () => {
-        setScale(prevScale => Math.max(prevScale / 1.25, 0.1));
+        const newScale = Math.max(scale / 1.25, 0.1);
+        setScale(newScale);
+        // Update interaction manager if needed
     };
 
     const handleZoomReset = () => {
-        setScale(1);
-        setOffset({ x: 0, y: 0 });
+        interactionManagerRef.current?.resetView();
     };
 
     return (
