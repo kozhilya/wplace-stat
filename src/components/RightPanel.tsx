@@ -91,12 +91,58 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     }, [currentTemplate, viewMode, selectedColorId]);
 
 
-    // Define colors for difference mode (will be configurable later for dark mode)
-    const differenceColors = {
-        transparent: [0, 0, 0, 0],          // Black for transparent pixels
-        unselected: [255, 255, 255, 255],     // White for unselected colors
-        match: [0, 255, 0, 255],              // Green for matching colors
-        mismatch: [255, 0, 0, 255]            // Red for mismatching colors
+    // Function to get CSS variable value
+    const getCssVariable = (name: string): string => {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    };
+
+    // Function to parse RGB/RGBA from CSS variable
+    const parseRgbFromCssVariable = (cssValue: string): number[] => {
+        // Handle rgb() and rgba() formats
+        const rgbMatch = cssValue.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/);
+        if (rgbMatch) {
+            const r = parseInt(rgbMatch[1]);
+            const g = parseInt(rgbMatch[2]);
+            const b = parseInt(rgbMatch[3]);
+            const a = rgbMatch[4] ? parseFloat(rgbMatch[4]) : 1;
+            return [r, g, b, Math.round(a * 255)];
+        }
+        
+        // Handle hex format
+        const hexMatch = cssValue.match(/^#([0-9A-Fa-f]{3,8})$/);
+        if (hexMatch) {
+            let hex = hexMatch[1];
+            if (hex.length === 3 || hex.length === 4) {
+                hex = hex.split('').map(c => c + c).join('');
+            }
+            
+            if (hex.length === 6) {
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
+                return [r, g, b, 255];
+            } else if (hex.length === 8) {
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
+                const a = parseInt(hex.substring(6, 8), 16);
+                return [r, g, b, a];
+            }
+        }
+        
+        // Default to black if parsing fails
+        return [0, 0, 0, 255];
+    };
+
+    // Get difference colors from CSS variables
+    const getDifferenceColors = () => {
+        // These are example CSS variable names - you may need to adjust them
+        return {
+            transparent: [0, 0, 0, 0],          // Always fully transparent
+            unselected: parseRgbFromCssVariable(getCssVariable('--color-difference-unselected') || '#ffffff'),
+            match: parseRgbFromCssVariable(getCssVariable('--color-difference-match') || '#4CAF50'),
+            mismatch: parseRgbFromCssVariable(getCssVariable('--color-difference-missing') || '#ff0000')
+        };
     };
 
     // Helper function to check if two colors match exactly
@@ -130,6 +176,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         y: number,
         selectedColorId?: number | null
     ) => {
+        const differenceColors = getDifferenceColors();
         // Create temporary canvases to get image data
         const templateCanvas = document.createElement('canvas');
         templateCanvas.width = templateImage.width;
