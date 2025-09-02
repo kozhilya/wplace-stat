@@ -100,22 +100,6 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [] 
                                 </th>
                             ))}
                         </tr>
-                    </thead>
-                    <thead>
-                        <tr>
-                            {['color', 'total', 'completed', 'percentage', 'remaining'].map((text, index) => (
-                                <th 
-                                    key={index}
-                                    onClick={() => handleHeaderClick(index)}
-                                    className={index > 0 ? 'number-column' : ''}
-                                >
-                                    <span className="text" data-i18n={text}>
-                                        {LanguageManager.getText(text as any)}
-                                    </span>
-                                    {getSortIndicator(index)}
-                                </th>
-                            ))}
-                        </tr>
                         {/* Total row in thead to avoid indentation */}
                         {totalTotal > 0 && (
                             <tr className="statistics-total-row">
