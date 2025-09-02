@@ -11,6 +11,13 @@
     <div id="root">
         <!-- React will render here -->
     </div>
+    <script>
+        // Initialize DEBUG_MODE based on URL parameters
+        window.DEBUG_MODE = new URLSearchParams(window.location.search).has('debug');
+        if (window.DEBUG_MODE) {
+            console.log('Debug mode enabled');
+        }
+    </script>
 </body>
 
 </html>
