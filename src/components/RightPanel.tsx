@@ -215,6 +215,27 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         ctx.putImageData(resultData, x, y);
     }, [differenceColors]);
 
+    // Helper function to draw image with transform
+    const drawImageWithTransform = useCallback((ctx: CanvasRenderingContext2D, image: HTMLImageElement) => {
+        // Clear the canvas
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        
+        // Disable image smoothing to keep pixels sharp
+        ctx.imageSmoothingEnabled = false;
+        
+        // Save the current context
+        ctx.save();
+        
+        // Use transform instead of separate translate and scale
+        ctx.transform(scale, 0, 0, scale, offset.x, offset.y);
+        
+        // Draw the image at the top-left corner (0,0)
+        ctx.drawImage(image, 0, 0);
+        
+        // Restore the context
+        ctx.restore();
+    }, [scale, offset]);
+
     // Function to update the current image based on view mode
     const updateCurrentImageToDraw = useCallback(() => {
         let imageToDraw: HTMLImageElement | null = null;
@@ -237,33 +258,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         if (canvas && imageToDraw) {
             const ctx = canvas.getContext('2d');
             if (ctx) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
                 // Set canvas dimensions to match the container
                 const container = canvas.parentElement;
                 if (container) {
                     canvas.width = container.clientWidth;
                     canvas.height = container.clientHeight;
                 }
-                
-                // Save the current context
-                ctx.save();
-                
-                // Disable image smoothing to keep pixels sharp
-                ctx.imageSmoothingEnabled = false;
-                
-                // Apply scaling and offset
-                ctx.translate(offset.x, offset.y);
-                ctx.scale(scale, scale);
-                
-                // Draw the image at the top-left corner (0,0)
-                ctx.drawImage(imageToDraw, 0, 0);
-                
-                // Restore the context
-                ctx.restore();
+                drawImageWithTransform(ctx, imageToDraw);
             }
         }
-    }, [viewMode, currentTemplate, differenceImageRef.current, scale, offset]);
+    }, [viewMode, currentTemplate, differenceImageRef.current, drawImageWithTransform]);
 
     // Draw the appropriate image based on view mode
     const drawCanvas = useCallback(() => {
@@ -273,9 +277,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Clear the canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         // Set canvas dimensions to match the container
         const container = canvas.parentElement;
         if (container) {
@@ -284,24 +285,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         }
 
         if (currentImageToDraw) {
-            // Save the current context
-            ctx.save();
-
-            // Disable image smoothing to keep pixels sharp
-            ctx.imageSmoothingEnabled = false;
-            
-            // Apply scaling and offset
-            ctx.translate(offset.x, offset.y);
-            ctx.scale(scale, scale);
-
-            // Draw the image at the top-left corner (0,0)
-            // The offset and scale will handle positioning
-            ctx.drawImage(currentImageToDraw, 0, 0);
-
-            // Restore the context
-            ctx.restore();
+            drawImageWithTransform(ctx, currentImageToDraw);
         }
-    }, [currentImageToDraw, scale, offset]);
+    }, [currentImageToDraw, drawImageWithTransform]);
 
     // Generate difference image and cache it
     const generateDifferenceImage = useCallback((templateImage: HTMLImageElement, wplaceImage: HTMLImageElement) => {
