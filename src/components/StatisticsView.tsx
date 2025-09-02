@@ -72,11 +72,11 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
 
     const getSortIndicator = (columnIndex: number) => {
         if (sortColumn !== columnIndex) {
-            return <span className="sort-indicator" style={{ opacity: 0.3 }}></span>;
+            return <span className="sort-indicator" style={{ opacity: 0.3 }}>▼</span>;
         }
         return (
             <span className="sort-indicator">
-                {sortDirection === 'asc' ? '↑' : '↓'}
+                {sortDirection === 'asc' ? '▲' : '▼'}
             </span>
         );
     };
@@ -88,18 +88,25 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
                 <table>
                     <thead>
                         <tr>
-                            {['color', 'total', 'completed', 'percentage', 'remaining'].map((text, index) => (
-                                <th 
-                                    key={index}
-                                    onClick={() => handleHeaderClick(index)}
-                                    className={index > 0 ? 'number-column' : ''}
-                                >
-                                    <span className="text" data-i18n={text}>
-                                        {LanguageManager.getText(text as any)}
-                                    </span>
-                                    {getSortIndicator(index)}
-                                </th>
-                            ))}
+                            {['color', 'total', 'completed', 'percentage', 'remaining'].map((text, index) => {
+                                let sortAttr = '';
+                                if (sortColumn === index) {
+                                    sortAttr = sortDirection === 'asc' ? 'asc' : 'desc';
+                                }
+                                return (
+                                    <th 
+                                        key={index}
+                                        onClick={() => handleHeaderClick(index)}
+                                        className={index > 0 ? 'number-column' : ''}
+                                        data-sort={sortAttr || undefined}
+                                    >
+                                        <span className="text" data-i18n={text}>
+                                            {LanguageManager.getText(text as any)}
+                                        </span>
+                                        {getSortIndicator(index)}
+                                    </th>
+                                );
+                            })}
                             <th className="scroll-fix"></th>
                         </tr>
                         {/* Total row in thead to avoid indentation */}
