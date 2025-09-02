@@ -14,7 +14,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
     const isInteractionManagerInitialized = useRef(false);
-    const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('template');
+    const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('difference');
     const [scale, setScale] = useState<number>(1);
     const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     // Track the current image to draw separately from view mode
