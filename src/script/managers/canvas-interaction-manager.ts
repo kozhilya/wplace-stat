@@ -116,9 +116,16 @@ export class CanvasInteractionManager {
         this.canvas.style.cursor = 'grab';
     }
 
+    private wheelHandling: boolean = false;
+
     private handleWheel(e: WheelEvent): void {
         e.preventDefault();
         e.stopPropagation(); // Prevent event from bubbling up
+
+        if (this.wheelHandling) {
+            return;
+        }
+        this.wheelHandling = true;
         
         // Add debug message
         debug(`handleWheel called: deltaY=${e.deltaY}, deltaMode=${e.deltaMode}`);
@@ -167,6 +174,7 @@ export class CanvasInteractionManager {
             this.applyBounds();
             
             this.wheelAnimationFrameId = undefined;
+            this.wheelHandling = false;
         });
     }
 

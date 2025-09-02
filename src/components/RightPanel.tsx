@@ -254,10 +254,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                 
                 // Apply scaling and offset
                 ctx.translate(offset.x, offset.y);
-                
-                // Always use integer scaling to maintain square pixels
-                const integerScale = Math.max(1, Math.floor(scale));
-                ctx.scale(integerScale, integerScale);
+                ctx.scale(scale, scale);
                 
                 // Draw the image at the top-left corner (0,0)
                 ctx.drawImage(imageToDraw, 0, 0);
@@ -295,11 +292,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             
             // Apply scaling and offset
             ctx.translate(offset.x, offset.y);
-            
-            // Always use integer scaling to maintain square pixels
-            // Round scale to nearest integer to prevent sub-pixel rendering
-            const integerScale = Math.max(1, Math.floor(scale));
-            ctx.scale(integerScale, integerScale);
+            ctx.scale(scale, scale);
 
             // Draw the image at the top-left corner (0,0)
             // The offset and scale will handle positioning
