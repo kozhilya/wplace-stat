@@ -15,6 +15,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
+    
+    // Use a ref to store the draw function to avoid dependency issues
+    const drawCanvasRef = useRef<() => void>();
+    drawCanvasRef.current = drawCanvas;
 
     // Initialize and update interaction manager
     useEffect(() => {
@@ -23,9 +27,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
                 canvasRef.current,
                 (newScale) => {
                     setScale(newScale);
+                    // Force redraw when scale changes
+                    drawCanvasRef.current?.();
                 },
                 (newOffset) => {
                     setOffset(newOffset);
+                    // Force redraw when offset changes
+                    drawCanvasRef.current?.();
                 }
             );
             isInteractionManagerInitialized.current = true;
@@ -267,6 +275,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
 
     // Draw when scale, offset, or current image changes
     useEffect(() => {
+        console.log('Drawing canvas due to change in scale, offset, or image');
         drawCanvas();
     }, [scale, offset, currentImageToDraw]);
 
