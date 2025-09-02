@@ -2,9 +2,9 @@
 
 // Base button styles
 button {
-    background-color: var(--color-button-bg, #f0f0f0);
-    color: var(--color-button-text, #333);
-    border: 1px solid var(--color-button-border, #ccc);
+    background-color: var(--color-background-2);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
     border-radius: 4px;
     padding: 0.5rem 1rem;
     cursor: pointer;
@@ -12,12 +12,12 @@ button {
     transition: all 0.2s ease;
 
     &:hover {
-        background-color: var(--color-button-hover-bg, #e0e0e0);
-        border-color: var(--color-button-hover-border, #999);
+        background-color: var(--color-background-3);
+        border-color: var(--color-border);
     }
 
     &:active {
-        background-color: var(--color-button-active-bg, #d0d0d0);
+        background-color: var(--color-background-3);
     }
 }
 
@@ -25,8 +25,8 @@ button {
 button[type="submit"] {
     width: 100%;
     padding: 0.75rem;
-    background-color: var(--color-button-submit, #4CAF50);
-    color: var(--color-button-submit-text, white);
+    background-color: var(--color-difference-match);
+    color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -34,13 +34,14 @@ button[type="submit"] {
     margin-top: 10px;
 
     &:hover {
-        background-color: var(--color-button-submit-hover, #45a049);
+        background-color: var(--color-difference-match);
+        filter: brightness(0.9);
     }
 }
 
 // Header styles
 .language-selector {
-    background: var(--color-language-selector-bg);
+    background: var(--color-background-2);
     border: none;
     color: var(--color-text-primary);
     cursor: pointer;
