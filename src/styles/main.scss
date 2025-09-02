@@ -32,6 +32,15 @@
     --color-splitter-hover: #ccc;
     --color-splitter-active: #bbb;
     --color-splitter-handle: #999;
+    --color-font: #333;
+    --color-button-bg: #f0f0f0;
+    --color-button-text: #333;
+    --color-button-border: #ccc;
+    --color-button-hover-bg: #e0e0e0;
+    --color-button-hover-border: #999;
+    --color-button-active-bg: #d0d0d0;
+    --color-button-submit-text: white;
+    --color-button-delete-hover: #d32f2f;
 }
 
 // Dark mode variables
@@ -66,6 +75,15 @@ body.dark-mode {
     --color-splitter-hover: #555;
     --color-splitter-active: #666;
     --color-splitter-handle: #888;
+    --color-font: #e0e0e0;
+    --color-button-bg: #3d3d3d;
+    --color-button-text: #e0e0e0;
+    --color-button-border: #555;
+    --color-button-hover-bg: #4d4d4d;
+    --color-button-hover-border: #666;
+    --color-button-active-bg: #5d5d5d;
+    --color-button-submit-text: white;
+    --color-button-delete-hover: #b71c1c;
 }
 
 // Main styles
@@ -75,6 +93,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: var(--color-background);
+    color: var(--color-font);
     height: 100vh;
     overflow: hidden;
 }
@@ -447,11 +466,33 @@ body {
     }
 }
 
+// Base button styles
+button {
+    background-color: var(--color-button-bg, #f0f0f0);
+    color: var(--color-button-text, #333);
+    border: 1px solid var(--color-button-border, #ccc);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: var(--color-button-hover-bg, #e0e0e0);
+        border-color: var(--color-button-hover-border, #999);
+    }
+
+    &:active {
+        background-color: var(--color-button-active-bg, #d0d0d0);
+    }
+}
+
+// Submit button specific styles
 button[type="submit"] {
     width: 100%;
     padding: 0.75rem;
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--color-button-submit, #4CAF50);
+    color: var(--color-button-submit-text, white);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -459,7 +500,7 @@ button[type="submit"] {
     margin-top: 10px;
 
     &:hover {
-        background-color: #45a049;
+        background-color: var(--color-button-submit-hover, #45a049);
     }
 }
 
@@ -479,9 +520,18 @@ button[type="submit"] {
 
         button {
             font-weight: normal;
+            background-color: var(--color-button-bg);
+            color: var(--color-button-text);
+            border: 1px solid var(--color-button-border);
+
+            &:hover {
+                background-color: var(--color-button-hover-bg);
+                border-color: var(--color-button-hover-border);
+            }
 
             &.active {
                 font-weight: bold;
+                background-color: var(--color-button-active-bg);
             }
         }
     }
@@ -502,6 +552,22 @@ button[type="submit"] {
         background-color: var(--color-zoom-controls-bg);
         padding: 5px;
         border-radius: 4px;
+        
+        button {
+            background-color: var(--color-button-bg);
+            color: var(--color-button-text);
+            border: 1px solid var(--color-button-border);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            &:hover {
+                background-color: var(--color-button-hover-bg);
+                border-color: var(--color-button-hover-border);
+            }
+        }
     }
 
     canvas {
@@ -565,10 +631,23 @@ button[type="submit"] {
             div:last-child {
                 button {
                     margin-right: 5px;
+                    background-color: var(--color-button-bg);
+                    color: var(--color-button-text);
+                    border: 1px solid var(--color-button-border);
+
+                    &:hover {
+                        background-color: var(--color-button-hover-bg);
+                        border-color: var(--color-button-hover-border);
+                    }
 
                     &:last-child {
-                        background-color: #ff4444;
-                        color: white;
+                        background-color: var(--color-button-delete);
+                        color: var(--color-button-submit-text);
+                        border: none;
+                        
+                        &:hover {
+                            background-color: var(--color-button-delete-hover);
+                        }
                     }
                 }
             }
