@@ -100,29 +100,33 @@ export class CanvasInteractionManager {
     private handleWheel(e: WheelEvent): void {
         e.preventDefault();
         
-        const zoomIntensity = 0.1;
+        // Use a smaller zoom intensity for smoother zooming
+        const zoomIntensity = 0.05;
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
         
-        // Calculate mouse position in canvas coordinates
+        // Determine zoom direction based on deltaY
+        // Normalize wheel delta to handle different mouse sensitivities
+        const wheelDelta = Math.sign(e.deltaY);
+        const zoomFactor = Math.exp(-wheelDelta * zoomIntensity);
+        
+        // Calculate new scale with bounds
+        const newScale = Math.max(0.1, Math.min(10, this.scale * zoomFactor));
+        
+        // Calculate mouse position in canvas coordinates before scaling
         const mouseCanvasX = (mouseX - this.offset.x) / this.scale;
         const mouseCanvasY = (mouseY - this.offset.y) / this.scale;
         
-        const wheel = e.deltaY < 0 ? 1 : -1;
-        const zoomFactor = Math.exp(wheel * zoomIntensity);
-        
-        // Calculate new scale
-        const newScale = Math.max(0.1, Math.min(10, this.scale * zoomFactor));
-        
         // Adjust offset to zoom towards mouse position
+        // This keeps the point under the mouse fixed during zoom
         this.offset.x = mouseX - mouseCanvasX * newScale;
         this.offset.y = mouseY - mouseCanvasY * newScale;
         
         // Update scale
         this.scale = newScale;
         
-        // Apply bounds
+        // Apply bounds to keep the image within the canvas
         this.applyBounds();
         
         // Notify listeners
