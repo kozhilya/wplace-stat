@@ -27,7 +27,8 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
     currentTemplate,
     activeView,
     onCloseView,
-    onStatisticsRowClick
+    onStatisticsRowClick,
+    onCreateTemplate
 }) => {
     const collection = React.useRef(new TemplateCollection());
     const [templates, setTemplates] = useState<Template[]>([]);
