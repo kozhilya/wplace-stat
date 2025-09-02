@@ -10,7 +10,7 @@ import { StatisticsRow } from '../script/managers/statistics-manager';
 export const AppComponent: React.FC = () => {
     const [templateName, setTemplateName] = useState<string>('Untitled Template');
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-    const [leftPanelWidth, setLeftPanelWidth] = useState<number>(300);
+    const [leftPanelWidth, setLeftPanelWidth] = useState<number>(550);
     const [isResizing, setIsResizing] = useState<boolean>(false);
     const [statistics, setStatistics] = useState<StatisticsRow[]>([]);
     const [currentTemplate, setCurrentTemplate] = useState<Template | undefined>();
