@@ -56,7 +56,6 @@ export class CanvasInteractionManager {
 
     private handleMouseMove(e: MouseEvent): void {
         if (this.isDragging) {
-            console.log('Mouse move while dragging');
             const deltaX = e.clientX - this.lastMousePosition.x;
             const deltaY = e.clientY - this.lastMousePosition.y;
             
@@ -68,6 +67,9 @@ export class CanvasInteractionManager {
             
             this.lastMousePosition = { x: e.clientX, y: e.clientY };
             this.onOffsetChange?.(this.offset);
+            
+            // Test output in one line
+            console.log(`Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
         }
     }
 
