@@ -96,7 +96,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             {activeView === 'templates' && (
                 <TemplateList 
                     onTemplateSelect={handleTemplateLoad} 
-                    onCreateTemplate={props.onCreateTemplate}
+                    onCreateTemplate={onCreateTemplate}
                 />
             )}
             {/* Show TemplateConfig when no templates exist and no current template */}
