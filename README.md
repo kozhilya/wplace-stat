@@ -15,6 +15,13 @@ A web application for tracking progress on WPlace (a pixel art collaboration pla
 - **Local Storage**: Templates are saved locally in your browser
 - **URL Sharing**: Templates can be shared via URL hashes
 
+### TODO
+
+This changes are planned and will be implemented soon. Feel free to create and Issue if you feel something might be upgraded in this app that is not listed here.
+
+- Auto-update
+- Fix canvas flickering
+
 ## Getting Started
 
 ### Prerequisites
