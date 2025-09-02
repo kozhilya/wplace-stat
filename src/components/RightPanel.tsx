@@ -108,7 +108,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             // Update current image when switching away from difference mode
             updateCurrentImageToDraw();
         }
-    }, [currentTemplate, viewMode, props.selectedColorId]);
+    }, [currentTemplate, viewMode, selectedColorId]);
 
 
     // Define colors for difference mode (will be configurable later for dark mode)
@@ -323,7 +323,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         if (!tempCtx) return;
         
         // Draw difference onto the temporary canvas with selected color
-        drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, props.selectedColorId);
+        drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, selectedColorId);
         
         // Convert to image and cache it
         const img = new Image();
