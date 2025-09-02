@@ -17,6 +17,7 @@ export const AppComponent: React.FC = () => {
     const [currentTemplate, setCurrentTemplate] = useState<Template | undefined>();
     const [templates, setTemplates] = useState<Template[]>([]);
     const templateCollection = React.useRef(new TemplateCollection());
+    const [leftPanelView, setLeftPanelView] = useState<'template' | 'templates' | null>(null);
 
     useEffect(() => {
         LanguageManager.initialize();
@@ -156,6 +157,10 @@ export const AppComponent: React.FC = () => {
             <Header 
                 templateName={templateName} 
                 lastUpdated={lastUpdated} 
+                onTemplateButtonClick={() => setLeftPanelView('template')}
+                onTemplatesButtonClick={() => setLeftPanelView('templates')}
+                onCloseButtonClick={() => setLeftPanelView(null)}
+                hasActiveTemplate={!!currentTemplate}
             />
             <div className="main-content" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
                 <LeftPanel 
@@ -164,6 +169,8 @@ export const AppComponent: React.FC = () => {
                     onTemplateSave={handleTemplateSave}
                     onTemplateLoad={handleTemplateLoad}
                     currentTemplate={currentTemplate}
+                    activeView={leftPanelView}
+                    onCloseView={() => setLeftPanelView(null)}
                 />
                 <Splitter onResize={handleSplitterResize} />
                 <RightPanel currentTemplate={currentTemplate} />

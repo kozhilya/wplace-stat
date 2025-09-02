@@ -26,15 +26,69 @@ body {
     align-items: center;
     justify-content: space-between;
     
-    h1 {
-        margin: 0;
-        color: white;
-        font-size: 1.2rem;
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        
+        .templates-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            
+            &:hover {
+                background-color: #555;
+            }
+        }
+        
+        h1 {
+            margin: 0;
+            color: white;
+            font-size: 1.2rem;
+        }
     }
     
-    .last-updated {
-        font-size: 0.9rem;
-        color: #ccc;
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        
+        .close-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            
+            &:hover {
+                background-color: #555;
+            }
+        }
+        
+        .template-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            
+            &:hover {
+                background-color: #555;
+            }
+        }
+        
+        .last-updated {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
     }
 }
 

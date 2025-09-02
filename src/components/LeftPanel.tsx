@@ -12,6 +12,8 @@ interface LeftPanelProps {
     onTemplateLoad?: (template: Template) => void;
     statistics?: StatisticsRow[];
     currentTemplate?: Template;
+    activeView: 'template' | 'templates' | null;
+    onCloseView: () => void;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({ 
@@ -19,9 +21,10 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
     onTemplateSave, 
     onTemplateLoad, 
     statistics = [], 
-    currentTemplate 
+    currentTemplate,
+    activeView,
+    onCloseView
 }) => {
-    const [activeView, setActiveView] = useState<'template' | 'statistics' | 'templates'>('template');
     const collection = React.useRef(new TemplateCollection());
     const [templates, setTemplates] = useState<Template[]>([]);
 
@@ -29,25 +32,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
         // Load templates on mount
         const loadedTemplates = collection.current.getTemplates();
         setTemplates(loadedTemplates);
-        
-        // Determine initial view based on current template, hash, and templates
-        if (currentTemplate) {
-            setActiveView('statistics');
-        } else if (window.location.hash) {
-            setActiveView('template');
-        } else if (loadedTemplates.length > 0) {
-            setActiveView('templates');
-        } else {
-            setActiveView('template');
-        }
-    }, [currentTemplate]);
-
-    useEffect(() => {
-        // Update view when currentTemplate changes
-        if (currentTemplate) {
-            setActiveView('statistics');
-        }
-    }, [currentTemplate]);
+    }, []);
 
     const handleTemplateSave = (template: Template) => {
         // Add to collection
@@ -57,44 +42,23 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
         if (onTemplateSave) {
             onTemplateSave(template);
         }
-        // Switch to statistics view
-        setActiveView('statistics');
+        // Close the view
+        onCloseView();
     };
 
     const handleTemplateLoad = (template: Template) => {
         if (onTemplateLoad) {
             onTemplateLoad(template);
         }
-        // Switch to statistics view
-        setActiveView('statistics');
+        // Close the view
+        onCloseView();
     };
 
     return (
         <div className="left-panel" style={{ width: `${width}px` }}>
-            <div className="view-selector">
-                <button 
-                    onClick={() => setActiveView('template')}
-                    className={activeView === 'template' ? 'active' : ''}
-                >
-                    Template
-                </button>
-                <button 
-                    onClick={() => setActiveView('statistics')}
-                    className={activeView === 'statistics' ? 'active' : ''}
-                >
-                    Statistics
-                </button>
-                <button 
-                    onClick={() => setActiveView('templates')}
-                    className={activeView === 'templates' ? 'active' : ''}
-                >
-                    Templates
-                </button>
-            </div>
-            
             {activeView === 'template' && <TemplateConfig onTemplateSave={handleTemplateSave} />}
-            {activeView === 'statistics' && <StatisticsView statistics={statistics} />}
             {activeView === 'templates' && <TemplateList onTemplateSelect={handleTemplateLoad} />}
+            {currentTemplate && activeView === null && <StatisticsView statistics={statistics} />}
         </div>
     );
 };
