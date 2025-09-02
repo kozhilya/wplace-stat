@@ -32,25 +32,6 @@ body {
         font-size: 1.2rem;
     }
     
-    .controls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        
-        button {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            background-color: #555;
-            color: white;
-            
-            &:hover {
-                background-color: #666;
-            }
-        }
-    }
-    
     .last-updated {
         font-size: 0.9rem;
         color: #ccc;
