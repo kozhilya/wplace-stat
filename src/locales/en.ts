@@ -36,5 +36,8 @@ export const en = {
     template: 'Template',
     templates: 'Templates',
     wplace: 'Wplace',
-    difference: 'Difference'
+    difference: 'Difference',
+    zoomIn: 'Zoom In',
+    zoomOut: 'Zoom Out',
+    resetZoom: 'Reset Zoom'
 };
