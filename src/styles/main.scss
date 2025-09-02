@@ -1,12 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&display=swap');
 
+// CSS Variables for colors
+:root {
+    --color-background: #f0f0f0;
+    --color-header-bg: #333;
+    --color-text-primary: #333;
+    --color-text-light: #666;
+    --color-text-white: white;
+    --color-border: #ddd;
+    --color-button-hover: #555;
+    --color-table-header-bg: #c0c0c0;
+    --color-table-header-hover: #a0a0a0;
+    --color-table-row-even: #f8f8f8;
+    --color-table-row-odd: #ffffff;
+    --color-table-row-hover: #e6f7ff;
+    --color-table-total-row: #e0e0e0;
+    --color-button-submit: #4CAF50;
+    --color-button-submit-hover: #45a049;
+    --color-button-delete: #ff4444;
+    --color-zoom-controls-bg: rgba(255, 255, 255, 0.8);
+    --color-close-button-hover: #ddd;
+    --color-scroll-fix: transparent;
+    --color-swatch-border: #ccc;
+    --color-statistics-divider: #ccc;
+    --color-language-selector-bg: #555;
+    --color-language-selector-hover: #666;
+    --color-language-option-bg: white;
+    --color-language-option-text: #333;
+    --color-github-link-hover: #555;
+    --color-splitter-bg: #ddd;
+    --color-splitter-hover: #ccc;
+    --color-splitter-active: #bbb;
+    --color-splitter-handle: #999;
+}
+
 // Main styles
 body {
     font-family: "Noto Sans", sans-serif;
     font-size: 10pt;
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0;
+    background-color: var(--color-background);
     height: 100vh;
     overflow: hidden;
 }
@@ -18,8 +52,8 @@ body {
 }
 
 .header {
-    background-color: #333;
-    color: white;
+    background-color: var(--color-header-bg);
+    color: var(--color-text-white);
     padding: 0 20px;
     height: 60px;
     display: flex;
@@ -34,20 +68,20 @@ body {
         .templates-button {
             background: none;
             border: none;
-            color: white;
+            color: var(--color-text-white);
             font-size: 1.2rem;
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
 
             &:hover {
-                background-color: #555;
+                background-color: var(--color-button-hover);
             }
         }
 
         h1 {
             margin: 0;
-            color: white;
+            color: var(--color-text-white);
             font-size: 1.2rem;
         }
     }
@@ -58,49 +92,49 @@ body {
         gap: 10px;
 
         select {
-            background: #555;
+            background: var(--color-language-selector-bg);
             border: none;
-            color: white;
+            color: var(--color-text-white);
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
             font-size: 0.9rem;
 
             &:hover {
-                background-color: #666;
+                background-color: var(--color-language-selector-hover);
             }
 
             option {
-                background: white;
-                color: #333;
+                background: var(--color-language-option-bg);
+                color: var(--color-language-option-text);
             }
         }
 
         .close-button {
             background: none;
             border: none;
-            color: white;
+            color: var(--color-text-white);
             font-size: 1.2rem;
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
 
             &:hover {
-                background-color: #555;
+                background-color: var(--color-button-hover);
             }
         }
 
         .template-button {
             background: none;
             border: none;
-            color: white;
+            color: var(--color-text-white);
             font-size: 1.2rem;
             cursor: pointer;
             padding: 5px;
             border-radius: 3px;
 
             &:hover {
-                background-color: #555;
+                background-color: var(--color-button-hover);
             }
         }
 
@@ -110,14 +144,14 @@ body {
         }
 
         .github-link {
-            color: white;
+            color: var(--color-text-white);
             display: flex;
             align-items: center;
             padding: 5px;
             border-radius: 3px;
             
             &:hover {
-                background-color: #555;
+                background-color: var(--color-github-link-hover);
             }
             
             svg {
@@ -135,24 +169,24 @@ body {
 }
 
 .left-panel {
-    background: #f0f0f0;
+    background: var(--color-background);
     padding: 10px;
     overflow: auto;
     height: 100%;
     box-sizing: border-box;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--color-border);
 
     .close-button {
         background: none;
         border: none;
-        color: #333;
+        color: var(--color-text-primary);
         font-size: 1.2rem;
         cursor: pointer;
         padding: 5px;
         border-radius: 3px;
 
         &:hover {
-            background-color: #ddd;
+            background-color: var(--color-close-button-hover);
         }
     }
 
@@ -179,7 +213,7 @@ body {
 
     h2 {
         margin-top: 0;
-        color: #333;
+        color: var(--color-text-primary);
         font-size: 1.1rem;
     }
 
@@ -219,7 +253,7 @@ body {
                     table-layout: fixed;
 
                     th {
-                        background-color: #c0c0c0;
+                        background-color: var(--color-table-header-bg);
                         cursor: pointer;
                         user-select: none;
                         position: relative;
@@ -229,7 +263,7 @@ body {
                         text-align: left;
 
                         &:hover {
-                            background-color: #a0a0a0;
+                            background-color: var(--color-table-header-hover);
                         }
 
                         .text {
@@ -252,13 +286,13 @@ body {
 
                     &.statistics-total-row {
                         td {
-                            background-color: #e0e0e0;
+                            background-color: var(--color-table-total-row);
                             font-weight: bold;
                             cursor: default;
                             padding: 8px;
 
                             &:hover {
-                                background-color: #e0e0e0;
+                                background-color: var(--color-table-total-row);
                             }
 
                             &.number-column {
@@ -269,7 +303,7 @@ body {
 
                     th.scroll-fix,
                     td.scroll-fix {
-                        background-color: transparent;
+                        background-color: var(--color-scroll-fix);
                         width: 20px;
                         padding: 0;
                     }
@@ -287,14 +321,14 @@ body {
                     table-layout: fixed;
                     // Alternate row colors
                     &:nth-child(even) {
-                        background-color: #f8f8f8;
+                        background-color: var(--color-table-row-even);
                     }
                     &:nth-child(odd) {
-                        background-color: #ffffff;
+                        background-color: var(--color-table-row-odd);
                     }
                     // Hover effect
                     &:hover {
-                        background-color: #e6f7ff;
+                        background-color: var(--color-table-row-hover);
                         cursor: pointer;
                     }
 
@@ -307,7 +341,7 @@ body {
                             width: 16px;
                             height: 16px;
                             margin-right: 8px;
-                            border: 1px solid #ccc;
+                            border: 1px solid var(--color-swatch-border);
                             vertical-align: middle;
                             background-color: rgb(var(--color-rgb, 0, 0, 0));
                         }
@@ -387,7 +421,7 @@ button[type="submit"] {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: #f0f0f0;
+    background-color: var(--color-background);
     position: relative;
 
     .view-mode-selector {
@@ -417,7 +451,7 @@ button[type="submit"] {
         display: flex;
         flex-direction: column;
         gap: 5px;
-        background-color: rgba(255, 255, 255, 0.8);
+        background-color: var(--color-zoom-controls-bg);
         padding: 5px;
         border-radius: 4px;
     }
@@ -425,31 +459,31 @@ button[type="submit"] {
     canvas {
         max-width: 100%;
         max-height: 100%;
-        border: 1px solid #ddd;
+        border: 1px solid var(--color-border);
     }
 }
 
 .splitter {
     width: 5px;
     height: 100%;
-    background-color: #ddd;
+    background-color: var(--color-splitter-bg);
     cursor: col-resize;
     display: flex;
     align-items: center;
     justify-content: center;
 
     &:hover {
-        background-color: #ccc;
+        background-color: var(--color-splitter-hover);
     }
 
     &:active {
-        background-color: #bbb;
+        background-color: var(--color-splitter-active);
     }
 
     >div {
         width: 3px;
         height: 30px;
-        background-color: #999;
+        background-color: var(--color-splitter-handle);
         border-radius: 2px;
     }
 }
@@ -463,7 +497,7 @@ button[type="submit"] {
         li {
             margin-bottom: 10px;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--color-border);
             border-radius: 4px;
             display: flex;
             justify-content: space-between;
@@ -476,7 +510,7 @@ button[type="submit"] {
 
                 div {
                     font-size: 0.9em;
-                    color: #666;
+                    color: var(--color-text-light);
                 }
             }
 
@@ -496,9 +530,9 @@ button[type="submit"] {
 
 // Header styles
 .language-selector {
-    background: #555;
+    background: var(--color-language-selector-bg);
     border: none;
-    color: white;
+    color: var(--color-text-white);
     cursor: pointer;
     padding: 5px;
     border-radius: 3px;
@@ -539,7 +573,7 @@ button[type="submit"] {
 .statistics-divider {
     margin: 8px 0;
     border: none;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--color-statistics-divider);
 }
 
 // Prevent text selection during resize
