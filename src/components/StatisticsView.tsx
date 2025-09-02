@@ -9,7 +9,7 @@ interface StatisticsViewProps {
     selectedColorId?: number | null;
 }
 
-export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [], onRowClick }) => {
+export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [], onRowClick, selectedColorId }) => {
     const [sortColumn, setSortColumn] = useState<number>(1); // Default to Total column (index 1)
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); // Default to descending
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
