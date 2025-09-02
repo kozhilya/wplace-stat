@@ -28,11 +28,24 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
 }) => {
     const collection = React.useRef(new TemplateCollection());
     const [templates, setTemplates] = useState<Template[]>([]);
+    const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
 
     useEffect(() => {
         // Load templates on mount
         const loadedTemplates = collection.current.getTemplates();
         setTemplates(loadedTemplates);
+    }, []);
+
+    useEffect(() => {
+        const handleLanguageChange = () => {
+            setLanguage(LanguageManager.getCurrentLanguage());
+        };
+        
+        LanguageManager.onLanguageChange(handleLanguageChange);
+        
+        return () => {
+            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
+        };
     }, []);
 
     const handleTemplateSave = (template: Template) => {

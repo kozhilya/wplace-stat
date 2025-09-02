@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LanguageManager } from '../script/managers/language-manager';
 
 interface HeaderProps {
@@ -16,8 +16,20 @@ export const Header: React.FC<HeaderProps> = ({
     onTemplatesButtonClick,
     hasActiveTemplate 
 }) => {
-    const currentLanguage = LanguageManager.getCurrentLanguage();
+    const [currentLanguage, setCurrentLanguage] = useState(LanguageManager.getCurrentLanguage());
     
+    useEffect(() => {
+        const handleLanguageChange = () => {
+            setCurrentLanguage(LanguageManager.getCurrentLanguage());
+        };
+        
+        LanguageManager.onLanguageChange(handleLanguageChange);
+        
+        return () => {
+            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
+        };
+    }, []);
+
     const handleLanguageChange = () => {
         const newLanguage = currentLanguage === 'en' ? 'ru' : 'en';
         LanguageManager.setLanguage(newLanguage);

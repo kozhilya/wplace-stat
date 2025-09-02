@@ -4,12 +4,15 @@ import { ru } from '../../locales/ru';
 type Language = 'en' | 'ru';
 type Translations = typeof en;
 
+type LanguageChangeCallback = () => void;
+
 export class LanguageManager {
     private static currentLanguage: Language = 'en';
     private static translations: Record<Language, Translations> = {
         en: en,
         ru: ru
     };
+    private static languageChangeCallbacks: LanguageChangeCallback[] = [];
 
     static initialize(): void {
         // Load language preference from localStorage
@@ -18,6 +21,7 @@ export class LanguageManager {
             this.currentLanguage = savedLanguage;
         }
         this.updateTexts();
+        this.notifyLanguageChange();
     }
 
     static setLanguage(language: Language): void {
@@ -25,11 +29,27 @@ export class LanguageManager {
             this.currentLanguage = language;
             localStorage.setItem('language', language);
             this.updateTexts();
+            this.notifyLanguageChange();
         }
     }
 
     static getCurrentLanguage(): Language {
         return this.currentLanguage;
+    }
+
+    static onLanguageChange(callback: LanguageChangeCallback): void {
+        this.languageChangeCallbacks.push(callback);
+    }
+
+    static removeLanguageChangeListener(callback: LanguageChangeCallback): void {
+        const index = this.languageChangeCallbacks.indexOf(callback);
+        if (index > -1) {
+            this.languageChangeCallbacks.splice(index, 1);
+        }
+    }
+
+    private static notifyLanguageChange(): void {
+        this.languageChangeCallbacks.forEach(callback => callback());
     }
 
     static updateTexts(): void {

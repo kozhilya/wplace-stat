@@ -17,10 +17,23 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate }) => {
     const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
+    const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
     
     // Use a ref to store the draw function to avoid dependency issues
 
     const drawCanvasRef = useRef<() => void>();
+
+    useEffect(() => {
+        const handleLanguageChange = () => {
+            setLanguage(LanguageManager.getCurrentLanguage());
+        };
+        
+        LanguageManager.onLanguageChange(handleLanguageChange);
+        
+        return () => {
+            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
+        };
+    }, []);
 
     // Initialize and update interaction manager
     useEffect(() => {
