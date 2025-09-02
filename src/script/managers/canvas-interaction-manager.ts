@@ -118,6 +118,9 @@ export class CanvasInteractionManager {
     private handleWheel(e: WheelEvent): void {
         e.preventDefault();
         
+        // Add debug message
+        debug(`handleWheel called: deltaY=${e.deltaY}, deltaMode=${e.deltaMode}`);
+        
         // Use a smaller zoom intensity for smoother zooming
         const zoomIntensity = 0.05;
         const rect = this.canvas.getBoundingClientRect();
