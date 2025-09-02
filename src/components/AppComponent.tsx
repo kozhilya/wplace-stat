@@ -95,25 +95,15 @@ export const AppComponent: React.FC = () => {
         };
     }, []);
 
-    const handleSplitterMouseDown = (e: React.MouseEvent) => {
-        setIsResizing(true);
-        document.addEventListener('mousemove', handleMouseMove as any);
-        document.addEventListener('mouseup', handleMouseUp);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-        if (isResizing) {
-            const newWidth = e.clientX;
+    const handleSplitterResize = (deltaX: number) => {
+        setLeftPanelWidth(prevWidth => {
+            const newWidth = prevWidth + deltaX;
+            // Enforce minimum and maximum widths
             if (newWidth > 200 && newWidth < window.innerWidth - 200) {
-                setLeftPanelWidth(newWidth);
+                return newWidth;
             }
-        }
-    };
-
-    const handleMouseUp = () => {
-        setIsResizing(false);
-        document.removeEventListener('mousemove', handleMouseMove as any);
-        document.removeEventListener('mouseup', handleMouseUp);
+            return prevWidth;
+        });
     };
 
     const handleTemplateSave = (template: Template) => {
@@ -148,7 +138,7 @@ export const AppComponent: React.FC = () => {
                     onTemplateLoad={handleTemplateLoad}
                     currentTemplate={currentTemplate}
                 />
-                <Splitter onMouseDown={handleSplitterMouseDown} />
+                <Splitter onResize={handleSplitterResize} />
                 <RightPanel currentTemplate={currentTemplate} />
             </div>
         </div>

@@ -1,14 +1,45 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface SplitterProps {
-    onMouseDown: (e: React.MouseEvent) => void;
+    onResize: (deltaX: number) => void;
 }
 
-export const Splitter: React.FC<SplitterProps> = ({ onMouseDown }) => {
+export const Splitter: React.FC<SplitterProps> = ({ onResize }) => {
+    const isResizing = useRef(false);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (isResizing.current) {
+                onResize(e.movementX);
+            }
+        };
+
+        const handleMouseUp = () => {
+            isResizing.current = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [onResize]);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        e.preventDefault();
+        isResizing.current = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    };
+
     return (
         <div 
             className="splitter" 
-            onMouseDown={onMouseDown}
+            onMouseDown={handleMouseDown}
             style={{
                 width: '5px',
                 height: '100%',
