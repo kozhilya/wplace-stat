@@ -10,6 +10,7 @@ export class CanvasInteractionManager {
     private currentTemplate?: Template;
     private onScaleChange?: (scale: number) => void;
     private onOffsetChange?: (offset: { x: number; y: number }) => void;
+    private wheelAnimationFrameId: number | undefined;
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -117,46 +118,56 @@ export class CanvasInteractionManager {
 
     private handleWheel(e: WheelEvent): void {
         e.preventDefault();
+        e.stopPropagation(); // Prevent event from bubbling up
         
         // Add debug message
         debug(`handleWheel called: deltaY=${e.deltaY}, deltaMode=${e.deltaMode}`);
         
-        // Use a smaller zoom intensity for smoother zooming
-        const zoomIntensity = 0.05;
-        const rect = this.canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        
-        // Determine zoom direction based on deltaY
-        // Normalize wheel delta to handle different mouse sensitivities
-        const wheelDelta = Math.sign(e.deltaY);
-        const zoomFactor = Math.exp(-wheelDelta * zoomIntensity);
-        
-        // Calculate new scale with bounds
-        const newScale = Math.max(0.1, Math.min(10, this.scale * zoomFactor));
-        
-        // Calculate mouse position in canvas coordinates before scaling
-        const mouseCanvasX = (mouseX - this.offset.x) / this.scale;
-        const mouseCanvasY = (mouseY - this.offset.y) / this.scale;
-        
-        // Adjust offset to zoom towards mouse position
-        // This keeps the point under the mouse fixed during zoom
-        this.offset.x = mouseX - mouseCanvasX * newScale;
-        this.offset.y = mouseY - mouseCanvasY * newScale;
-        
-        // Always update scale through the callback to ensure synchronization with RightPanel
-        if (this.onScaleChange) {
-            this.onScaleChange(newScale);
+        // Use requestAnimationFrame to throttle the zoom operation
+        if (this.wheelAnimationFrameId !== undefined) {
+            cancelAnimationFrame(this.wheelAnimationFrameId);
         }
-        // Always update our internal scale
-        this.scale = newScale;
         
-        // Update offset through the callback
-        if (this.onOffsetChange) {
-            this.onOffsetChange(this.offset);
-        }
-        // Apply bounds to keep the image within the canvas
-        this.applyBounds();
+        this.wheelAnimationFrameId = requestAnimationFrame(() => {
+            // Use a smaller zoom intensity for smoother zooming
+            const zoomIntensity = 0.05;
+            const rect = this.canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Determine zoom direction based on deltaY
+            // Normalize wheel delta to handle different mouse sensitivities
+            const wheelDelta = Math.sign(e.deltaY);
+            const zoomFactor = Math.exp(-wheelDelta * zoomIntensity);
+            
+            // Calculate new scale with bounds
+            const newScale = Math.max(0.1, Math.min(10, this.scale * zoomFactor));
+            
+            // Calculate mouse position in canvas coordinates before scaling
+            const mouseCanvasX = (mouseX - this.offset.x) / this.scale;
+            const mouseCanvasY = (mouseY - this.offset.y) / this.scale;
+            
+            // Adjust offset to zoom towards mouse position
+            // This keeps the point under the mouse fixed during zoom
+            this.offset.x = mouseX - mouseCanvasX * newScale;
+            this.offset.y = mouseY - mouseCanvasY * newScale;
+            
+            // Always update scale through the callback to ensure synchronization with RightPanel
+            if (this.onScaleChange) {
+                this.onScaleChange(newScale);
+            }
+            // Always update our internal scale
+            this.scale = newScale;
+            
+            // Update offset through the callback
+            if (this.onOffsetChange) {
+                this.onOffsetChange(this.offset);
+            }
+            // Apply bounds to keep the image within the canvas
+            this.applyBounds();
+            
+            this.wheelAnimationFrameId = undefined;
+        });
     }
 
     private handleTouchStart(e: TouchEvent): void {
@@ -272,6 +283,11 @@ export class CanvasInteractionManager {
     }
 
     cleanup(): void {
+        // Cancel any pending animation frames
+        if (this.wheelAnimationFrameId !== undefined) {
+            cancelAnimationFrame(this.wheelAnimationFrameId);
+            this.wheelAnimationFrameId = undefined;
+        }
         // Remove event listeners if needed
         // For now, we'll rely on garbage collection
     }
