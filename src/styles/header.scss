@@ -1,0 +1,124 @@
+.header {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    padding: 0 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .templates-button {
+            background: none;
+            border: none;
+            color: var(--color-text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+
+            &:hover {
+                background-color: var(--color-border);
+            }
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--color-text-primary);
+            font-size: 1.2rem;
+        }
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        select {
+            background: var(--color-background);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+
+            &:hover {
+                background-color: var(--color-border);
+            }
+
+            option {
+                background: var(--color-background);
+                color: var(--color-text-primary);
+            }
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--color-text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+
+            &:hover {
+                background-color: var(--color-border);
+            }
+        }
+
+        .template-button {
+            background: none;
+            border: none;
+            color: var(--color-text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+
+            &:hover {
+                background-color: var(--color-border);
+            }
+        }
+
+        .last-updated {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+        }
+
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            color: var(--color-text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            
+            &:hover {
+                background-color: var(--color-border);
+            }
+        }
+
+        .github-link {
+            color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-radius: 3px;
+            
+            &:hover {
+                background-color: var(--color-border);
+            }
+            
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+// CSS Variables for colors
+:root {
+    --color-background: #f0f0f0;
+    --color-background-2: #d0d0d0;
+    --color-background-3: #b0b0b0;
+    --color-text-primary: #333;
+    --color-text-light: #666;
+    --color-border: #ddd;
+    --color-highlight: #007bff;
+    --color-difference-match: #4CAF50;
+    --color-difference-mismatch: #ff0000;
+}
+
+// Dark mode variables
+body.dark-mode {
+    --color-background: #1a1a1a;
+    --color-background-2: #2a2a2a;
+    --color-background-3: #3a3a3a;
+    --color-text-primary: #e0e0e0;
+    --color-text-light: #a0a0a0;
+    --color-border: #444;
+    --color-highlight: #007bff;
+    --color-difference-match: #2e7d32;
+    --color-difference-mismatch: #ff5555;
+}

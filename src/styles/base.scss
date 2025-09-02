@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&display=swap');
+
+// Main styles
+body {
+    font-family: "Noto Sans", sans-serif;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+// Prevent text selection during resize
+* {
+    user-select: none;
+}
+
+input,
+button {
+    user-select: text;
+}
