@@ -41,26 +41,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas && !interactionManagerRef.current) {
-            // Track if we're in the middle of an update to prevent double rendering
-            let isUpdating = false;
-            
             interactionManagerRef.current = new CanvasInteractionManager(
                 canvas,
-                (newScale) => {
-                    if (isUpdating) return;
-                    isUpdating = true;
+                (newScale, newOffset) => {
                     setScale(newScale);
-                    // Force redraw when scale changes
-                    drawCanvasRef.current?.();
-                    isUpdating = false;
-                },
-                (newOffset) => {
-                    if (isUpdating) return;
-                    isUpdating = true;
                     setOffset(newOffset);
-                    // Force redraw when offset changes
+                    // Force redraw when position changes
                     drawCanvasRef.current?.();
-                    isUpdating = false;
                 }
             );
             

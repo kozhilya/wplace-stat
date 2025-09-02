@@ -8,18 +8,15 @@ export class CanvasInteractionManager {
     private isDragging: boolean = false;
     private lastMousePosition: { x: number; y: number } = { x: 0, y: 0 };
     private currentTemplate?: Template;
-    private onScaleChange?: (scale: number) => void;
-    private onOffsetChange?: (offset: { x: number; y: number }) => void;
+    private onPositionChange?: (scale: number, offset: { x: number; y: number }) => void;
     private wheelAnimationFrameId: number | undefined;
 
     constructor(
         canvas: HTMLCanvasElement,
-        onScaleChange?: (scale: number) => void,
-        onOffsetChange?: (offset: { x: number; y: number }) => void
+        onPositionChange?: (scale: number, offset: { x: number; y: number }) => void
     ) {
         this.canvas = canvas;
-        this.onScaleChange = onScaleChange;
-        this.onOffsetChange = onOffsetChange;
+        this.onPositionChange = onPositionChange;
         this.setupEventListeners();
     }
 
@@ -33,16 +30,12 @@ export class CanvasInteractionManager {
         // Apply bounds when scale changes
         this.applyBounds();
         // Notify listeners
-        if (this.onScaleChange) {
-            this.onScaleChange(this.scale);
+        if (this.onPositionChange) {
+            this.onPositionChange(this.scale, this.offset);
         }
     }
 
     resetView(): void {
-        // Update scale through callback
-        if (this.onScaleChange) {
-            this.onScaleChange(1);
-        }
         this.scale = 1;
         
         // Ensure canvas dimensions are up to date
@@ -65,9 +58,9 @@ export class CanvasInteractionManager {
             this.offset = { x: 0, y: 0 };
         }
         
-        // Update offset through callback
-        if (this.onOffsetChange) {
-            this.onOffsetChange(this.offset);
+        // Update through callback
+        if (this.onPositionChange) {
+            this.onPositionChange(this.scale, this.offset);
         }
     }
 
@@ -104,7 +97,7 @@ export class CanvasInteractionManager {
             this.applyBounds();
             
             this.lastMousePosition = { x: e.clientX, y: e.clientY };
-            this.onOffsetChange?.(this.offset);
+            this.onPositionChange?.(this.scale, this.offset);
             
             // Test output in one line
             console.log(`Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
@@ -165,13 +158,10 @@ export class CanvasInteractionManager {
             // Apply bounds to keep the image within the canvas
             this.applyBounds();
             
-            // Notify both scale and offset changes at once
+            // Notify position change (scale and offset) at once
             // This prevents double rendering
-            if (this.onScaleChange) {
-                this.onScaleChange(this.scale);
-            }
-            if (this.onOffsetChange) {
-                this.onOffsetChange(this.offset);
+            if (this.onPositionChange) {
+                this.onPositionChange(this.scale, this.offset);
             }
             
             this.wheelAnimationFrameId = undefined;
@@ -210,7 +200,7 @@ export class CanvasInteractionManager {
                 x: e.touches[0].clientX, 
                 y: e.touches[0].clientY 
             };
-            this.onOffsetChange?.(this.offset);
+            this.onPositionChange?.(this.scale, this.offset);
             e.preventDefault();
         }
     }
@@ -279,8 +269,8 @@ export class CanvasInteractionManager {
             }
         }
         
-        // Update the offset through the callback
-        this.onOffsetChange?.(this.offset);
+        // Update through the callback
+        this.onPositionChange?.(this.scale, this.offset);
     }
 
     getScale(): number {
