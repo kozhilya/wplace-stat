@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TemplateConfig } from './TemplateConfig';
 import { StatisticsView } from './StatisticsView';
 import { TemplateList } from './TemplateList';
@@ -16,13 +16,33 @@ interface LeftPanelProps {
 export const LeftPanel: React.FC<LeftPanelProps> = ({ width, onTemplateSave, onTemplateLoad, statistics = [] }) => {
     const [activeView, setActiveView] = useState<'template' | 'statistics' | 'templates'>('template');
     const collection = React.useRef(new TemplateCollection());
+    const [templates, setTemplates] = useState<Template[]>([]);
+
+    useEffect(() => {
+        // Load templates on mount
+        const loadedTemplates = collection.current.getTemplates();
+        setTemplates(loadedTemplates);
+        
+        // Determine initial view based on hash and templates
+        if (window.location.hash) {
+            setActiveView('template');
+        } else if (loadedTemplates.length > 0) {
+            setActiveView('templates');
+        } else {
+            setActiveView('template');
+        }
+    }, []);
 
     const handleTemplateSave = (template: Template) => {
         // Add to collection
         collection.current.addTemplate(template);
+        const updatedTemplates = collection.current.getTemplates();
+        setTemplates(updatedTemplates);
         if (onTemplateSave) {
             onTemplateSave(template);
         }
+        // Switch to template view
+        setActiveView('template');
     };
 
     const handleTemplateLoad = (template: Template) => {
