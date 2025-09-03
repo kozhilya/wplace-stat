@@ -6,8 +6,7 @@ interface CanvasRendererProps {
     offset: { x: number; y: number };
     onDraw?: () => void;
     canvasRefCallback?: (canvas: HTMLCanvasElement | null) => void;
-    pingAnimationActive?: boolean;
-    pingAnimationTime?: number;
+    pingAnimations?: { startTime: number }[];
     selectedColorId?: number | null;
     statistics?: any[];
 }
@@ -18,8 +17,7 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
     offset, 
     onDraw,
     canvasRefCallback,
-    pingAnimationActive = false,
-    pingAnimationTime = 0,
+    pingAnimations = [],
     selectedColorId = null,
     statistics = []
 }) => {
@@ -48,7 +46,7 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
 
     // Draw ping animation
     const drawPingAnimation = useCallback((ctx: CanvasRenderingContext2D) => {
-        if (!pingAnimationActive || !currentImageToDraw) return;
+        if (pingAnimations.length === 0 || !currentImageToDraw) return;
         
         // Get missing pixels from global storage
         const missingPixels = (window as any).missingPixels || [];
@@ -63,30 +61,35 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         // Reset transform to draw in canvas coordinates
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         
-        const progress = Math.min(pingAnimationTime / 1000, 1); // Faster animation (1 second instead of 2)
-        const radius = progress * 30; // Smaller maximum radius
-        const alpha = 1 - progress;
-        
-        ctx.globalAlpha = alpha;
-        
-        // Draw circles at missing pixel positions, applying scale and offset
-        for (const pixel of missingPixels) {
-            // Convert image coordinates to canvas coordinates
-            // Add 0.5 to target the center of the pixel
-            const canvasX = offset.x + (pixel.x + 0.5) * scale;
-            const canvasY = offset.y + (pixel.y + 0.5) * scale;
+        // Draw each animation
+        const currentTime = Date.now();
+        for (const animation of pingAnimations) {
+            const elapsed = currentTime - animation.startTime;
+            const progress = Math.min(elapsed / 1000, 1); // 1 second duration
+            const radius = progress * 30; // Smaller maximum radius
+            const alpha = 1 - progress;
             
-            // Only draw if the pixel is within the visible area
-            if (canvasX >= -radius && canvasX <= ctx.canvas.width + radius &&
-                canvasY >= -radius && canvasY <= ctx.canvas.height + radius) {
-                ctx.beginPath();
-                ctx.arc(canvasX, canvasY, radius, 0, 2 * Math.PI);
-                ctx.stroke();
+            ctx.globalAlpha = alpha;
+            
+            // Draw circles at missing pixel positions, applying scale and offset
+            for (const pixel of missingPixels) {
+                // Convert image coordinates to canvas coordinates
+                // Add 0.5 to target the center of the pixel
+                const canvasX = offset.x + (pixel.x + 0.5) * scale;
+                const canvasY = offset.y + (pixel.y + 0.5) * scale;
+                
+                // Only draw if the pixel is within the visible area
+                if (canvasX >= -radius && canvasX <= ctx.canvas.width + radius &&
+                    canvasY >= -radius && canvasY <= ctx.canvas.height + radius) {
+                    ctx.beginPath();
+                    ctx.arc(canvasX, canvasY, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
             }
         }
         
         ctx.restore();
-    }, [pingAnimationActive, pingAnimationTime, scale, offset, currentImageToDraw]);
+    }, [pingAnimations, scale, offset, currentImageToDraw]);
 
     // Draw the appropriate image
     const drawCanvas = useCallback(() => {

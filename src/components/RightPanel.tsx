@@ -30,8 +30,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
     const renderIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const [remainingPixels, setRemainingPixels] = useState<number>(0);
-    const [pingAnimationActive, setPingAnimationActive] = useState<boolean>(false);
-    const [pingAnimationTime, setPingAnimationTime] = useState<number>(0);
+    const [pingAnimations, setPingAnimations] = useState<{ startTime: number }[]>([]);
     
     // Use a ref to store the draw function to avoid dependency issues
     const drawCanvasRef = useRef<() => void>();
@@ -158,36 +157,17 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
 
     // Handle ping remaining button click
     const handlePingRemaining = useCallback(() => {
-        setPingAnimationActive(true);
-        setPingAnimationTime(0);
+        // Add a new animation with the current timestamp
+        const newAnimation = { startTime: Date.now() };
+        setPingAnimations(prev => [...prev, newAnimation]);
         
-        // Auto-disable animation after 1 second (faster)
+        // Clean up old animations after 1 second
         setTimeout(() => {
-            setPingAnimationActive(false);
+            setPingAnimations(prev => prev.filter(anim => anim !== newAnimation));
         }, 1000);
     }, []);
 
-    // Animation frame for ping effect
-    useEffect(() => {
-        let animationFrameId: number;
-        
-        const animate = () => {
-            if (pingAnimationActive) {
-                setPingAnimationTime(prevTime => prevTime + 16); // ~60fps
-                animationFrameId = requestAnimationFrame(animate);
-            }
-        };
-        
-        if (pingAnimationActive) {
-            animationFrameId = requestAnimationFrame(animate);
-        }
-        
-        return () => {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
-        };
-    }, [pingAnimationActive]);
+    // We don't need the animation frame anymore since we'll calculate progress based on start times
 
 
     // Generate difference image and cache it
@@ -280,8 +260,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     scale={scale}
                     offset={offset}
                     canvasRefCallback={setCanvasElement}
-                    pingAnimationActive={pingAnimationActive}
-                    pingAnimationTime={pingAnimationTime}
+                    pingAnimations={pingAnimations}
                     selectedColorId={selectedColorId}
                     statistics={statistics}
                 />
