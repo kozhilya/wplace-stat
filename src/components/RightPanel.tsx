@@ -4,7 +4,7 @@ import { CanvasInteractionManager } from '../script/managers/canvas-interaction-
 import { debug } from '../utils';
 import { LanguageManager } from '../script/managers/language-manager';
 import { WplacePalette } from '../script/wplace';
-import { CanvasRenderer } from './CanvasRenderer';
+import { CanvasRenderer, Ping } from './CanvasRenderer';
 
 import { StatisticsRow } from '../script/managers/statistics-manager';
 import { ImageLoaderManager } from '../script/managers/image-loader-manager';
@@ -30,7 +30,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
     const renderIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const [remainingPixels, setRemainingPixels] = useState<number>(0);
-    const [pingAnimations, setPingAnimations] = useState<{ startTime: number }[]>([]);
+    const [pingAnimations, setPingAnimations] = useState<Ping[]>([]);
     
     // Use a ref to store the draw function to avoid dependency issues
     const drawCanvasRef = useRef<() => void>();
@@ -157,17 +157,67 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
 
     // Handle ping remaining button click
     const handlePingRemaining = useCallback(() => {
-        // Add a new animation with the current timestamp
-        const newAnimation = { startTime: Date.now() };
-        setPingAnimations(prev => [...prev, newAnimation]);
+        // Get missing pixels from global storage
+        const missingPixels = (window as any).missingPixels || [];
         
-        // Clean up old animations after 1 second
-        setTimeout(() => {
-            setPingAnimations(prev => prev.filter(anim => anim !== newAnimation));
-        }, 1000);
-    }, []);
+        // Create a ping for each missing pixel
+        const newPings: Ping[] = missingPixels.map(pixel => {
+            // Convert image coordinates to canvas coordinates
+            // Add 0.5 to target the center of the pixel
+            const centerX = offset.x + (pixel.x + 0.5) * scale;
+            const centerY = offset.y + (pixel.y + 0.5) * scale;
+            
+            return {
+                startTime: Date.now(),
+                centerX,
+                centerY,
+                radius: 0
+            };
+        });
+        
+        setPingAnimations(prev => [...prev, ...newPings]);
+    }, [scale, offset]);
 
-    // We don't need the animation frame anymore since we'll calculate progress based on start times
+    // Animation loop for updating ping animations
+    useEffect(() => {
+        let animationFrameId: number;
+        
+        const updatePings = () => {
+            const currentTime = Date.now();
+            
+            setPingAnimations(prev => {
+                // Update radii and filter out old pings
+                return prev
+                    .map(ping => {
+                        const elapsed = currentTime - ping.startTime;
+                        if (elapsed > 1000) return null; // Mark for removal
+                        
+                        const progress = elapsed / 1000;
+                        return {
+                            ...ping,
+                            radius: progress * 30 // Update radius
+                        };
+                    })
+                    .filter(Boolean) as Ping[]; // Remove nulls
+            });
+            
+            // Continue animation if there are active pings
+            if (pingAnimations.length > 0) {
+                animationFrameId = requestAnimationFrame(updatePings);
+            }
+        };
+        
+        // Start animation if there are pings
+        if (pingAnimations.length > 0) {
+            animationFrameId = requestAnimationFrame(updatePings);
+        }
+        
+        return () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        };
+    }, [pingAnimations.length]);
 
 
     // Generate difference image and cache it
