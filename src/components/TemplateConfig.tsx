@@ -8,10 +8,13 @@ interface TemplateConfigProps {
     isNewTemplate?: boolean;
     onClearForm?: () => void;
     currentTemplate?: Template;
+    editedTemplate?: Template | null;
 }
 
 export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
-    const { onTemplateSave, isNewTemplate, onClearForm, currentTemplate } = props;
+    const { onTemplateSave, isNewTemplate, onClearForm, currentTemplate, editedTemplate } = props;
+    // Determine if we're editing or creating based on editedTemplate
+    const isEditing = editedTemplate !== undefined;
     const [name, setName] = useState<string>('');
     const [tlX, setTlX] = useState<string>('');
     const [tlY, setTlY] = useState<string>('');
@@ -57,9 +60,20 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
 
     // Load template data when component mounts or dependencies change
     useEffect(() => {
-        // Always clear the form if isNewTemplate is true
-        if (isNewTemplate) {
+        // Always clear the form if isNewTemplate is true or editedTemplate is null (creating new)
+        if (isNewTemplate || editedTemplate === null) {
             clearForm();
+            return;
+        }
+
+        // Load from editedTemplate if provided (for editing)
+        if (editedTemplate) {
+            setName(editedTemplate.name);
+            setTlX(editedTemplate.tlX.toString());
+            setTlY(editedTemplate.tlY.toString());
+            setPxX(editedTemplate.pxX.toString());
+            setPxY(editedTemplate.pxY.toString());
+            setImageDataUrl(editedTemplate.imageDataUrl);
             return;
         }
 
@@ -104,7 +118,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
         return () => {
             window.removeEventListener('hashchange', handleHashChange);
         };
-    }, [isNewTemplate, currentTemplate]); // Add dependencies
+    }, [isNewTemplate, currentTemplate, editedTemplate]); // Add dependencies
 
     const handlePaste = (e: React.ClipboardEvent) => {
         const pastedText = e.clipboardData.getData('text');
