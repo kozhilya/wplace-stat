@@ -187,42 +187,25 @@ export const AppComponent: React.FC = () => {
     // Function to update Wplace image and recalculate statistics
     const updateWplaceImage = async (template: Template) => {
         try {
-            // Create a new template instance to avoid mutating the original
-            const updatedTemplate = new Template(
-                template.name,
-                template.tlX,
-                template.tlY,
-                template.pxX,
-                template.pxY,
-                template.imageDataUrl
-            );
-            
-            // Ensure the template image is loaded
-            if (template.templateImage) {
-                updatedTemplate.templateImage = template.templateImage;
-                updatedTemplate.imageWidth = template.imageWidth;
-                updatedTemplate.imageHeight = template.imageHeight;
-            } else {
-                await updatedTemplate.loadTemplateImage();
-            }
-            
-            // Reload the Wplace image
-            await updatedTemplate.loadWplaceImage();
-            
-            // Update the current template with the new instance
-            setCurrentTemplate(updatedTemplate);
+            // Instead of creating a new template, update the existing one
+            // Reload the Wplace image directly on the current template
+            await template.loadWplaceImage();
             
             // Update statistics
-            if (updatedTemplate.templateImage && updatedTemplate.wplaceImage) {
+            if (template.templateImage && template.wplaceImage) {
                 statisticsManagerRef.current = new StatisticsManager(
-                    updatedTemplate.templateImage, 
-                    updatedTemplate.wplaceImage
+                    template.templateImage, 
+                    template.wplaceImage
                 );
                 setStatistics(statisticsManagerRef.current.getStatistics());
             }
             
             // Update last updated time
             setLastUpdated(new Date());
+            
+            // Force re-render by updating the current template reference
+            // This preserves the scale and offset since the template object is the same
+            setCurrentTemplate({...template});
         } catch (error) {
             console.error('Error updating Wplace image:', error);
         }

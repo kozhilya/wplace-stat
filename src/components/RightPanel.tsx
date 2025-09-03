@@ -301,7 +301,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     };
     
 
-    // Generate difference image when template, view mode, or selected color changes
+    // Generate difference image when template, view mode, selected color changes, or wplaceImage updates
     useEffect(() => {
         if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
             generateDifferenceImage(currentTemplate.templateImage, currentTemplate.wplaceImage);
@@ -310,7 +310,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             // Update current image when switching away from difference mode
             updateCurrentImageToDraw();
         }
-    }, [currentTemplate, viewMode, selectedColorId, generateDifferenceImage, updateCurrentImageToDraw]);
+    }, [currentTemplate, viewMode, selectedColorId, generateDifferenceImage, updateCurrentImageToDraw, currentTemplate?.wplaceImage]);
 
     return (
         <div className="right-panel">
