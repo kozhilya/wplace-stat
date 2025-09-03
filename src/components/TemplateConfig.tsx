@@ -9,7 +9,8 @@ interface TemplateConfigProps {
     onClearForm?: () => void;
 }
 
-export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }) => {
+export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
+    const { onTemplateSave, isNewTemplate, onClearForm } = props;
     const [name, setName] = useState<string>('');
     const [tlX, setTlX] = useState<string>('');
     const [tlY, setTlY] = useState<string>('');
@@ -45,18 +46,18 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
 
     // Clear form when isNewTemplate is true
     useEffect(() => {
-        if (props.isNewTemplate) {
+        if (isNewTemplate) {
             clearForm();
-            if (props.onClearForm) {
-                props.onClearForm();
+            if (onClearForm) {
+                onClearForm();
             }
         }
-    }, [props.isNewTemplate]);
+    }, [isNewTemplate, onClearForm]);
 
     // Load template from hash on component mount
     useEffect(() => {
         // Don't load from hash if this is for a new template
-        if (props.isNewTemplate) {
+        if (isNewTemplate) {
             return;
         }
 
@@ -89,7 +90,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
         return () => {
             window.removeEventListener('hashchange', handleHashChange);
         };
-    }, [props.isNewTemplate]); // Add isNewTemplate to dependency array
+    }, [isNewTemplate]); // Add isNewTemplate to dependency array
 
     const handlePaste = (e: React.ClipboardEvent) => {
         const pastedText = e.clipboardData.getData('text');

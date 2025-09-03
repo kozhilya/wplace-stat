@@ -71,7 +71,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
 
     const handleCreateTemplate = () => {
         setIsNewTemplate(true);
-        props.onCreateTemplate();
+        onCreateTemplate();
     };
 
     const handleTemplateLoad = (template: Template) => {
