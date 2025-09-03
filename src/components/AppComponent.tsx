@@ -31,23 +31,30 @@ export const AppComponent: React.FC = () => {
     const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
     useEffect(() => {
+        debug('AppComponent.useEffect: Component mounted, initializing');
         LanguageManager.initialize();
+        debug('AppComponent.useEffect: LanguageManager initialized');
         
         // Initialize dark mode
         const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+        debug(`AppComponent.useEffect: Dark mode setting from localStorage: ${savedDarkMode}`);
         if (savedDarkMode) {
             document.body.classList.add('dark-mode');
+            debug('AppComponent.useEffect: Dark mode enabled');
         }
         
         // Load templates from localStorage
         const loadedTemplates = templateCollection.current.getTemplates();
+        debug(`AppComponent.useEffect: Loaded ${loadedTemplates.length} templates from collection`);
         setTemplates(loadedTemplates);
         
         // Handle hash on mount
         const handleInitialHash = async () => {
+            debug(`AppComponent.handleInitialHash: Window hash: ${window.location.hash}`);
             if (window.location.hash) {
                 try {
                     const hash = window.location.hash.substring(1);
+                    debug(`AppComponent.handleInitialHash: Deserializing template from hash`);
                     const template = Template.deserialize(hash);
                     
                     // Check if the template exists in the collection
@@ -60,34 +67,44 @@ export const AppComponent: React.FC = () => {
                         t.imageDataUrl === template.imageDataUrl
                     );
                     
+                    debug(`AppComponent.handleInitialHash: Template exists in collection: ${exists}`);
                     // If not exists, add to collection
                     if (!exists) {
+                        debug('AppComponent.handleInitialHash: Adding template to collection');
                         templateCollection.current.addTemplate(template);
                         const updatedTemplates = templateCollection.current.getTemplates();
                         setTemplates(updatedTemplates);
                     }
                     
                     // Load and set the current template
+                    debug('AppComponent.handleInitialHash: Loading template image');
                     await template.loadTemplateImage();
+                    debug('AppComponent.handleInitialHash: Loading Wplace image');
                     await template.loadWplaceImage();
                     setCurrentTemplate(template);
                     setTemplateName(template.name);
                     setLastUpdated(new Date());
+                    debug(`AppComponent.handleInitialHash: Set current template: ${template.name}`);
                     
                     // Update statistics
                     if (template.templateImage && template.wplaceImage) {
+                        debug('AppComponent.handleInitialHash: Creating statistics manager');
                         statisticsManagerRef.current = new StatisticsManager(
                             template.templateImage, 
                             template.wplaceImage
                         );
                         setStatistics(statisticsManagerRef.current.getStatistics());
+                        debug('AppComponent.handleInitialHash: Statistics updated');
                     }
                 } catch (error) {
-                    console.error('Error loading template from hash:', error);
+                    debug('AppComponent.handleInitialHash: Error loading template from hash:', error);
                 }
             } else if (loadedTemplates.length > 0) {
+                debug('AppComponent.handleInitialHash: Hash empty, templates available');
                 // If hash is empty but there are templates, show the template list view
                 // This will be handled by LeftPanel
+            } else {
+                debug('AppComponent.handleInitialHash: Hash empty, no templates available');
             }
             // Otherwise, show the template config view (default)
         };
@@ -96,6 +113,7 @@ export const AppComponent: React.FC = () => {
         
         // Listen for hash changes to update the template
         const handleHashChange = async () => {
+            debug(`AppComponent.handleHashChange: Hash changed to: ${window.location.hash}`);
             if (window.location.hash) {
                 try {
                     const hash = window.location.hash.substring(1);
@@ -105,10 +123,12 @@ export const AppComponent: React.FC = () => {
                     setCurrentTemplate(template);
                     setTemplateName(template.name);
                     setLastUpdated(new Date());
+                    debug(`AppComponent.handleHashChange: Updated template to: ${template.name}`);
                 } catch (error) {
-                    console.error('Error loading template from hash change:', error);
+                    debug('AppComponent.handleHashChange: Error loading template from hash change:', error);
                 }
             } else {
+                debug('AppComponent.handleHashChange: Hash cleared, resetting template');
                 setCurrentTemplate(undefined);
                 setTemplateName('Untitled Template');
                 setLastUpdated(new Date());
@@ -119,13 +139,17 @@ export const AppComponent: React.FC = () => {
         
         // Set up auto-update interval
         if (currentTemplate) {
+            debug('AppComponent.useEffect: Starting auto-update');
             startAutoUpdate();
         }
         
         // Listen for manual update requests
         const handleManualUpdate = async () => {
+            debug('AppComponent.handleManualUpdate: Manual update requested');
             if (currentTemplateRef.current && updateWplaceImageRef.current) {
                 await updateWplaceImageRef.current(currentTemplateRef.current);
+            } else {
+                debug('AppComponent.handleManualUpdate: No template or update function available');
             }
         };
         
@@ -133,6 +157,7 @@ export const AppComponent: React.FC = () => {
         
         // Cleanup
         return () => {
+            debug('AppComponent.useEffect: Cleaning up event listeners and intervals');
             window.removeEventListener('hashchange', handleHashChange);
             window.removeEventListener('manualUpdateRequested', handleManualUpdate);
             stopAutoUpdate();

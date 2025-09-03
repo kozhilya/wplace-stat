@@ -37,22 +37,28 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
     };
 
     useEffect(() => {
+        debug('TemplateConfig.useEffect: Setting up language change listener');
         const handleLanguageChange = () => {
+            debug('TemplateConfig.handleLanguageChange: Language changed, updating state');
             setLanguage(LanguageManager.getCurrentLanguage());
         };
         
         LanguageManager.onLanguageChange(handleLanguageChange);
         
         return () => {
+            debug('TemplateConfig.useEffect: Cleaning up language change listener');
             LanguageManager.removeLanguageChangeListener(handleLanguageChange);
         };
     }, []);
 
     // Clear form when isNewTemplate is true
     useEffect(() => {
+        debug(`TemplateConfig.useEffect: isNewTemplate changed to: ${isNewTemplate}`);
         if (isNewTemplate) {
+            debug('TemplateConfig.useEffect: Clearing form for new template');
             clearForm();
             if (onClearForm) {
+                debug('TemplateConfig.useEffect: Calling onClearForm callback');
                 onClearForm();
             }
         }

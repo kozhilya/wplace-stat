@@ -23,13 +23,16 @@ export const Header: React.FC<HeaderProps> = ({
     const [isDarkMode, setIsDarkMode] = useState(document.body.classList.contains('dark-mode'));
     
     useEffect(() => {
+        debug('Header.useEffect: Setting up language change listener');
         const handleLanguageChange = () => {
+            debug('Header.handleLanguageChange: Language changed, updating state');
             setCurrentLanguage(LanguageManager.getCurrentLanguage());
         };
         
         LanguageManager.onLanguageChange(handleLanguageChange);
         
         return () => {
+            debug('Header.useEffect: Cleaning up language change listener');
             LanguageManager.removeLanguageChangeListener(handleLanguageChange);
         };
     }, []);

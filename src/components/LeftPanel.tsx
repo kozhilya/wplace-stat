@@ -42,19 +42,24 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
     const [isNewTemplate, setIsNewTemplate] = useState(false);
 
     useEffect(() => {
+        debug('LeftPanel.useEffect: Loading templates on mount');
         // Load templates on mount
         const loadedTemplates = collection.current.getTemplates();
+        debug(`LeftPanel.useEffect: Loaded ${loadedTemplates.length} templates`);
         setTemplates(loadedTemplates);
     }, []);
 
     useEffect(() => {
+        debug('LeftPanel.useEffect: Setting up language change listener');
         const handleLanguageChange = () => {
+            debug('LeftPanel.handleLanguageChange: Language changed, updating state');
             setLanguage(LanguageManager.getCurrentLanguage());
         };
         
         LanguageManager.onLanguageChange(handleLanguageChange);
         
         return () => {
+            debug('LeftPanel.useEffect: Cleaning up language change listener');
             LanguageManager.removeLanguageChangeListener(handleLanguageChange);
         };
     }, []);
