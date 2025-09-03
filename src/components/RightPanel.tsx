@@ -48,6 +48,30 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         };
     }, []);
 
+    // Regenerate difference image when dark mode changes
+    useEffect(() => {
+        const handleDarkModeChange = () => {
+            if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
+                generateDifferenceImage(currentTemplate.templateImage, currentTemplate.wplaceImage);
+            }
+        };
+
+        // Listen for dark mode changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    handleDarkModeChange();
+                }
+            });
+        });
+
+        observer.observe(document.body, { attributes: true });
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [viewMode, currentTemplate]);
+
     // We need to get a reference to the canvas element for the interaction manager
     // We'll use a callback ref to get the canvas element from the CanvasRenderer
     const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
