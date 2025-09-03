@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 
-interface Ping {
+export interface Ping {
     startTime: number;
     centerX: number;
     centerY: number;

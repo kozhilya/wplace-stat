@@ -161,7 +161,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         const missingPixels = (window as any).missingPixels || [];
         
         // Create a ping for each missing pixel
-        const newPings: Ping[] = missingPixels.map(pixel => {
+        const newPings: Ping[] = missingPixels.map((pixel: { x: number; y: number }) => {
             // Convert image coordinates to canvas coordinates
             // Add 0.5 to target the center of the pixel
             const centerX = offset.x + (pixel.x + 0.5) * scale;
