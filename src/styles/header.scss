@@ -27,9 +27,11 @@
             color: var(--color-text-primary);
         }
 
-        svg {
-            vertical-align: baseline;
-            fill: var(--color-text-primary);
+        i {
+            // Ensure Font Awesome icons are properly sized
+            width: 1em;
+            height: 1em;
+            display: inline-block;
         }
     }
 
