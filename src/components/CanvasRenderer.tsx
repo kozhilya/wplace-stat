@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 
 // Global constant for update interval (milliseconds)
-const RENDER_INTERVAL = 100; // 10 FPS
+const RENDER_INTERVAL = 40; // 25 FPS (1000ms / 25 = 40ms)
 
 export interface Ping {
     startTime: number;
