@@ -39,6 +39,13 @@ export const TemplateList: React.FC<TemplateListProps> = (props) => {
         }
     };
 
+    // Function to get the template image as a data URL
+    const getTemplateImageUrl = (template: Template): string => {
+        // For simplicity, we'll use the imageDataUrl directly
+        // In a real implementation, you might want to create a thumbnail
+        return template.imageDataUrl;
+    };
+
     return (
         <div className="template-list">
             <div className="create-template-button-container">
@@ -53,23 +60,32 @@ export const TemplateList: React.FC<TemplateListProps> = (props) => {
             {templates.length === 0 ? (
                 <p data-i18n="noSavedTemplates">{LanguageManager.getText('noSavedTemplates')}</p>
             ) : (
-                <ul>
+                <ul className="template-list-items">
                     {templates.map((template, index) => (
-                        <li key={index}>
-                            <div>
-                                <strong>{template.name}</strong>
-                                <div>
+                        <li key={index} className="template-list-item">
+                            <div className="template-image-container">
+                                <img 
+                                    src={getTemplateImageUrl(template)} 
+                                    alt={template.name}
+                                    className="template-thumbnail"
+                                />
+                            </div>
+                            <div className="template-details">
+                                <strong className="template-name">{template.name}</strong>
+                                <div className="template-coordinates">
                                     TL: ({template.tlX}, {template.tlY}) | PX: ({template.pxX}, {template.pxY})
                                 </div>
                             </div>
-                            <div>
+                            <div className="template-actions">
                                 <button 
+                                    className="template-button load-button"
                                     onClick={() => handleLoad(template)}
                                     data-i18n="load"
                                 >
                                     {LanguageManager.getText('load')}
                                 </button>
                                 <button 
+                                    className="template-button delete-button"
                                     onClick={() => handleDelete(index, template.name)}
                                     data-i18n="delete"
                                 >
