@@ -11,8 +11,9 @@ interface RightPanelProps {
     selectedColorId?: number | null;
 }
 
-// Global constant for update interval (milliseconds)
+// Global constants
 const RENDER_INTERVAL = 100; // 10 FPS
+const MIN_REMAINING_FOR_BUTTON = 10;
 
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId }) => {
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
@@ -24,6 +25,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
     const renderIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [remainingPixels, setRemainingPixels] = useState<number>(0);
     
     // Use a ref to store the draw function to avoid dependency issues
     const drawCanvasRef = useRef<() => void>();
@@ -68,6 +70,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         };
     }, [canvasElement, currentTemplate]);
 
+
+    // Update remaining pixels when selected color or statistics change
+    useEffect(() => {
+        // This would need to be connected to the actual statistics data
+        // For now, we'll set a placeholder value
+        // In a real implementation, you would get this from the statistics manager
+        setRemainingPixels(5); // Placeholder value - replace with actual logic
+    }, [selectedColorId, currentTemplate]);
 
     // Update interaction manager when template changes
     useEffect(() => {
@@ -403,6 +413,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     </button>
                     <button onClick={handleZoomOut} title={LanguageManager.getText('zoomOut')}>
                         <i className="fas fa-search-minus"></i>
+                    </button>
+                    
+                    {/* New button */}
+                    <button 
+                        onClick={() => {}} 
+                        title="New action button"
+                        disabled={remainingPixels > MIN_REMAINING_FOR_BUTTON}
+                        className="new-action-button"
+                    >
+                        <i className="fas fa-star"></i>
                     </button>
                 </div>
             </div>
