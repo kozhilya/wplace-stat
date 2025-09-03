@@ -2,7 +2,7 @@
 
 A web application for tracking progress on WPlace (a pixel art collaboration platform) templates. This tool helps users monitor their pixel placement progress by comparing their work against template images and providing detailed statistics.
 
-*Note: This project is my playground for testing how well AI code works. My personal opinion: is that it's very not good, but for such a simple SPA it's good enough... I'll probably still have to clean up the mess the AI ​​made in this project, because it clearly did a poor job of structuring the files and methods in it. *
+*Note: This project is my playground for testing how well AI code works. My personal opinion: is that it's very not good, but for such a simple SPA it's good enough... I'll probably still have to clean up the mess the AI ​​made in this project, because it clearly did a poor job of structuring the files and methods in it.*
 
 ## Features
 
