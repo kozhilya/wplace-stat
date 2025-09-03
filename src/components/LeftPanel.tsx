@@ -107,7 +107,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                 <TemplateConfig 
                     onTemplateSave={handleTemplateSave} 
                     isNewTemplate={isNewTemplate}
-                    currentTemplate={currentTemplate}
+                    currentTemplate={isNewTemplate ? undefined : currentTemplate}
                 />
             )}
             {activeView === 'templates' && (
@@ -121,7 +121,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                 <TemplateConfig 
                     onTemplateSave={handleTemplateSave} 
                     isNewTemplate={isNewTemplate}
-                    currentTemplate={currentTemplate}
+                    currentTemplate={isNewTemplate ? undefined : currentTemplate}
                 />
             )}
             {currentTemplate && activeView === null && (
