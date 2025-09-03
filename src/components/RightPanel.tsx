@@ -35,6 +35,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     // Use a ref to store the draw function to avoid dependency issues
     const drawCanvasRef = useRef<() => void>();
     
+    // Draw function that will be called when needed
+    const drawCanvas = useCallback(() => {
+        // This will be implemented by the CanvasRenderer component
+        // We'll just trigger a re-render by updating state
+        setCurrentImageToDraw(prev => prev);
+    }, []);
+    
     // Update the draw function ref
     useEffect(() => {
         drawCanvasRef.current = drawCanvas;
