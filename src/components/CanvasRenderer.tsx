@@ -50,19 +50,18 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
     const drawPingAnimation = useCallback((ctx: CanvasRenderingContext2D) => {
         if (!pingAnimationActive || !currentImageToDraw) return;
         
-        // Find the remaining pixels for the selected color
-        const selectedRow = statistics.find((row: any) => row.color?.id === selectedColorId);
-        if (!selectedRow || selectedRow.remain === 0) return;
+        // Get missing pixels from global storage
+        const missingPixels = (window as any).missingPixels || [];
         
-        // This is a simplified implementation
-        // In a real implementation, you would need access to the difference image data
-        // to find the positions of the remaining pixels
-        
-        // For demonstration, we'll draw circles at random positions
+        // Filter pixels for the selected color if a color is selected
+        // For now, we'll draw all missing pixels
+        // In a real implementation, you'd need to check which pixels belong to the selected color
         ctx.save();
         ctx.strokeStyle = '#ff0000';
         ctx.lineWidth = 2;
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+        
+        // Reset transform to draw in canvas coordinates
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         
         const progress = Math.min(pingAnimationTime / 2000, 1);
         const radius = progress * 50;
@@ -70,18 +69,23 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         
         ctx.globalAlpha = alpha;
         
-        // Draw sample circles (replace with actual remaining pixel positions)
-        for (let i = 0; i < Math.min(selectedRow.remain, 20); i++) {
-            const x = Math.random() * ctx.canvas.width;
-            const y = Math.random() * ctx.canvas.height;
+        // Draw circles at missing pixel positions, applying scale and offset
+        for (const pixel of missingPixels) {
+            // Convert image coordinates to canvas coordinates
+            const canvasX = offset.x + pixel.x * scale;
+            const canvasY = offset.y + pixel.y * scale;
             
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            ctx.stroke();
+            // Only draw if the pixel is within the visible area
+            if (canvasX >= -radius && canvasX <= ctx.canvas.width + radius &&
+                canvasY >= -radius && canvasY <= ctx.canvas.height + radius) {
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, radius, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
         }
         
         ctx.restore();
-    }, [pingAnimationActive, pingAnimationTime, selectedColorId, statistics, currentImageToDraw]);
+    }, [pingAnimationActive, pingAnimationTime, scale, offset, currentImageToDraw]);
 
     // Draw the appropriate image
     const drawCanvas = useCallback(() => {

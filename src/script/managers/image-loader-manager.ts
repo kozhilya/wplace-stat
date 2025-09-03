@@ -279,7 +279,7 @@ export class ImageLoaderManager {
             transparent: [0, 0, 0, 0],          // Always fully transparent
             unselected: ImageLoaderManager.parseRgbFromCssVariable(ImageLoaderManager.getCssVariable('--color-difference-unselected') || '#ffffff'),
             match: ImageLoaderManager.parseRgbFromCssVariable(ImageLoaderManager.getCssVariable('--color-difference-match') || '#4CAF50'),
-            mismatch: ImageLoaderManager.parseRgbFromCssVariable(ImageLoaderManager.getCssVariable('--color-difference-missing') || '#ff0000')
+            missing: ImageLoaderManager.parseRgbFromCssVariable(ImageLoaderManager.getCssVariable('--color-difference-missing') || '#ff0000')
         };
     }
 
@@ -293,6 +293,8 @@ export class ImageLoaderManager {
         selectedColorId?: number | null
     ) {
         const differenceColors = ImageLoaderManager.getDifferenceColors();
+        // Track missing pixel coordinates
+        const missingPixels: { x: number; y: number }[] = [];
         // Create temporary canvases to get image data
         const templateCanvas = document.createElement('canvas');
         templateCanvas.width = templateImage.width;
@@ -358,10 +360,16 @@ export class ImageLoaderManager {
                         resultData.data[i + 3] = differenceColors.match[3];
                     } else {
                         // 4) Colors don't match - use red
-                        resultData.data[i] = differenceColors.mismatch[0];
-                        resultData.data[i + 1] = differenceColors.mismatch[1];
-                        resultData.data[i + 2] = differenceColors.mismatch[2];
-                        resultData.data[i + 3] = differenceColors.mismatch[3];
+                        resultData.data[i] = differenceColors.missing[0];
+                        resultData.data[i + 1] = differenceColors.missing[1];
+                        resultData.data[i + 2] = differenceColors.missing[2];
+                        resultData.data[i + 3] = differenceColors.missing[3];
+                        
+                        // Track missing pixel coordinates
+                        const pixelIndex = i / 4;
+                        const pixelX = (pixelIndex % templateCanvas.width);
+                        const pixelY = Math.floor(pixelIndex / templateCanvas.width);
+                        missingPixels.push({ x: pixelX, y: pixelY });
                     }
                 }
             } else {
@@ -378,15 +386,26 @@ export class ImageLoaderManager {
                     resultData.data[i + 3] = differenceColors.match[3];
                 } else {
                     // 4) Colors don't match - use red
-                    resultData.data[i] = differenceColors.mismatch[0];
-                    resultData.data[i + 1] = differenceColors.mismatch[1];
-                    resultData.data[i + 2] = differenceColors.mismatch[2];
-                    resultData.data[i + 3] = differenceColors.mismatch[3];
+                    resultData.data[i] = differenceColors.missing[0];
+                    resultData.data[i + 1] = differenceColors.missing[1];
+                    resultData.data[i + 2] = differenceColors.missing[2];
+                    resultData.data[i + 3] = differenceColors.missing[3];
+                    
+                    // Track missing pixel coordinates
+                    const pixelIndex = i / 4;
+                    const pixelX = (pixelIndex % templateCanvas.width);
+                    const pixelY = Math.floor(pixelIndex / templateCanvas.width);
+                    missingPixels.push({ x: pixelX, y: pixelY });
                 }
             }
         }
 
         // Put the result data onto the canvas
         ctx.putImageData(resultData, x, y);
+        
+        // Store missing pixels for ping animation
+        // We'll use a global storage or pass them back somehow
+        // For now, we'll store them in a global variable
+        (window as any).missingPixels = missingPixels;
     }
 }
