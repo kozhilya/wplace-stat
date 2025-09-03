@@ -7,6 +7,7 @@ import { LanguageManager } from '../script/managers/language-manager';
 import { Template, TemplateCollection } from '../script/template';
 import { StatisticsRow, StatisticsManager } from '../script/managers/statistics-manager';
 import { AUTO_UPDATE_INTERVAL } from '../script/wplace';
+import { debug } from '../utils';
 
 export const AppComponent: React.FC = () => {
     const [templateName, setTemplateName] = useState<string>('Untitled Template');
