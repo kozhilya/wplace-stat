@@ -73,11 +73,16 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
 
     const getSortIndicator = (columnIndex: number) => {
         if (sortColumn !== columnIndex) {
-            return <span className="sort-indicator" style={{ opacity: 0.3 }}>▼</span>;
+            return <span className="sort-indicator" style={{ opacity: 0.3 }}>
+                <i className="fas fa-sort"></i>
+            </span>;
         }
         return (
             <span className="sort-indicator">
-                {sortDirection === 'asc' ? '▲' : '▼'}
+                {sortDirection === 'asc' ? 
+                    <i className="fas fa-sort-up"></i> : 
+                    <i className="fas fa-sort-down"></i>
+                }
             </span>
         );
     };

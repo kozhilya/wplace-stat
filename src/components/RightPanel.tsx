@@ -421,28 +421,40 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     <button
                         onClick={() => setViewMode('template')}
                         className={viewMode === 'template' ? 'active' : ''}
+                        title={LanguageManager.getText('template')}
                     >
-                        {LanguageManager.getText('template')}
+                        <i className="fas fa-image"></i>
+                        <span>{LanguageManager.getText('template')}</span>
                     </button>
                     <button
                         onClick={() => setViewMode('wplace')}
                         className={viewMode === 'wplace' ? 'active' : ''}
+                        title={LanguageManager.getText('wplace')}
                     >
-                        {LanguageManager.getText('wplace')}
+                        <i className="fas fa-globe"></i>
+                        <span>{LanguageManager.getText('wplace')}</span>
                     </button>
                     <button
                         onClick={() => setViewMode('difference')}
                         className={viewMode === 'difference' ? 'active' : ''}
+                        title={LanguageManager.getText('difference')}
                     >
-                        {LanguageManager.getText('difference')}
+                        <i className="fas fa-code-compare"></i>
+                        <span>{LanguageManager.getText('difference')}</span>
                     </button>
                 </div>
 
                 {/* Zoom controls */}
                 <div className="zoom-controls">
-                    <button onClick={handleZoomIn} title={LanguageManager.getText('zoomIn')}>+</button>
-                    <button onClick={handleZoomReset} title={LanguageManager.getText('resetZoom')}>1:1</button>
-                    <button onClick={handleZoomOut} title={LanguageManager.getText('zoomOut')}>-</button>
+                    <button onClick={handleZoomIn} title={LanguageManager.getText('zoomIn')}>
+                        <i className="fas fa-search-plus"></i>
+                    </button>
+                    <button onClick={handleZoomReset} title={LanguageManager.getText('resetZoom')}>
+                        <i className="fas fa-sync-alt"></i>
+                    </button>
+                    <button onClick={handleZoomOut} title={LanguageManager.getText('zoomOut')}>
+                        <i className="fas fa-search-minus"></i>
+                    </button>
                 </div>
             </div>
         </div>
