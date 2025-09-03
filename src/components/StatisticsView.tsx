@@ -146,7 +146,7 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
                                             } as React.CSSProperties}
                                         />
                                         <span className="color-name">
-                                            {row.color?.id}. {row.color?.premium ? <i className="fas fa-star"></i> : ''}{row.color?.name}
+                                            {row.color?.id}. {row.color?.premium ? <i className="fas fa-star" style={{fontSize: '0.8em', marginRight: '2px'}}></i> : ''} {row.color?.name}
                                         </span>
                                     </td>
                                     <td className="number-column">{row.total.toLocaleString()}</td>
