@@ -89,6 +89,12 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
         onCloseView();
     };
 
+    // Add debug message when template button is clicked to edit
+    const handleTemplateButtonClick = () => {
+        debug(`Starting template edit: ${currentTemplate?.name || 'unknown'}`);
+        onTemplateButtonClick();
+    };
+
     return (
         <div className="left-panel" style={{ width: `${width}px` }}>
             {/* Show header when NOT in statistics view (activeView is not null) or when showing new template */}

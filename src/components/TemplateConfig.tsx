@@ -62,12 +62,14 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
     useEffect(() => {
         // Always clear the form if isNewTemplate is true or editedTemplate is null (creating new)
         if (isNewTemplate || editedTemplate === null) {
+            debug('Clearing form for new template creation');
             clearForm();
             return;
         }
 
         // Load from editedTemplate if provided (for editing)
         if (editedTemplate) {
+            debug(`Loading template for editing: ${editedTemplate.name}`);
             setName(editedTemplate.name);
             setTlX(editedTemplate.tlX.toString());
             setTlY(editedTemplate.tlY.toString());
@@ -81,6 +83,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             if (window.location.hash) {
                 try {
                     const hash = window.location.hash.substring(1); // Remove the '#' character
+                    debug(`Loading template from hash: ${hash.substring(0, 20)}...`);
                     const template = Template.deserialize(hash);
                     setName(template.name);
                     setTlX(template.tlX.toString());
@@ -96,6 +99,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
 
         // Load from current template prop if available, otherwise from hash
         if (currentTemplate) {
+            debug(`Loading from current template: ${currentTemplate.name}`);
             setName(currentTemplate.name);
             setTlX(currentTemplate.tlX.toString());
             setTlY(currentTemplate.tlY.toString());
@@ -109,6 +113,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
         // Listen for hash changes
         const handleHashChange = () => {
             if (!isNewTemplate) {
+                debug('Hash changed, reloading template data');
                 loadFromHash();
             }
         };
