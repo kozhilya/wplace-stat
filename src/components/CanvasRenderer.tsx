@@ -72,8 +72,9 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         // Draw circles at missing pixel positions, applying scale and offset
         for (const pixel of missingPixels) {
             // Convert image coordinates to canvas coordinates
-            const canvasX = offset.x + pixel.x * scale;
-            const canvasY = offset.y + pixel.y * scale;
+            // Add 0.5 to target the center of the pixel
+            const canvasX = offset.x + (pixel.x + 0.5) * scale;
+            const canvasY = offset.y + (pixel.y + 0.5) * scale;
             
             // Only draw if the pixel is within the visible area
             if (canvasX >= -radius && canvasX <= ctx.canvas.width + radius &&
