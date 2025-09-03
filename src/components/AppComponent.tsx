@@ -183,14 +183,30 @@ export const AppComponent: React.FC = () => {
     // Function to update Wplace image and recalculate statistics
     const updateWplaceImage = async (template: Template) => {
         try {
+            // Create a new template instance to avoid mutating the original
+            const updatedTemplate = new Template(
+                template.name,
+                template.tlX,
+                template.tlY,
+                template.pxX,
+                template.pxY,
+                template.imageDataUrl
+            );
+            
+            // Copy the template image reference
+            updatedTemplate.templateImage = template.templateImage;
+            
             // Reload the Wplace image
-            await template.loadWplaceImage();
+            await updatedTemplate.loadWplaceImage();
+            
+            // Update the current template with the new instance
+            setCurrentTemplate(updatedTemplate);
             
             // Update statistics
-            if (template.templateImage && template.wplaceImage) {
+            if (updatedTemplate.templateImage && updatedTemplate.wplaceImage) {
                 statisticsManagerRef.current = new StatisticsManager(
-                    template.templateImage, 
-                    template.wplaceImage
+                    updatedTemplate.templateImage, 
+                    updatedTemplate.wplaceImage
                 );
                 setStatistics(statisticsManagerRef.current.getStatistics());
             }

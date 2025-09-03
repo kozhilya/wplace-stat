@@ -145,7 +145,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             // Update current image when switching away from difference mode
             updateCurrentImageToDraw();
         }
-    }, [currentTemplate, viewMode, selectedColorId]);
+    }, [currentTemplate, viewMode, selectedColorId, generateDifferenceImage, updateCurrentImageToDraw]);
 
 
     // Function to update the current image based on view mode
@@ -165,7 +165,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         }
         
         setCurrentImageToDraw(imageToDraw);
-    }, [viewMode, currentTemplate, differenceImageRef.current]);
+    }, [viewMode, currentTemplate]);
 
     // Handle ping remaining button click
     const handlePingRemaining = useCallback(() => {
@@ -253,7 +253,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             updateCurrentImageToDraw();
         };
         img.src = tempCanvas.toDataURL('image/png');
-    }, [updateCurrentImageToDraw, selectedColorId]);
+    }, [selectedColorId, updateCurrentImageToDraw]);
 
     // Regenerate difference image when dark mode changes
     useEffect(() => {
