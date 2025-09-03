@@ -68,10 +68,19 @@
             align-items: center;
             justify-content: center;
 
-            &:hover {
+            &:hover:not(:disabled) {
                 background-color: var(--color-background-3);
                 border-color: var(--color-border);
             }
+            
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        }
+        
+        .new-action-button {
+            margin-top: 10px;
         }
     }
 

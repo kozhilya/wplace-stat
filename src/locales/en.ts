@@ -43,5 +43,6 @@ export const en = {
     darkMode: 'Dark Mode',
     lightMode: 'Light Mode',
     newTemplate: 'New Template',
-    hideCompleted: 'Hide completed'
+    hideCompleted: 'Hide completed',
+    pingRemaining: 'Ping remaining'
 };

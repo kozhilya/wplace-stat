@@ -43,5 +43,6 @@ export const es = {
     darkMode: 'Modo oscuro',
     lightMode: 'Modo claro',
     newTemplate: 'Nueva Plantilla',
-    hideCompleted: 'Ocultar completados'
+    hideCompleted: 'Ocultar completados',
+    pingRemaining: 'Resaltar restantes'
 };

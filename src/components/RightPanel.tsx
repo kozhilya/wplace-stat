@@ -4,14 +4,21 @@ import { CanvasInteractionManager } from '../script/managers/canvas-interaction-
 import { debug } from '../utils';
 import { LanguageManager } from '../script/managers/language-manager';
 import { WplacePalette } from '../script/wplace';
+import { CanvasRenderer, Ping } from './CanvasRenderer';
+
+import { StatisticsRow } from '../script/managers/statistics-manager';
+import { ImageLoaderManager } from '../script/managers/image-loader-manager';
 
 interface RightPanelProps {
     currentTemplate?: Template;
     selectedColorId?: number | null;
+    statistics?: StatisticsRow[];
 }
 
-export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId }) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+// Global constants
+const MIN_REMAINING_FOR_BUTTON = 10;
+
+export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId, statistics = [] }) => {
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
     const isInteractionManagerInitialized = useRef(false);
     const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('difference');
@@ -20,10 +27,23 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
+    const [remainingPixels, setRemainingPixels] = useState<number>(0);
+    const [pingAnimations, setPingAnimations] = useState<Ping[]>([]);
     
     // Use a ref to store the draw function to avoid dependency issues
-
     const drawCanvasRef = useRef<() => void>();
+    
+    // Draw function that will be called when needed
+    const drawCanvas = useCallback(() => {
+        // This will be implemented by the CanvasRenderer component
+        // We'll just trigger a re-render by updating state
+        setCurrentImageToDraw(prev => prev);
+    }, []);
+    
+    // Update the draw function ref
+    useEffect(() => {
+        drawCanvasRef.current = drawCanvas;
+    }, [drawCanvas]);
 
     useEffect(() => {
         const handleLanguageChange = () => {
@@ -37,16 +57,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         };
     }, []);
 
+    // We need to get a reference to the canvas element for the interaction manager
+    // We'll use a callback ref to get the canvas element from the CanvasRenderer
+    const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
+    
     // Initialize interaction manager when canvas is available
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (canvas && !interactionManagerRef.current) {
+        if (canvasElement && !interactionManagerRef.current) {
             interactionManagerRef.current = new CanvasInteractionManager(
-                canvas,
+                canvasElement,
                 (newScale, newOffset) => {
                     setScale(newScale);
                     setOffset(newOffset);
-                    // Force redraw when position changes
+                    // Force a redraw when position changes
                     drawCanvasRef.current?.();
                 }
             );
@@ -62,7 +85,41 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                 interactionManagerRef.current = null;
             }
         };
-    }, []);
+    }, [canvasElement, currentTemplate]);
+
+
+    // Update remaining pixels when selected color or statistics change
+    useEffect(() => {
+        if (selectedColorId !== null && selectedColorId !== undefined) {
+            // Find the statistics row for the selected color
+            const selectedRow = statistics.find(row => row.color?.id === selectedColorId);
+            if (selectedRow) {
+                setRemainingPixels(selectedRow.remain);
+            } else {
+                setRemainingPixels(0);
+            }
+        } else {
+            // If no color is selected, set remaining to 0 to disable the button
+            setRemainingPixels(0);
+        }
+    }, [selectedColorId, statistics]);
+
+    // Handle keyboard events for space key
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.code === 'Space' && 
+                remainingPixels <= MIN_REMAINING_FOR_BUTTON && 
+                remainingPixels > 0) {
+                e.preventDefault();
+                handlePingRemaining();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [remainingPixels]);
 
     // Update interaction manager when template changes
     useEffect(() => {
@@ -90,209 +147,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         }
     }, [currentTemplate, viewMode, selectedColorId]);
 
-    // Function to get CSS variable value
-    const getCssVariable = (name: string): string => {
-        return getComputedStyle(document.body).getPropertyValue(name).trim();
-    };
-
-    // Function to parse RGB/RGBA from CSS variable
-    const parseRgbFromCssVariable = (cssValue: string): number[] => {
-        // Handle rgb() and rgba() formats
-        const rgbMatch = cssValue.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/);
-        if (rgbMatch) {
-            const r = parseInt(rgbMatch[1]);
-            const g = parseInt(rgbMatch[2]);
-            const b = parseInt(rgbMatch[3]);
-            const a = rgbMatch[4] ? parseFloat(rgbMatch[4]) : 1;
-            return [r, g, b, Math.round(a * 255)];
-        }
-        
-        // Handle hex format
-        const hexMatch = cssValue.match(/^#([0-9A-Fa-f]{3,8})$/);
-        if (hexMatch) {
-            let hex = hexMatch[1];
-            if (hex.length === 3 || hex.length === 4) {
-                hex = hex.split('').map(c => c + c).join('');
-            }
-            
-            if (hex.length === 6) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                return [r, g, b, 255];
-            } else if (hex.length === 8) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                const a = parseInt(hex.substring(6, 8), 16);
-                return [r, g, b, a];
-            }
-        }
-        
-        // Default to black if parsing fails
-        return [0, 0, 0, 255];
-    };
-
-    // Get difference colors from CSS variables
-    const getDifferenceColors = React.useCallback(() => {
-        // These are example CSS variable names - you may need to adjust them
-        return {
-            transparent: [0, 0, 0, 0],          // Always fully transparent
-            unselected: parseRgbFromCssVariable(getCssVariable('--color-difference-unselected') || '#ffffff'),
-            match: parseRgbFromCssVariable(getCssVariable('--color-difference-match') || '#4CAF50'),
-            mismatch: parseRgbFromCssVariable(getCssVariable('--color-difference-missing') || '#ff0000')
-        };
-    }, []);
-
-    // Helper function to check if two colors match exactly
-    const colorsMatchExactly = (
-        r1: number, g1: number, b1: number, a1: number,
-        r2: number, g2: number, b2: number, a2: number
-    ): boolean => {
-        return r1 === r2 && g1 === g2 && b1 === b2 && a1 === a2;
-    };
-
-    // Helper function to check if template pixel matches selected color
-    const isTemplatePixelSelectedColor = (
-        templateR: number, templateG: number, templateB: number,
-        selectedColorId: number
-    ): boolean => {
-        const selectedColor = WplacePalette.find(color => color.id === selectedColorId);
-        if (!selectedColor) return false;
-        
-        // Exact match with the selected color from the palette
-        return templateR === selectedColor.rgb[0] &&
-               templateG === selectedColor.rgb[1] &&
-               templateB === selectedColor.rgb[2];
-    };
-
-    // Handle difference mode drawing with color filtering
-    const drawDifference = React.useCallback((
-        ctx: CanvasRenderingContext2D,
-        templateImage: HTMLImageElement,
-        wplaceImage: HTMLImageElement,
-        x: number,
-        y: number,
-        selectedColorId?: number | null
-    ) => {
-        const differenceColors = getDifferenceColors();
-        // Create temporary canvases to get image data
-        const templateCanvas = document.createElement('canvas');
-        templateCanvas.width = templateImage.width;
-        templateCanvas.height = templateImage.height;
-        const templateCtx = templateCanvas.getContext('2d')!;
-        templateCtx.drawImage(templateImage, 0, 0);
-
-        const wplaceCanvas = document.createElement('canvas');
-        wplaceCanvas.width = wplaceImage.width;
-        wplaceCanvas.height = wplaceImage.height;
-        const wplaceCtx = wplaceCanvas.getContext('2d')!;
-        wplaceCtx.drawImage(wplaceImage, 0, 0);
-
-        // Get image data
-        const templateData = templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
-        const wplaceData = wplaceCtx.getImageData(0, 0, wplaceCanvas.width, wplaceCanvas.height);
-
-        // Create result image data
-        const resultData = new ImageData(templateCanvas.width, templateCanvas.height);
-
-        // Compare pixels
-        for (let i = 0; i < templateData.data.length; i += 4) {
-            const templateR = templateData.data[i];
-            const templateG = templateData.data[i + 1];
-            const templateB = templateData.data[i + 2];
-            const templateA = templateData.data[i + 3];
-
-            const wplaceR = wplaceData.data[i];
-            const wplaceG = wplaceData.data[i + 1];
-            const wplaceB = wplaceData.data[i + 2];
-            const wplaceA = wplaceData.data[i + 3];
-
-            // 1) If template pixel is transparent - use black
-            if (templateA === 0) {
-                resultData.data[i] = differenceColors.transparent[0];
-                resultData.data[i + 1] = differenceColors.transparent[1];
-                resultData.data[i + 2] = differenceColors.transparent[2];
-                resultData.data[i + 3] = differenceColors.transparent[3];
-            }
-            // 2) If a specific color is selected and this pixel doesn't match, treat as unselected
-            else if (selectedColorId !== null && selectedColorId !== undefined) {
-                // Check if this pixel matches the selected color in the template
-                const isSelectedColor = isTemplatePixelSelectedColor(
-                    templateR, templateG, templateB, selectedColorId
-                );
-                
-                if (!isSelectedColor) {
-                    // Treat as unselected - use white
-                    resultData.data[i] = differenceColors.unselected[0];
-                    resultData.data[i + 1] = differenceColors.unselected[1];
-                    resultData.data[i + 2] = differenceColors.unselected[2];
-                    resultData.data[i + 3] = differenceColors.unselected[3];
-                } else {
-                    // Check if colors match between template and actual
-                    if (colorsMatchExactly(
-                        templateR, templateG, templateB, templateA,
-                        wplaceR, wplaceG, wplaceB, wplaceA
-                    )) {
-                        // 3) Colors match - use green
-                        resultData.data[i] = differenceColors.match[0];
-                        resultData.data[i + 1] = differenceColors.match[1];
-                        resultData.data[i + 2] = differenceColors.match[2];
-                        resultData.data[i + 3] = differenceColors.match[3];
-                    } else {
-                        // 4) Colors don't match - use red
-                        resultData.data[i] = differenceColors.mismatch[0];
-                        resultData.data[i + 1] = differenceColors.mismatch[1];
-                        resultData.data[i + 2] = differenceColors.mismatch[2];
-                        resultData.data[i + 3] = differenceColors.mismatch[3];
-                    }
-                }
-            } else {
-                // No color selected - show all
-                // Check if colors match
-                if (colorsMatchExactly(
-                    templateR, templateG, templateB, templateA,
-                    wplaceR, wplaceG, wplaceB, wplaceA
-                )) {
-                    // 3) Colors match - use green
-                    resultData.data[i] = differenceColors.match[0];
-                    resultData.data[i + 1] = differenceColors.match[1];
-                    resultData.data[i + 2] = differenceColors.match[2];
-                    resultData.data[i + 3] = differenceColors.match[3];
-                } else {
-                    // 4) Colors don't match - use red
-                    resultData.data[i] = differenceColors.mismatch[0];
-                    resultData.data[i + 1] = differenceColors.mismatch[1];
-                    resultData.data[i + 2] = differenceColors.mismatch[2];
-                    resultData.data[i + 3] = differenceColors.mismatch[3];
-                }
-            }
-        }
-
-        // Put the result data onto the canvas
-        ctx.putImageData(resultData, x, y);
-    }, [getDifferenceColors]);
-
-    // Helper function to draw image with transform
-    const drawImageWithTransform = (ctx: CanvasRenderingContext2D, image: HTMLImageElement) => {
-        // Clear the canvas
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        
-        // Disable image smoothing to keep pixels sharp
-        ctx.imageSmoothingEnabled = false;
-        
-        // Save the current context
-        ctx.save();
-        
-        // Use transform instead of separate translate and scale
-        ctx.transform(scale, 0, 0, scale, offset.x, offset.y);
-        
-        // Draw the image at the top-left corner (0,0)
-        ctx.drawImage(image, 0, 0);
-        
-        // Restore the context
-        ctx.restore();
-    };
 
     // Function to update the current image based on view mode
     const updateCurrentImageToDraw = useCallback(() => {
@@ -311,41 +165,70 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         }
         
         setCurrentImageToDraw(imageToDraw);
-        // Force a redraw by calling drawCanvas directly
-        const canvas = canvasRef.current;
-        if (canvas && imageToDraw) {
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                // Set canvas dimensions to match the container
-                const container = canvas.parentElement;
-                if (container) {
-                    canvas.width = container.clientWidth;
-                    canvas.height = container.clientHeight;
+    }, [viewMode, currentTemplate, differenceImageRef.current]);
+
+    // Handle ping remaining button click
+    const handlePingRemaining = useCallback(() => {
+        // Get missing pixels from global storage
+        const missingPixels = (window as any).missingPixels || [];
+        
+        // Create a ping for each missing pixel using image coordinates
+        const newPings: Ping[] = missingPixels.map((pixel: { x: number; y: number }) => {
+            // Store coordinates in image space (add 0.5 to target the center of the pixel)
+            return {
+                startTime: Date.now(),
+                centerX: pixel.x + 0.5,
+                centerY: pixel.y + 0.5,
+                radius: 0
+            };
+        });
+        
+        setPingAnimations(prev => [...prev, ...newPings]);
+    }, []);
+
+    // Animation loop for updating ping animations
+    useEffect(() => {
+        let animationFrameId: number;
+        
+        const updatePings = () => {
+            const currentTime = Date.now();
+            
+            setPingAnimations(prev => {
+                // Update radii and filter out old pings
+                const updatedPings = prev
+                    .map(ping => {
+                        const elapsed = currentTime - ping.startTime;
+                        if (elapsed > 1000) return null; // Mark for removal
+                        
+                        const progress = elapsed / 1000;
+                        return {
+                            ...ping,
+                            radius: progress * 30 // Update radius
+                        };
+                    })
+                    .filter(Boolean) as Ping[]; // Remove nulls
+                
+                // Continue animation if there are active pings
+                if (updatedPings.length > 0) {
+                    animationFrameId = requestAnimationFrame(updatePings);
                 }
-                drawImageWithTransform(ctx, imageToDraw);
+                
+                return updatedPings;
+            });
+        };
+        
+        // Start animation if there are pings
+        if (pingAnimations.length > 0) {
+            animationFrameId = requestAnimationFrame(updatePings);
+        }
+        
+        return () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
             }
-        }
-    }, [viewMode, currentTemplate, differenceImageRef.current, drawImageWithTransform]);
+        };
+    }, [pingAnimations.length]);
 
-    // Draw the appropriate image based on view mode
-    const drawCanvas = useCallback(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        // Set canvas dimensions to match the container
-        const container = canvas.parentElement;
-        if (container) {
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-        }
-
-        if (currentImageToDraw) {
-            drawImageWithTransform(ctx, currentImageToDraw);
-        }
-    }, [currentImageToDraw, drawImageWithTransform]);
 
     // Generate difference image and cache it
     const generateDifferenceImage = useCallback((templateImage: HTMLImageElement, wplaceImage: HTMLImageElement) => {
@@ -360,7 +243,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         tempCtx.imageSmoothingEnabled = false;
         
         // Draw difference onto the temporary canvas with selected color
-        drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, selectedColorId);
+        ImageLoaderManager.drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, selectedColorId);
         
         // Convert to image and cache it
         const img = new Image();
@@ -368,11 +251,33 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             differenceImageRef.current = img;
             // Update the current image to draw
             updateCurrentImageToDraw();
-            // Redraw the canvas
-            drawCanvas();
         };
         img.src = tempCanvas.toDataURL('image/png');
-    }, [drawDifference, updateCurrentImageToDraw, drawCanvas]);
+    }, [updateCurrentImageToDraw, selectedColorId]);
+
+    // Regenerate difference image when dark mode changes
+    useEffect(() => {
+        const handleDarkModeChange = () => {
+            if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
+                generateDifferenceImage(currentTemplate.templateImage, currentTemplate.wplaceImage);
+            }
+        };
+
+        // Listen for dark mode changes
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    handleDarkModeChange();
+                }
+            });
+        });
+
+        observer.observe(document.body, { attributes: true });
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [viewMode, currentTemplate, selectedColorId, generateDifferenceImage]);
 
     // Update the current image when view mode or template changes
     useEffect(() => {
@@ -405,15 +310,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         interactionManagerRef.current?.resetView();
     };
     
-    drawCanvasRef.current = drawCanvas;
 
     return (
         <div className="right-panel">
             {/* Canvas area */}
             <div className="canvas-area">
-                <canvas
-                    ref={canvasRef}
-                    className="canvas-element"
+                <CanvasRenderer
+                    currentImageToDraw={currentImageToDraw}
+                    scale={scale}
+                    offset={offset}
+                    canvasRefCallback={setCanvasElement}
+                    pingAnimations={pingAnimations}
+                    selectedColorId={selectedColorId}
+                    statistics={statistics}
                 />
 
                 {/* View mode selector */}
@@ -454,6 +363,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     </button>
                     <button onClick={handleZoomOut} title={LanguageManager.getText('zoomOut')}>
                         <i className="fas fa-search-minus"></i>
+                    </button>
+                    
+                    {/* Ping remaining button */}
+                    <button 
+                        onClick={handlePingRemaining} 
+                        title={`${LanguageManager.getText('pingRemaining')} [Space]`}
+                        disabled={remainingPixels > MIN_REMAINING_FOR_BUTTON || remainingPixels === 0}
+                        className="new-action-button"
+                    >
+                        <i className="fas fa-bullseye"></i>
                     </button>
                 </div>
             </div>

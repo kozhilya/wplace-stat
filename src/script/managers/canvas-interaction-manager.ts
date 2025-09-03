@@ -16,6 +16,8 @@ export class CanvasInteractionManager {
     ) {
         this.canvas = canvas;
         this.onPositionChange = onPositionChange;
+        // Set initial cursor style
+        this.canvas.style.cursor = 'grab';
         this.setupEventListeners();
     }
 
@@ -82,6 +84,8 @@ export class CanvasInteractionManager {
         this.isDragging = true;
         this.lastMousePosition = { x: e.clientX, y: e.clientY };
         this.canvas.style.cursor = 'grabbing';
+        // Prevent default to avoid text selection and other browser behaviors
+        e.preventDefault();
     }
 
     private handleMouseMove(e: MouseEvent): void {
@@ -100,6 +104,9 @@ export class CanvasInteractionManager {
             
             // Test output in one line
             debug(`Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
+            
+            // Prevent default during drag
+            e.preventDefault();
         }
     }
 
