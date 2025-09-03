@@ -51,7 +51,10 @@ export const TemplateList: React.FC<TemplateListProps> = (props) => {
             <div className="create-template-button-container">
                 <button 
                     className="create-template-button"
-                    onClick={props.onCreateTemplate}
+                    onClick={() => {
+                        // Ensure the onCreateTemplate callback is called
+                        props.onCreateTemplate();
+                    }}
                     data-i18n="newTemplate"
                 >
                     {LanguageManager.getText('newTemplate')}

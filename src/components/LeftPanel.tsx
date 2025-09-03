@@ -72,7 +72,8 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
 
     const handleCreateTemplate = () => {
         setIsNewTemplate(true);
-        // Call onCreateTemplate to notify the parent to switch to template view
+        // The parent component should handle switching to the template view
+        // We'll assume onCreateTemplate does this
         onCreateTemplate();
     };
 
@@ -115,13 +116,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
             {activeView === 'templates' && (
                 <TemplateList 
                     onTemplateSelect={handleTemplateLoad} 
-                    onCreateTemplate={() => {
-                        setIsNewTemplate(true);
-                        // Set active view to template configuration
-                        // We need to modify the parent component to handle this
-                        // For now, we'll assume there's a way to set the active view
-                        // This may need to be passed down as a prop
-                    }}
+                    onCreateTemplate={handleCreateTemplate}
                 />
             )}
             {/* Show TemplateConfig when no templates exist and no current template */}
