@@ -34,6 +34,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     
     // Use a ref to store the draw function to avoid dependency issues
     const drawCanvasRef = useRef<() => void>();
+    
+    // Update the draw function ref
+    useEffect(() => {
+        drawCanvasRef.current = drawCanvas;
+    }, [drawCanvas]);
 
     useEffect(() => {
         const handleLanguageChange = () => {
@@ -59,6 +64,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                 (newScale, newOffset) => {
                     setScale(newScale);
                     setOffset(newOffset);
+                    // Force a redraw when position changes
+                    drawCanvasRef.current?.();
                 }
             );
             
@@ -160,7 +167,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         // Get missing pixels from global storage
         const missingPixels = (window as any).missingPixels || [];
         
-        // Create a ping for each missing pixel
+        // Create a ping for each missing pixel using the current scale and offset
         const newPings: Ping[] = missingPixels.map((pixel: { x: number; y: number }) => {
             // Convert image coordinates to canvas coordinates
             // Add 0.5 to target the center of the pixel
