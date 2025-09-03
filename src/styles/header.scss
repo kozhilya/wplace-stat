@@ -69,6 +69,15 @@
         .last-updated {
             font-size: 0.9rem;
             color: var(--color-text-light);
+            
+            &.clickable {
+                cursor: pointer;
+                text-decoration: underline;
+                
+                &:hover {
+                    color: var(--color-text-primary);
+                }
+            }
         }
 
     }

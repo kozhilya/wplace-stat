@@ -1,7 +1,7 @@
 
 export const WplaceTileWidth = 1000;
-
 export const WplaceTileHeight = 1000;
+export const AUTO_UPDATE_INTERVAL = 60000; // 1 minute in milliseconds
 
 export type WplaceColorDefinition = {
     id: number,
