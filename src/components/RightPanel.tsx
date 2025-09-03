@@ -213,6 +213,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         };
     }, [pingAnimationActive]);
 
+
     // Generate difference image and cache it
     const generateDifferenceImage = useCallback((templateImage: HTMLImageElement, wplaceImage: HTMLImageElement) => {
         // Create a canvas to draw the difference
