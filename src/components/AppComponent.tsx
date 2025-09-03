@@ -187,7 +187,6 @@ export const AppComponent: React.FC = () => {
     // Function to update Wplace image and recalculate statistics
     const updateWplaceImage = async (template: Template) => {
         try {
-            // Instead of creating a new template, update the existing one
             // Reload the Wplace image directly on the current template
             await template.loadWplaceImage();
             
@@ -204,8 +203,8 @@ export const AppComponent: React.FC = () => {
             setLastUpdated(new Date());
             
             // Force re-render by updating the current template reference
-            // This preserves the scale and offset since the template object is the same
-            setCurrentTemplate({...template});
+            // Since the template object is the same, scale and offset are preserved
+            setCurrentTemplate(template);
         } catch (error) {
             console.error('Error updating Wplace image:', error);
         }
