@@ -7,7 +7,7 @@ interface TemplateConfigProps {
 }
 
 export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }) => {
-    const [name, setName] = useState<string>('Untitled Template');
+    const [name, setName] = useState<string>('');
     const [tlX, setTlX] = useState<string>('0');
     const [tlY, setTlY] = useState<string>('0');
     const [pxX, setPxX] = useState<string>('0');
@@ -90,6 +90,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                         required 
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        placeholder="Untitled Template"
                     />
                 </div>
                 <div className="number-inputs-row">
