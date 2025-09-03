@@ -60,9 +60,6 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         ctx.strokeStyle = '#ff0000';
         ctx.lineWidth = 2;
         
-        // Apply the same transform as the image
-        ctx.transform(scale, 0, 0, scale, offset.x, offset.y);
-        
         const currentTime = Date.now();
         
         // Draw each ping
@@ -73,9 +70,13 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
             
             ctx.globalAlpha = alpha;
             
-            // Draw the circle at the image coordinates (ping.centerX and ping.centerY are now in image space)
+            // Convert image coordinates to canvas coordinates
+            const canvasX = offset.x + ping.centerX * scale;
+            const canvasY = offset.y + ping.centerY * scale;
+            
+            // Draw the circle in canvas coordinates with fixed radius
             ctx.beginPath();
-            ctx.arc(ping.centerX, ping.centerY, ping.radius / scale, 0, 2 * Math.PI);
+            ctx.arc(canvasX, canvasY, ping.radius, 0, 2 * Math.PI);
             ctx.stroke();
         }
         
