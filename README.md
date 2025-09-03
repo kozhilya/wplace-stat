@@ -19,14 +19,6 @@ A web application for tracking progress on WPlace (a pixel art collaboration pla
 - **Ping Animation**: Visual highlighting of remaining pixels
 - **Dark/Light Mode**: Toggle between color schemes
 
-### TODO
-
-This changes are planned and will be implemented soon. Feel free to create and Issue if you feel something might be upgraded in this app that is not listed here.
-
-- Fix canvas flickering
-- Improve performance for large templates
-- Add more customization options
-
 ## Getting Started
 
 ### Prerequisites
@@ -38,7 +30,7 @@ This changes are planned and will be implemented soon. Feel free to create and I
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/kozhilya/wplace-stat.git
 cd wplace-progress-tracker
 ```
 
@@ -52,7 +44,7 @@ npm install
 npm start
 ```
 
-4. Open your browser and navigate to `http://localhost:3000`
+4. Open your browser and navigate to `http://localhost:3001`
 
 ### Building for Production
 
@@ -122,23 +114,16 @@ The application is built with:
 - **SCSS** for styling
 - **Local Storage** for data persistence
 
-### Key Components
-
-- **CanvasInteractionManager**: Handles zooming and panning interactions
-- **ImageLoaderManager**: Loads and processes template and WPlace images
-- **StatisticsManager**: Calculates and manages progress statistics
-- **LanguageManager**: Handles internationalization
-
 ### File Structure
 
 ```
 src/
-├── components/          # React components
-├── locales/            # Translation files
-├── script/             # Core application logic
-│   └── managers/       # Manager classes
-├── styles/             # SCSS stylesheets
-└── utils.ts           # Utility functions
+├── components/      # React components
+├── locales/         # Translation files
+├── script/          # Core application logic
+│   └── managers/    # Manager classes
+├── styles/          # SCSS stylesheets
+└── utils.ts         # Utility functions
 ```
 
 ## Contributing
@@ -157,7 +142,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For support and questions, please open an issue in the GitHub repository.
 
-## Acknowledgments
-
-- WPlace community for inspiration
-- Contributors and translators
