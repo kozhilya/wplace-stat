@@ -5,19 +5,31 @@ import { LanguageManager } from '../script/managers/language-manager';
 
 interface TemplateConfigProps {
     onTemplateSave?: (template: Template) => void;
+    isNewTemplate?: boolean;
+    onClearForm?: () => void;
 }
 
 export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }) => {
     const [name, setName] = useState<string>('');
-    const [tlX, setTlX] = useState<string>('0');
-    const [tlY, setTlY] = useState<string>('0');
-    const [pxX, setPxX] = useState<string>('0');
-    const [pxY, setPxY] = useState<string>('0');
+    const [tlX, setTlX] = useState<string>('');
+    const [tlY, setTlY] = useState<string>('');
+    const [pxX, setPxX] = useState<string>('');
+    const [pxY, setPxY] = useState<string>('');
     const [imageDataUrl, setImageDataUrl] = useState<string>('');
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
     const [exampleNumbers] = useState(() => 
         Array.from({ length: 4 }, () => Math.floor(Math.random() * 1000)).join(' ')
     );
+
+    // Function to clear the form
+    const clearForm = () => {
+        setName('');
+        setTlX('');
+        setTlY('');
+        setPxX('');
+        setPxY('');
+        setImageDataUrl('');
+    };
 
     useEffect(() => {
         const handleLanguageChange = () => {
@@ -31,8 +43,23 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
         };
     }, []);
 
+    // Clear form when isNewTemplate is true
+    useEffect(() => {
+        if (props.isNewTemplate) {
+            clearForm();
+            if (props.onClearForm) {
+                props.onClearForm();
+            }
+        }
+    }, [props.isNewTemplate]);
+
     // Load template from hash on component mount
     useEffect(() => {
+        // Don't load from hash if this is for a new template
+        if (props.isNewTemplate) {
+            return;
+        }
+
         const loadFromHash = () => {
             if (window.location.hash) {
                 try {
@@ -62,7 +89,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
         return () => {
             window.removeEventListener('hashchange', handleHashChange);
         };
-    }, []); // Empty dependency array - only run on mount
+    }, [props.isNewTemplate]); // Add isNewTemplate to dependency array
 
     const handlePaste = (e: React.ClipboardEvent) => {
         const pastedText = e.clipboardData.getData('text');

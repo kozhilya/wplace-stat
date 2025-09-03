@@ -35,6 +35,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
     const collection = React.useRef(new TemplateCollection());
     const [templates, setTemplates] = useState<Template[]>([]);
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
+    const [isNewTemplate, setIsNewTemplate] = useState(false);
 
     useEffect(() => {
         // Load templates on mount
@@ -62,8 +63,15 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
         if (onTemplateSave) {
             onTemplateSave(template);
         }
+        // Reset new template flag
+        setIsNewTemplate(false);
         // Close the view
         onCloseView();
+    };
+
+    const handleCreateTemplate = () => {
+        setIsNewTemplate(true);
+        props.onCreateTemplate();
     };
 
     const handleTemplateLoad = (template: Template) => {
@@ -81,7 +89,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                 <div className="left-panel-header">
                     <h2>
                         {activeView === 'template' || (templates.length === 0 && !currentTemplate) 
-                            ? (templates.length === 0 && !currentTemplate ? LanguageManager.getText('newTemplate') : LanguageManager.getText('editTemplateHeader'))
+                            ? (isNewTemplate || (templates.length === 0 && !currentTemplate) ? LanguageManager.getText('newTemplate') : LanguageManager.getText('editTemplateHeader'))
                             : LanguageManager.getText('savedTemplatesHeader')}
                     </h2>
                     {activeView !== null && (
@@ -95,16 +103,24 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                     )}
                 </div>
             )}
-            {activeView === 'template' && <TemplateConfig onTemplateSave={handleTemplateSave} />}
+            {activeView === 'template' && (
+                <TemplateConfig 
+                    onTemplateSave={handleTemplateSave} 
+                    isNewTemplate={isNewTemplate}
+                />
+            )}
             {activeView === 'templates' && (
                 <TemplateList 
                     onTemplateSelect={handleTemplateLoad} 
-                    onCreateTemplate={onCreateTemplate}
+                    onCreateTemplate={handleCreateTemplate}
                 />
             )}
             {/* Show TemplateConfig when no templates exist and no current template */}
             {templates.length === 0 && !currentTemplate && activeView === null && (
-                <TemplateConfig onTemplateSave={handleTemplateSave} />
+                <TemplateConfig 
+                    onTemplateSave={handleTemplateSave} 
+                    isNewTemplate={isNewTemplate}
+                />
             )}
             {currentTemplate && activeView === null && (
                 <StatisticsView 
