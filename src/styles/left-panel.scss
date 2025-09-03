@@ -265,6 +265,35 @@
     }
 }
 
+.statistics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+
+    h2 {
+        margin: 0;
+    }
+
+    .hide-completed-button {
+        background: none;
+        border: none;
+        color: var(--color-text-primary);
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 3px;
+        
+        &:hover {
+            background-color: var(--color-border);
+        }
+        
+        &.active {
+            color: var(--color-highlight);
+        }
+    }
+}
+
 // Statistics view styles
 .statistics-total-row {
     font-weight: bold;

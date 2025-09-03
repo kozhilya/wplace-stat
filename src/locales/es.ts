@@ -42,5 +42,6 @@ export const es = {
     resetZoom: 'Restablecer Zoom',
     darkMode: 'Modo oscuro',
     lightMode: 'Modo claro',
-    newTemplate: 'Nueva Plantilla'
+    newTemplate: 'Nueva Plantilla',
+    hideCompleted: 'Ocultar completados'
 };

@@ -13,11 +13,26 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
     const [sortColumn, setSortColumn] = useState<number>(1); // Default to Total column (index 1)
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); // Default to descending
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+    const [hideCompleted, setHideCompleted] = useState<boolean>(false);
+    const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
 
     // Update last updated time when statistics change
     useEffect(() => {
         setLastUpdated(new Date());
     }, [statistics]);
+
+    // Listen for language changes
+    useEffect(() => {
+        const handleLanguageChange = () => {
+            setLanguage(LanguageManager.getCurrentLanguage());
+        };
+        
+        LanguageManager.onLanguageChange(handleLanguageChange);
+        
+        return () => {
+            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
+        };
+    }, []);
 
     // Calculate totals
     const totalTotal = statistics.reduce((sum, row) => sum + row.total, 0);
@@ -25,8 +40,13 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
     const totalPercentage = totalTotal > 0 ? (totalCompleted / totalTotal) * 100 : 0;
     const totalRemain = totalTotal - totalCompleted;
 
+    // Filter statistics based on hideCompleted setting
+    const filteredStatistics = hideCompleted 
+        ? statistics.filter(row => row.remain > 0)
+        : statistics;
+
     // Sort statistics
-    const sortedStatistics = [...statistics].sort((a, b) => {
+    const sortedStatistics = [...filteredStatistics].sort((a, b) => {
         if (sortColumn === -1) return 0;
         
         let aValue: number;
@@ -89,7 +109,16 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
 
     return (
         <div className="statistics">
-            <h2 data-i18n="statistics">Statistics</h2>
+            <div className="statistics-header">
+                <h2>{LanguageManager.getText('statistics')}</h2>
+                <button 
+                    className={`hide-completed-button ${hideCompleted ? 'active' : ''}`}
+                    onClick={() => setHideCompleted(!hideCompleted)}
+                    title={LanguageManager.getText('hideCompleted')}
+                >
+                    <i className="fas fa-eye-slash"></i>
+                </button>
+            </div>
             <div className="table-container">
                 <table>
                     <thead>

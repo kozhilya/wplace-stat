@@ -42,5 +42,6 @@ export const ru = {
     resetZoom: 'Сбросить Масштаб',
     darkMode: 'Тёмный режим',
     lightMode: 'Светлый режим',
-    newTemplate: 'Новый шаблон'
+    newTemplate: 'Новый шаблон',
+    hideCompleted: 'Скрыть завершённые'
 };
