@@ -7,10 +7,11 @@ interface TemplateConfigProps {
     onTemplateSave?: (template: Template) => void;
     isNewTemplate?: boolean;
     onClearForm?: () => void;
+    currentTemplate?: Template;
 }
 
 export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
-    const { onTemplateSave, isNewTemplate, onClearForm } = props;
+    const { onTemplateSave, isNewTemplate, onClearForm, currentTemplate } = props;
     const [name, setName] = useState<string>('');
     const [tlX, setTlX] = useState<string>('');
     const [tlY, setTlY] = useState<string>('');
@@ -56,11 +57,6 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
 
     // Load template from hash on component mount
     useEffect(() => {
-        // Don't load from hash if this is for a new template
-        if (isNewTemplate) {
-            return;
-        }
-
         const loadFromHash = () => {
             if (window.location.hash) {
                 try {
@@ -78,11 +74,23 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             }
         };
 
-        loadFromHash();
-
-        // Listen for hash changes
-        const handleHashChange = () => {
+        // Load from current template prop if available, otherwise from hash if not creating a new template
+        if (currentTemplate) {
+            setName(currentTemplate.name);
+            setTlX(currentTemplate.tlX.toString());
+            setTlY(currentTemplate.tlY.toString());
+            setPxX(currentTemplate.pxX.toString());
+            setPxY(currentTemplate.pxY.toString());
+            setImageDataUrl(currentTemplate.imageDataUrl);
+        } else if (!isNewTemplate) {
             loadFromHash();
+        }
+
+        // Listen for hash changes, but only process them if not creating a new template
+        const handleHashChange = () => {
+            if (!isNewTemplate) {
+                loadFromHash();
+            }
         };
 
         window.addEventListener('hashchange', handleHashChange);
