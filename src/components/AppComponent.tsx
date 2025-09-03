@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Header } from './Header';
 import { LeftPanel } from './LeftPanel';
 import { RightPanel } from './RightPanel';
@@ -6,6 +6,7 @@ import { Splitter } from './Splitter';
 import { LanguageManager } from '../script/managers/language-manager';
 import { Template, TemplateCollection } from '../script/template';
 import { StatisticsRow, StatisticsManager } from '../script/managers/statistics-manager';
+import { AUTO_UPDATE_INTERVAL } from '../script/wplace';
 
 export const AppComponent: React.FC = () => {
     const [templateName, setTemplateName] = useState<string>('Untitled Template');
@@ -19,6 +20,7 @@ export const AppComponent: React.FC = () => {
     const templateCollection = React.useRef(new TemplateCollection());
     const [leftPanelView, setLeftPanelView] = useState<'template' | 'templates' | null>(null);
     const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
+    const autoUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         LanguageManager.initialize();
@@ -107,9 +109,25 @@ export const AppComponent: React.FC = () => {
 
         window.addEventListener('hashchange', handleHashChange);
         
+        // Set up auto-update interval
+        if (currentTemplate) {
+            startAutoUpdate();
+        }
+        
+        // Listen for manual update requests
+        const handleManualUpdate = async () => {
+            if (currentTemplate) {
+                await updateWplaceImage(currentTemplate);
+            }
+        };
+        
+        window.addEventListener('manualUpdateRequested', handleManualUpdate);
+        
         // Cleanup
         return () => {
             window.removeEventListener('hashchange', handleHashChange);
+            window.removeEventListener('manualUpdateRequested', handleManualUpdate);
+            stopAutoUpdate();
         };
     }, []);
 
@@ -157,7 +175,62 @@ export const AppComponent: React.FC = () => {
             );
             setStatistics(statisticsManagerRef.current.getStatistics());
         }
+        
+        // Start auto-update when a template is loaded
+        startAutoUpdate();
     };
+    
+    // Function to update Wplace image and recalculate statistics
+    const updateWplaceImage = async (template: Template) => {
+        try {
+            // Reload the Wplace image
+            await template.loadWplaceImage();
+            
+            // Update statistics
+            if (template.templateImage && template.wplaceImage) {
+                statisticsManagerRef.current = new StatisticsManager(
+                    template.templateImage, 
+                    template.wplaceImage
+                );
+                setStatistics(statisticsManagerRef.current.getStatistics());
+            }
+            
+            // Update last updated time
+            setLastUpdated(new Date());
+        } catch (error) {
+            console.error('Error updating Wplace image:', error);
+        }
+    };
+    
+    // Auto-update functions
+    const startAutoUpdate = () => {
+        stopAutoUpdate();
+        if (currentTemplate) {
+            autoUpdateIntervalRef.current = setInterval(() => {
+                updateWplaceImage(currentTemplate);
+            }, AUTO_UPDATE_INTERVAL);
+        }
+    };
+    
+    const stopAutoUpdate = () => {
+        if (autoUpdateIntervalRef.current) {
+            clearInterval(autoUpdateIntervalRef.current);
+            autoUpdateIntervalRef.current = null;
+        }
+    };
+    
+    // Update auto-update interval when currentTemplate changes
+    useEffect(() => {
+        if (currentTemplate) {
+            startAutoUpdate();
+        } else {
+            stopAutoUpdate();
+        }
+        
+        return () => {
+            stopAutoUpdate();
+        };
+    }, [currentTemplate]);
 
     return (
         <div className="app">

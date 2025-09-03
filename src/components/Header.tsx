@@ -60,7 +60,15 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
             </div>
             <div className="header-right">
-                <div className="last-updated">
+                <div 
+                    className="last-updated clickable"
+                    onClick={() => {
+                        // Trigger manual update
+                        const event = new CustomEvent('manualUpdateRequested');
+                        window.dispatchEvent(event);
+                    }}
+                    title="Click to update now"
+                >
                     {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
                 </div>
                 <select 
