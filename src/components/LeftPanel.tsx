@@ -18,6 +18,7 @@ interface LeftPanelProps {
     onCloseView: () => void;
     onStatisticsRowClick?: (colorId: number | null) => void;
     onCreateTemplate: () => void;
+    onTemplateButtonClick: () => void;
     selectedColorId?: number | null;
 }
 
@@ -32,6 +33,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
         onCloseView,
         onStatisticsRowClick,
         onCreateTemplate,
+        onTemplateButtonClick,
         selectedColorId
     } = props;
     const collection = React.useRef(new TemplateCollection());
@@ -89,11 +91,6 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
         onCloseView();
     };
 
-    // Add debug message when template button is clicked to edit
-    const handleTemplateButtonClick = () => {
-        debug(`Starting template edit: ${currentTemplate?.name || 'unknown'}`);
-        onTemplateButtonClick();
-    };
 
     return (
         <div className="left-panel" style={{ width: `${width}px` }}>

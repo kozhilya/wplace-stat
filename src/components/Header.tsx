@@ -56,7 +56,10 @@ export const Header: React.FC<HeaderProps> = ({
                 {hasActiveTemplate && (
                     <button 
                         className="template-button"
-                        onClick={handleTemplateButtonClick}
+                        onClick={() => {
+                            debug('Template edit button clicked');
+                            onTemplateButtonClick();
+                        }}
                         title={LanguageManager.getText('template')}
                     >
                         <i className="fas fa-pencil-alt"></i>
