@@ -7,6 +7,7 @@ import { WplacePalette } from '../script/wplace';
 import { CanvasRenderer } from './CanvasRenderer';
 
 import { StatisticsRow } from '../script/managers/statistics-manager';
+import { ImageLoaderManager } from '../script/managers/image-loader-manager';
 
 interface RightPanelProps {
     currentTemplate?: Template;
@@ -135,188 +136,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         }
     }, [currentTemplate, viewMode, selectedColorId]);
 
-    // Function to get CSS variable value
-    const getCssVariable = (name: string): string => {
-        return getComputedStyle(document.body).getPropertyValue(name).trim();
-    };
-
-    // Function to parse RGB/RGBA from CSS variable
-    const parseRgbFromCssVariable = (cssValue: string): number[] => {
-        // Handle rgb() and rgba() formats
-        const rgbMatch = cssValue.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/);
-        if (rgbMatch) {
-            const r = parseInt(rgbMatch[1]);
-            const g = parseInt(rgbMatch[2]);
-            const b = parseInt(rgbMatch[3]);
-            const a = rgbMatch[4] ? parseFloat(rgbMatch[4]) : 1;
-            return [r, g, b, Math.round(a * 255)];
-        }
-        
-        // Handle hex format
-        const hexMatch = cssValue.match(/^#([0-9A-Fa-f]{3,8})$/);
-        if (hexMatch) {
-            let hex = hexMatch[1];
-            if (hex.length === 3 || hex.length === 4) {
-                hex = hex.split('').map(c => c + c).join('');
-            }
-            
-            if (hex.length === 6) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                return [r, g, b, 255];
-            } else if (hex.length === 8) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                const a = parseInt(hex.substring(6, 8), 16);
-                return [r, g, b, a];
-            }
-        }
-        
-        // Default to black if parsing fails
-        return [0, 0, 0, 255];
-    };
-
-    // Get difference colors from CSS variables
-    const getDifferenceColors = React.useCallback(() => {
-        // These are example CSS variable names - you may need to adjust them
-        return {
-            transparent: [0, 0, 0, 0],          // Always fully transparent
-            unselected: parseRgbFromCssVariable(getCssVariable('--color-difference-unselected') || '#ffffff'),
-            match: parseRgbFromCssVariable(getCssVariable('--color-difference-match') || '#4CAF50'),
-            mismatch: parseRgbFromCssVariable(getCssVariable('--color-difference-missing') || '#ff0000')
-        };
-    }, []);
-
-    // Helper function to check if two colors match exactly
-    const colorsMatchExactly = (
-        r1: number, g1: number, b1: number, a1: number,
-        r2: number, g2: number, b2: number, a2: number
-    ): boolean => {
-        return r1 === r2 && g1 === g2 && b1 === b2 && a1 === a2;
-    };
-
-    // Helper function to check if template pixel matches selected color
-    const isTemplatePixelSelectedColor = (
-        templateR: number, templateG: number, templateB: number,
-        selectedColorId: number
-    ): boolean => {
-        const selectedColor = WplacePalette.find(color => color.id === selectedColorId);
-        if (!selectedColor) return false;
-        
-        // Exact match with the selected color from the palette
-        return templateR === selectedColor.rgb[0] &&
-               templateG === selectedColor.rgb[1] &&
-               templateB === selectedColor.rgb[2];
-    };
-
-    // Handle difference mode drawing with color filtering
-    const drawDifference = React.useCallback((
-        ctx: CanvasRenderingContext2D,
-        templateImage: HTMLImageElement,
-        wplaceImage: HTMLImageElement,
-        x: number,
-        y: number,
-        selectedColorId?: number | null
-    ) => {
-        const differenceColors = getDifferenceColors();
-        // Create temporary canvases to get image data
-        const templateCanvas = document.createElement('canvas');
-        templateCanvas.width = templateImage.width;
-        templateCanvas.height = templateImage.height;
-        const templateCtx = templateCanvas.getContext('2d')!;
-        templateCtx.drawImage(templateImage, 0, 0);
-
-        const wplaceCanvas = document.createElement('canvas');
-        wplaceCanvas.width = wplaceImage.width;
-        wplaceCanvas.height = wplaceImage.height;
-        const wplaceCtx = wplaceCanvas.getContext('2d')!;
-        wplaceCtx.drawImage(wplaceImage, 0, 0);
-
-        // Get image data
-        const templateData = templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
-        const wplaceData = wplaceCtx.getImageData(0, 0, wplaceCanvas.width, wplaceCanvas.height);
-
-        // Create result image data
-        const resultData = new ImageData(templateCanvas.width, templateCanvas.height);
-
-        // Compare pixels
-        for (let i = 0; i < templateData.data.length; i += 4) {
-            const templateR = templateData.data[i];
-            const templateG = templateData.data[i + 1];
-            const templateB = templateData.data[i + 2];
-            const templateA = templateData.data[i + 3];
-
-            const wplaceR = wplaceData.data[i];
-            const wplaceG = wplaceData.data[i + 1];
-            const wplaceB = wplaceData.data[i + 2];
-            const wplaceA = wplaceData.data[i + 3];
-
-            // 1) If template pixel is transparent - use black
-            if (templateA === 0) {
-                resultData.data[i] = differenceColors.transparent[0];
-                resultData.data[i + 1] = differenceColors.transparent[1];
-                resultData.data[i + 2] = differenceColors.transparent[2];
-                resultData.data[i + 3] = differenceColors.transparent[3];
-            }
-            // 2) If a specific color is selected and this pixel doesn't match, treat as unselected
-            else if (selectedColorId !== null && selectedColorId !== undefined) {
-                // Check if this pixel matches the selected color in the template
-                const isSelectedColor = isTemplatePixelSelectedColor(
-                    templateR, templateG, templateB, selectedColorId
-                );
-                
-                if (!isSelectedColor) {
-                    // Treat as unselected - use white
-                    resultData.data[i] = differenceColors.unselected[0];
-                    resultData.data[i + 1] = differenceColors.unselected[1];
-                    resultData.data[i + 2] = differenceColors.unselected[2];
-                    resultData.data[i + 3] = differenceColors.unselected[3];
-                } else {
-                    // Check if colors match between template and actual
-                    if (colorsMatchExactly(
-                        templateR, templateG, templateB, templateA,
-                        wplaceR, wplaceG, wplaceB, wplaceA
-                    )) {
-                        // 3) Colors match - use green
-                        resultData.data[i] = differenceColors.match[0];
-                        resultData.data[i + 1] = differenceColors.match[1];
-                        resultData.data[i + 2] = differenceColors.match[2];
-                        resultData.data[i + 3] = differenceColors.match[3];
-                    } else {
-                        // 4) Colors don't match - use red
-                        resultData.data[i] = differenceColors.mismatch[0];
-                        resultData.data[i + 1] = differenceColors.mismatch[1];
-                        resultData.data[i + 2] = differenceColors.mismatch[2];
-                        resultData.data[i + 3] = differenceColors.mismatch[3];
-                    }
-                }
-            } else {
-                // No color selected - show all
-                // Check if colors match
-                if (colorsMatchExactly(
-                    templateR, templateG, templateB, templateA,
-                    wplaceR, wplaceG, wplaceB, wplaceA
-                )) {
-                    // 3) Colors match - use green
-                    resultData.data[i] = differenceColors.match[0];
-                    resultData.data[i + 1] = differenceColors.match[1];
-                    resultData.data[i + 2] = differenceColors.match[2];
-                    resultData.data[i + 3] = differenceColors.match[3];
-                } else {
-                    // 4) Colors don't match - use red
-                    resultData.data[i] = differenceColors.mismatch[0];
-                    resultData.data[i + 1] = differenceColors.mismatch[1];
-                    resultData.data[i + 2] = differenceColors.mismatch[2];
-                    resultData.data[i + 3] = differenceColors.mismatch[3];
-                }
-            }
-        }
-
-        // Put the result data onto the canvas
-        ctx.putImageData(resultData, x, y);
-    }, [getDifferenceColors]);
 
     // Function to update the current image based on view mode
     const updateCurrentImageToDraw = useCallback(() => {
@@ -383,7 +202,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         tempCtx.imageSmoothingEnabled = false;
         
         // Draw difference onto the temporary canvas with selected color
-        drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, selectedColorId);
+        ImageLoaderManager.drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, selectedColorId);
         
         // Convert to image and cache it
         const img = new Image();
@@ -393,7 +212,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             updateCurrentImageToDraw();
         };
         img.src = tempCanvas.toDataURL('image/png');
-    }, [drawDifference, updateCurrentImageToDraw, selectedColorId]);
+    }, [updateCurrentImageToDraw, selectedColorId]);
 
     // Update the current image when view mode or template changes
     useEffect(() => {
