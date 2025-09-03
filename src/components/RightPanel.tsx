@@ -415,11 +415,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                         <i className="fas fa-search-minus"></i>
                     </button>
                     
-                    {/* New button */}
+                    {/* Ping remaining button */}
                     <button 
                         onClick={() => {}} 
-                        title="New action button"
-                        disabled={remainingPixels > MIN_REMAINING_FOR_BUTTON}
+                        title={LanguageManager.getText('pingRemaining')}
+                        disabled={remainingPixels > MIN_REMAINING_FOR_BUTTON || remainingPixels === 0}
                         className="new-action-button"
                     >
                         <i className="fas fa-star"></i>

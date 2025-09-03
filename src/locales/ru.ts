@@ -43,5 +43,6 @@ export const ru = {
     darkMode: 'Тёмный режим',
     lightMode: 'Светлый режим',
     newTemplate: 'Новый шаблон',
-    hideCompleted: 'Скрыть завершённые'
+    hideCompleted: 'Скрыть завершённые',
+    pingRemaining: 'Выделить оставшиеся'
 };
