@@ -136,6 +136,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     // Cache for difference image
     const differenceImageRef = useRef<HTMLImageElement | null>(null);
 
+
     // Generate difference image when template, view mode, or selected color changes
     useEffect(() => {
         if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
