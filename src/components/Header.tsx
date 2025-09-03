@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
 
     const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const newLanguage = event.target.value as 'en' | 'ru' | 'es';
-        debug(`Language changed to: ${newLanguage}`);
+        debug(`Header.handleLanguageChange: Language changed to: ${newLanguage}`);
         LanguageManager.setLanguage(newLanguage);
     };
 
@@ -57,7 +57,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <button 
                         className="template-button"
                         onClick={() => {
-                            debug('Template edit button clicked');
+                            debug('Header.onClick: Template edit button clicked');
                             onTemplateButtonClick();
                         }}
                         title={LanguageManager.getText('template')}
@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="last-updated-button"
                         onClick={() => {
                             if (!isUpdating) {
-                                debug('Manual update requested');
+                                debug('Header.onClick: Manual update requested');
                                 // Trigger manual update
                                 const event = new CustomEvent('manualUpdateRequested');
                                 window.dispatchEvent(event);
@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
                     className="dark-mode-toggle"
                     onClick={() => {
                         const isDark = document.body.classList.toggle('dark-mode');
-                        debug(`Dark mode ${isDark ? 'enabled' : 'disabled'}`);
+                        debug(`Header.onClick: Dark mode ${isDark ? 'enabled' : 'disabled'}`);
                         localStorage.setItem('darkMode', isDark ? 'true' : 'false');
                         setIsDarkMode(isDark);
                     }}

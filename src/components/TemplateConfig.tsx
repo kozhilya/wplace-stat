@@ -62,14 +62,14 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
     useEffect(() => {
         // Always clear the form if isNewTemplate is true or editedTemplate is null (creating new)
         if (isNewTemplate || editedTemplate === null) {
-            debug('Clearing form for new template creation');
+            debug('TemplateConfig.useEffect: Clearing form for new template creation');
             clearForm();
             return;
         }
 
         // Load from editedTemplate if provided (for editing)
         if (editedTemplate) {
-            debug(`Loading template for editing: ${editedTemplate.name}`);
+            debug(`TemplateConfig.useEffect: Loading template for editing: ${editedTemplate.name}`);
             setName(editedTemplate.name);
             setTlX(editedTemplate.tlX.toString());
             setTlY(editedTemplate.tlY.toString());
@@ -83,7 +83,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             if (window.location.hash) {
                 try {
                     const hash = window.location.hash.substring(1); // Remove the '#' character
-                    debug(`Loading template from hash: ${hash.substring(0, 20)}...`);
+                    debug(`TemplateConfig.loadFromHash: Loading template from hash: ${hash.substring(0, 20)}...`);
                     const template = Template.deserialize(hash);
                     setName(template.name);
                     setTlX(template.tlX.toString());
@@ -99,7 +99,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
 
         // Load from current template prop if available, otherwise from hash
         if (currentTemplate) {
-            debug(`Loading from current template: ${currentTemplate.name}`);
+            debug(`TemplateConfig.useEffect: Loading from current template: ${currentTemplate.name}`);
             setName(currentTemplate.name);
             setTlX(currentTemplate.tlX.toString());
             setTlY(currentTemplate.tlY.toString());
@@ -113,7 +113,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
         // Listen for hash changes
         const handleHashChange = () => {
             if (!isNewTemplate) {
-                debug('Hash changed, reloading template data');
+                debug('TemplateConfig.handleHashChange: Hash changed, reloading template data');
                 loadFromHash();
             }
         };
@@ -127,7 +127,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
 
     const handlePaste = (e: React.ClipboardEvent) => {
         const pastedText = e.clipboardData.getData('text');
-        debug(`Pasted text: ${pastedText}`);
+        debug(`TemplateConfig.handlePaste: Pasted text: ${pastedText}`);
         // Try to parse 4 numbers separated by various delimiters
         const numbers = pastedText.split(/[\s,.;\-–—]+/).filter(num => num.trim() !== '');
         
@@ -139,23 +139,23 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             });
             
             if (validNumbers.every(num => num !== null)) {
-                debug(`Parsed coordinates: ${validNumbers.join(', ')}`);
+                debug(`TemplateConfig.handlePaste: Parsed coordinates: ${validNumbers.join(', ')}`);
                 e.preventDefault();
                 setTlX(validNumbers[0]!.toString());
                 setTlY(validNumbers[1]!.toString());
                 setPxX(validNumbers[2]!.toString());
                 setPxY(validNumbers[3]!.toString());
             } else {
-                debug('Invalid numbers in pasted text');
+                debug('TemplateConfig.handlePaste: Invalid numbers in pasted text');
             }
         } else {
-            debug(`Expected 4 numbers, got ${numbers.length}`);
+            debug(`TemplateConfig.handlePaste: Expected 4 numbers, got ${numbers.length}`);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        debug('Submitting template form');
+        debug('TemplateConfig.handleSubmit: Submitting template form');
         
         const template = new Template(
             name,
@@ -180,9 +180,9 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             // Serialize and add to hash
             const serialized = template.serialize();
             window.location.hash = serialized;
-            debug('Template saved successfully');
+            debug('TemplateConfig.handleSubmit: Template saved successfully');
         } catch (error) {
-            debug('Error loading images:', error);
+            debug('TemplateConfig.handleSubmit: Error loading images:', error);
             alert('Failed to load images. Please check the image URL and try again.');
         }
     };

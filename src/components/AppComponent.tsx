@@ -150,6 +150,7 @@ export const AppComponent: React.FC = () => {
     };
 
     const handleTemplateSave = (template: Template) => {
+        debug(`AppComponent.handleTemplateSave: Saving template: ${template.name}`);
         setTemplateName(template.name);
         setLastUpdated(new Date());
         setCurrentTemplate(template);
@@ -159,6 +160,7 @@ export const AppComponent: React.FC = () => {
     };
 
     const handleTemplateLoad = async (template: Template) => {
+        debug(`AppComponent.handleTemplateLoad: Loading template: ${template.name}`);
         setTemplateName(template.name);
         setLastUpdated(new Date());
         
