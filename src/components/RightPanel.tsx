@@ -199,7 +199,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             
             setPingAnimations(prev => {
                 // Update radii and filter out old pings
-                return prev
+                const updatedPings = prev
                     .map(ping => {
                         const elapsed = currentTime - ping.startTime;
                         if (elapsed > 1000) return null; // Mark for removal
@@ -211,12 +211,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                         };
                     })
                     .filter(Boolean) as Ping[]; // Remove nulls
+                
+                // Continue animation if there are active pings
+                if (updatedPings.length > 0) {
+                    animationFrameId = requestAnimationFrame(updatePings);
+                }
+                
+                return updatedPings;
             });
-            
-            // Continue animation if there are active pings
-            if (pingAnimations.length > 0) {
-                animationFrameId = requestAnimationFrame(updatePings);
-            }
         };
         
         // Start animation if there are pings
