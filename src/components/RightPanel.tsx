@@ -6,16 +6,19 @@ import { LanguageManager } from '../script/managers/language-manager';
 import { WplacePalette } from '../script/wplace';
 import { CanvasRenderer } from './CanvasRenderer';
 
+import { StatisticsRow } from '../script/managers/statistics-manager';
+
 interface RightPanelProps {
     currentTemplate?: Template;
     selectedColorId?: number | null;
+    statistics?: StatisticsRow[];
 }
 
 // Global constants
 const RENDER_INTERVAL = 100; // 10 FPS
 const MIN_REMAINING_FOR_BUTTON = 10;
 
-export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId, statistics = [] }) => {
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
     const isInteractionManagerInitialized = useRef(false);
     const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('difference');
@@ -73,11 +76,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
 
     // Update remaining pixels when selected color or statistics change
     useEffect(() => {
-        // This would need to be connected to the actual statistics data
-        // For now, we'll set a placeholder value
-        // In a real implementation, you would get this from the statistics manager
-        setRemainingPixels(5); // Placeholder value - replace with actual logic
-    }, [selectedColorId, currentTemplate]);
+        if (selectedColorId !== null && selectedColorId !== undefined) {
+            // Find the statistics row for the selected color
+            const selectedRow = statistics.find(row => row.color?.id === selectedColorId);
+            if (selectedRow) {
+                setRemainingPixels(selectedRow.remain);
+            } else {
+                setRemainingPixels(0);
+            }
+        } else {
+            // If no color is selected, set remaining to 0 to disable the button
+            setRemainingPixels(0);
+        }
+    }, [selectedColorId, statistics]);
 
     // Update interaction manager when template changes
     useEffect(() => {

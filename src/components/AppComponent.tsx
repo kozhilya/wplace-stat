@@ -182,7 +182,11 @@ export const AppComponent: React.FC = () => {
                     selectedColorId={selectedColorId}
                 />
                 <Splitter onResize={handleSplitterResize} />
-                <RightPanel currentTemplate={currentTemplate} selectedColorId={selectedColorId} />
+                <RightPanel 
+                    currentTemplate={currentTemplate} 
+                    selectedColorId={selectedColorId}
+                    statistics={statistics}
+                />
             </div>
         </div>
     );
