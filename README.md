@@ -14,13 +14,18 @@ A web application for tracking progress on WPlace (a pixel art collaboration pla
 - **Color Filtering**: Focus on specific colors in the difference view
 - **Local Storage**: Templates are saved locally in your browser
 - **URL Sharing**: Templates can be shared via URL hashes
+- **Auto-update**: Automatic updates of WPlace images at regular intervals
+- **Manual Updates**: Click "Last Updated" to trigger immediate updates
+- **Ping Animation**: Visual highlighting of remaining pixels
+- **Dark/Light Mode**: Toggle between color schemes
 
 ### TODO
 
 This changes are planned and will be implemented soon. Feel free to create and Issue if you feel something might be upgraded in this app that is not listed here.
 
-- Auto-update
 - Fix canvas flickering
+- Improve performance for large templates
+- Add more customization options
 
 ## Getting Started
 
@@ -85,8 +90,16 @@ Click on any statistic row to filter the difference view by that color.
 
 - **Pan**: Click and drag to move around the canvas
 - **Zoom**: Use the mouse wheel or the +/- buttons
-- **Reset Zoom**: Click the "1:1" button to reset to default zoom
+- **Reset Zoom**: Click the "Reset" button to reset to default zoom
 - **View Modes**: Switch between Template, WPlace, and Difference views
+- **Manual Updates**: Click the "Last Updated" button to refresh WPlace data immediately
+- **Ping Animation**: Click the bullseye button (or press Space) to highlight remaining pixels when few are left
+
+### Auto-update Features
+
+- WPlace images are automatically updated every minute
+- Manual updates can be triggered by clicking the "Last Updated" text
+- The refresh icon rotates during updates
 
 ### Language Support
 
@@ -94,6 +107,10 @@ Use the language selector in the header to switch between:
 - English (EN)
 - Russian (RU)
 - Spanish (ES)
+
+### Theme Support
+
+Toggle between dark and light modes using the moon/sun button in the header
 
 ## Technical Details
 
