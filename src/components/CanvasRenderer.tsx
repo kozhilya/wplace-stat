@@ -63,8 +63,8 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         // Reset transform to draw in canvas coordinates
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         
-        const progress = Math.min(pingAnimationTime / 2000, 1);
-        const radius = progress * 50;
+        const progress = Math.min(pingAnimationTime / 1000, 1); // Faster animation (1 second instead of 2)
+        const radius = progress * 30; // Smaller maximum radius
         const alpha = 1 - progress;
         
         ctx.globalAlpha = alpha;

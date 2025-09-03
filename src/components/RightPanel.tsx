@@ -161,10 +161,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         setPingAnimationActive(true);
         setPingAnimationTime(0);
         
-        // Auto-disable animation after 2 seconds
+        // Auto-disable animation after 1 second (faster)
         setTimeout(() => {
             setPingAnimationActive(false);
-        }, 2000);
+        }, 1000);
     }, []);
 
     // Animation frame for ping effect
