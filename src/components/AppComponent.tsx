@@ -230,7 +230,9 @@ export const AppComponent: React.FC = () => {
         stopAutoUpdate();
         if (currentTemplate) {
             autoUpdateIntervalRef.current = setInterval(() => {
-                updateWplaceImage(currentTemplate);
+                if (updateWplaceImageRef.current) {
+                    updateWplaceImageRef.current(currentTemplate);
+                }
             }, AUTO_UPDATE_INTERVAL);
         }
     };
