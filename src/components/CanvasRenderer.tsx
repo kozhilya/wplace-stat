@@ -12,7 +12,8 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
     currentImageToDraw, 
     scale, 
     offset, 
-    onDraw 
+    onDraw,
+    canvasRefCallback
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     
@@ -66,12 +67,12 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
     // Set up canvas ref callback
     useEffect(() => {
         if (canvasRef.current) {
-            props.canvasRefCallback?.(canvasRef.current);
+            canvasRefCallback?.(canvasRef.current);
         }
         return () => {
-            props.canvasRefCallback?.(null);
+            canvasRefCallback?.(null);
         };
-    }, [props.canvasRefCallback]);
+    }, [canvasRefCallback]);
 
     // Draw when props change
     useEffect(() => {
