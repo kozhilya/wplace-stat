@@ -129,6 +129,7 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         <canvas
             ref={canvasRef}
             className="canvas-element"
+            style={{ pointerEvents: 'auto' }}
         />
     );
 };
