@@ -70,7 +70,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         return () => {
             observer.disconnect();
         };
-    }, [viewMode, currentTemplate]);
+    }, [viewMode, currentTemplate, selectedColorId, generateDifferenceImage]);
 
     // We need to get a reference to the canvas element for the interaction manager
     // We'll use a callback ref to get the canvas element from the CanvasRenderer
