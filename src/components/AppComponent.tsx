@@ -16,6 +16,12 @@ export const AppComponent: React.FC = () => {
     const [statistics, setStatistics] = useState<StatisticsRow[]>([]);
     const statisticsManagerRef = React.useRef<StatisticsManager | null>(null);
     const [currentTemplate, setCurrentTemplate] = useState<Template | undefined>();
+    const currentTemplateRef = useRef<Template | undefined>();
+    
+    // Keep the ref updated
+    useEffect(() => {
+        currentTemplateRef.current = currentTemplate;
+    }, [currentTemplate]);
     const [templates, setTemplates] = useState<Template[]>([]);
     const templateCollection = React.useRef(new TemplateCollection());
     const [leftPanelView, setLeftPanelView] = useState<'template' | 'templates' | null>(null);
@@ -117,8 +123,8 @@ export const AppComponent: React.FC = () => {
         
         // Listen for manual update requests
         const handleManualUpdate = async () => {
-            if (currentTemplate) {
-                await updateWplaceImage(currentTemplate);
+            if (currentTemplateRef.current && updateWplaceImageRef.current) {
+                await updateWplaceImageRef.current(currentTemplateRef.current);
             }
         };
         
@@ -186,33 +192,38 @@ export const AppComponent: React.FC = () => {
     };
     
     // Function to update Wplace image and recalculate statistics
-    const updateWplaceImage = async (template: Template) => {
-        setIsUpdating(true);
-        try {
-            // Reload the Wplace image directly on the current template
-            await template.loadWplaceImage();
-            
-            // Update statistics
-            if (template.templateImage && template.wplaceImage) {
-                statisticsManagerRef.current = new StatisticsManager(
-                    template.templateImage, 
-                    template.wplaceImage
-                );
-                setStatistics(statisticsManagerRef.current.getStatistics());
+    const updateWplaceImageRef = useRef<((template: Template) => Promise<void>) | null>(null);
+    
+    // Update the ref whenever the function changes
+    useEffect(() => {
+        updateWplaceImageRef.current = async (template: Template) => {
+            setIsUpdating(true);
+            try {
+                // Reload the Wplace image directly on the current template
+                await template.loadWplaceImage();
+                
+                // Update statistics
+                if (template.templateImage && template.wplaceImage) {
+                    statisticsManagerRef.current = new StatisticsManager(
+                        template.templateImage, 
+                        template.wplaceImage
+                    );
+                    setStatistics(statisticsManagerRef.current.getStatistics());
+                }
+                
+                // Update last updated time
+                setLastUpdated(new Date());
+                
+                // Force re-render by updating the current template reference
+                // Since the template object is the same, scale and offset are preserved
+                setCurrentTemplate(template);
+            } catch (error) {
+                console.error('Error updating Wplace image:', error);
+            } finally {
+                setIsUpdating(false);
             }
-            
-            // Update last updated time
-            setLastUpdated(new Date());
-            
-            // Force re-render by updating the current template reference
-            // Since the template object is the same, scale and offset are preserved
-            setCurrentTemplate(template);
-        } catch (error) {
-            console.error('Error updating Wplace image:', error);
-        } finally {
-            setIsUpdating(false);
-        }
-    };
+        };
+    }, []);
     
     // Auto-update functions
     const startAutoUpdate = () => {
