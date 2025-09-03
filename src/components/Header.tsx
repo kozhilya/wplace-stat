@@ -63,8 +63,8 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div className="header-right">
                 <div className="last-updated-container">
-                    <div 
-                        className="last-updated clickable"
+                    <button 
+                        className="last-updated-button"
                         onClick={() => {
                             if (!isUpdating) {
                                 // Trigger manual update
@@ -73,10 +73,11 @@ export const Header: React.FC<HeaderProps> = ({
                             }
                         }}
                         title="Click to update now"
+                        disabled={isUpdating}
                     >
                         <i className={`fas fa-sync-alt refresh-icon ${isUpdating ? 'rotating' : ''}`}></i>
                         {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
-                    </div>
+                    </button>
                 </div>
                 <select 
                     value={currentLanguage}
