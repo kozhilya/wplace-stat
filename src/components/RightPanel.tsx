@@ -29,6 +29,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
     const renderIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const [remainingPixels, setRemainingPixels] = useState<number>(0);
+    const [pingAnimationActive, setPingAnimationActive] = useState<boolean>(false);
+    const [pingAnimationTime, setPingAnimationTime] = useState<number>(0);
     
     // Use a ref to store the draw function to avoid dependency issues
     const drawCanvasRef = useRef<() => void>();
@@ -89,6 +91,23 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             setRemainingPixels(0);
         }
     }, [selectedColorId, statistics]);
+
+    // Handle keyboard events for space key
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.code === 'Space' && 
+                remainingPixels <= MIN_REMAINING_FOR_BUTTON && 
+                remainingPixels > 0) {
+                e.preventDefault();
+                handlePingRemaining();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [remainingPixels]);
 
     // Update interaction manager when template changes
     useEffect(() => {
@@ -318,6 +337,39 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         setCurrentImageToDraw(imageToDraw);
     }, [viewMode, currentTemplate, differenceImageRef.current]);
 
+    // Handle ping remaining button click
+    const handlePingRemaining = useCallback(() => {
+        setPingAnimationActive(true);
+        setPingAnimationTime(0);
+        
+        // Auto-disable animation after 2 seconds
+        setTimeout(() => {
+            setPingAnimationActive(false);
+        }, 2000);
+    }, []);
+
+    // Animation frame for ping effect
+    useEffect(() => {
+        let animationFrameId: number;
+        
+        const animate = () => {
+            if (pingAnimationActive) {
+                setPingAnimationTime(prevTime => prevTime + 16); // ~60fps
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        };
+        
+        if (pingAnimationActive) {
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        
+        return () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        };
+    }, [pingAnimationActive]);
+
     // Generate difference image and cache it
     const generateDifferenceImage = useCallback((templateImage: HTMLImageElement, wplaceImage: HTMLImageElement) => {
         // Create a canvas to draw the difference
@@ -384,6 +436,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     scale={scale}
                     offset={offset}
                     canvasRefCallback={setCanvasElement}
+                    pingAnimationActive={pingAnimationActive}
+                    pingAnimationTime={pingAnimationTime}
+                    selectedColorId={selectedColorId}
+                    statistics={statistics}
                 />
 
                 {/* View mode selector */}
@@ -428,8 +484,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                     
                     {/* Ping remaining button */}
                     <button 
-                        onClick={() => {}} 
-                        title={LanguageManager.getText('pingRemaining')}
+                        onClick={handlePingRemaining} 
+                        title={`${LanguageManager.getText('pingRemaining')} (Space)`}
                         disabled={remainingPixels > MIN_REMAINING_FOR_BUTTON || remainingPixels === 0}
                         className="new-action-button"
                     >

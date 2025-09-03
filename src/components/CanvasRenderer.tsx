@@ -6,6 +6,10 @@ interface CanvasRendererProps {
     offset: { x: number; y: number };
     onDraw?: () => void;
     canvasRefCallback?: (canvas: HTMLCanvasElement | null) => void;
+    pingAnimationActive?: boolean;
+    pingAnimationTime?: number;
+    selectedColorId?: number | null;
+    statistics?: any[];
 }
 
 export const CanvasRenderer: React.FC<CanvasRendererProps> = ({ 
@@ -13,7 +17,11 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
     scale, 
     offset, 
     onDraw,
-    canvasRefCallback
+    canvasRefCallback,
+    pingAnimationActive = false,
+    pingAnimationTime = 0,
+    selectedColorId = null,
+    statistics = []
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     
@@ -38,6 +46,43 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         ctx.restore();
     }, [scale, offset]);
 
+    // Draw ping animation
+    const drawPingAnimation = useCallback((ctx: CanvasRenderingContext2D) => {
+        if (!pingAnimationActive || !currentImageToDraw) return;
+        
+        // Find the remaining pixels for the selected color
+        const selectedRow = statistics.find((row: any) => row.color?.id === selectedColorId);
+        if (!selectedRow || selectedRow.remain === 0) return;
+        
+        // This is a simplified implementation
+        // In a real implementation, you would need access to the difference image data
+        // to find the positions of the remaining pixels
+        
+        // For demonstration, we'll draw circles at random positions
+        ctx.save();
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+        
+        const progress = Math.min(pingAnimationTime / 2000, 1);
+        const radius = progress * 50;
+        const alpha = 1 - progress;
+        
+        ctx.globalAlpha = alpha;
+        
+        // Draw sample circles (replace with actual remaining pixel positions)
+        for (let i = 0; i < Math.min(selectedRow.remain, 20); i++) {
+            const x = Math.random() * ctx.canvas.width;
+            const y = Math.random() * ctx.canvas.height;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }, [pingAnimationActive, pingAnimationTime, selectedColorId, statistics, currentImageToDraw]);
+
     // Draw the appropriate image
     const drawCanvas = useCallback(() => {
         const canvas = canvasRef.current;
@@ -60,9 +105,12 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
             drawImageWithTransform(ctx, currentImageToDraw);
         }
         
+        // Draw ping animation on top
+        drawPingAnimation(ctx);
+        
         // Notify parent that drawing is complete
         onDraw?.();
-    }, [currentImageToDraw, drawImageWithTransform, onDraw]);
+    }, [currentImageToDraw, drawImageWithTransform, onDraw, drawPingAnimation]);
 
     // Set up canvas ref callback
     useEffect(() => {
