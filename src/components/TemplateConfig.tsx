@@ -55,8 +55,14 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
         }
     }, [isNewTemplate, onClearForm]);
 
-    // Load template from hash on component mount
+    // Load template data when component mounts or dependencies change
     useEffect(() => {
+        // Always clear the form if isNewTemplate is true
+        if (isNewTemplate) {
+            clearForm();
+            return;
+        }
+
         const loadFromHash = () => {
             if (window.location.hash) {
                 try {
@@ -74,7 +80,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             }
         };
 
-        // Load from current template prop if available, otherwise from hash if not creating a new template
+        // Load from current template prop if available, otherwise from hash
         if (currentTemplate) {
             setName(currentTemplate.name);
             setTlX(currentTemplate.tlX.toString());
@@ -82,11 +88,11 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             setPxX(currentTemplate.pxX.toString());
             setPxY(currentTemplate.pxY.toString());
             setImageDataUrl(currentTemplate.imageDataUrl);
-        } else if (!isNewTemplate) {
+        } else {
             loadFromHash();
         }
 
-        // Listen for hash changes, but only process them if not creating a new template
+        // Listen for hash changes
         const handleHashChange = () => {
             if (!isNewTemplate) {
                 loadFromHash();
@@ -98,7 +104,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
         return () => {
             window.removeEventListener('hashchange', handleHashChange);
         };
-    }, [isNewTemplate]); // Add isNewTemplate to dependency array
+    }, [isNewTemplate, currentTemplate]); // Add dependencies
 
     const handlePaste = (e: React.ClipboardEvent) => {
         const pastedText = e.clipboardData.getData('text');

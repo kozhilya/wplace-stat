@@ -20,18 +20,19 @@ interface LeftPanelProps {
     selectedColorId?: number | null;
 }
 
-export const LeftPanel: React.FC<LeftPanelProps> = ({ 
-    width, 
-    onTemplateSave, 
-    onTemplateLoad, 
-    statistics = [], 
-    currentTemplate,
-    activeView,
-    onCloseView,
-    onStatisticsRowClick,
-    onCreateTemplate,
-    selectedColorId
-}) => {
+export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
+    const { 
+        width, 
+        onTemplateSave, 
+        onTemplateLoad, 
+        statistics = [], 
+        currentTemplate,
+        activeView,
+        onCloseView,
+        onStatisticsRowClick,
+        onCreateTemplate,
+        selectedColorId
+    } = props;
     const collection = React.useRef(new TemplateCollection());
     const [templates, setTemplates] = useState<Template[]>([]);
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
@@ -71,6 +72,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
 
     const handleCreateTemplate = () => {
         setIsNewTemplate(true);
+        // Call onCreateTemplate to notify the parent to switch to template view
         onCreateTemplate();
     };
 
@@ -113,7 +115,13 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             {activeView === 'templates' && (
                 <TemplateList 
                     onTemplateSelect={handleTemplateLoad} 
-                    onCreateTemplate={handleCreateTemplate}
+                    onCreateTemplate={() => {
+                        setIsNewTemplate(true);
+                        // Set active view to template configuration
+                        // We need to modify the parent component to handle this
+                        // For now, we'll assume there's a way to set the active view
+                        // This may need to be passed down as a prop
+                    }}
                 />
             )}
             {/* Show TemplateConfig when no templates exist and no current template */}
