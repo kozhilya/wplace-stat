@@ -10,6 +10,9 @@ interface RightPanelProps {
     selectedColorId?: number | null;
 }
 
+// Global constant for update interval (milliseconds)
+const RENDER_INTERVAL = 100; // 10 FPS
+
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
@@ -20,9 +23,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
+    const renderIntervalRef = useRef<NodeJS.Timeout | null>(null);
     
     // Use a ref to store the draw function to avoid dependency issues
-
     const drawCanvasRef = useRef<() => void>();
 
     useEffect(() => {
@@ -60,6 +63,22 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             if (interactionManagerRef.current) {
                 interactionManagerRef.current.cleanup();
                 interactionManagerRef.current = null;
+            }
+        };
+    }, []);
+
+    // Setup and cleanup render interval
+    useEffect(() => {
+        // Start the render interval
+        renderIntervalRef.current = setInterval(() => {
+            drawCanvasRef.current?.();
+        }, RENDER_INTERVAL);
+
+        // Cleanup on component unmount
+        return () => {
+            if (renderIntervalRef.current) {
+                clearInterval(renderIntervalRef.current);
+                renderIntervalRef.current = null;
             }
         };
     }, []);
@@ -338,8 +357,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         // Set canvas dimensions to match the container
         const container = canvas.parentElement;
         if (container) {
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
+            // Only update dimensions if they changed to avoid unnecessary clears
+            if (canvas.width !== container.clientWidth || canvas.height !== container.clientHeight) {
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
         }
 
         if (currentImageToDraw) {
