@@ -172,23 +172,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         // Get missing pixels from global storage
         const missingPixels = (window as any).missingPixels || [];
         
-        // Create a ping for each missing pixel using the current scale and offset
+        // Create a ping for each missing pixel using image coordinates
         const newPings: Ping[] = missingPixels.map((pixel: { x: number; y: number }) => {
-            // Convert image coordinates to canvas coordinates
-            // Add 0.5 to target the center of the pixel
-            const centerX = offset.x + (pixel.x + 0.5) * scale;
-            const centerY = offset.y + (pixel.y + 0.5) * scale;
-            
+            // Store coordinates in image space (add 0.5 to target the center of the pixel)
             return {
                 startTime: Date.now(),
-                centerX,
-                centerY,
+                centerX: pixel.x + 0.5,
+                centerY: pixel.y + 0.5,
                 radius: 0
             };
         });
         
         setPingAnimations(prev => [...prev, ...newPings]);
-    }, [scale, offset]);
+    }, []);
 
     // Animation loop for updating ping animations
     useEffect(() => {
