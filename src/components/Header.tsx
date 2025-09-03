@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LanguageManager } from '../script/managers/language-manager';
+import { debug } from '../utils';
 
 interface HeaderProps {
     templateName: string;
@@ -34,7 +35,8 @@ export const Header: React.FC<HeaderProps> = ({
     }, []);
 
     const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const newLanguage = event.target.value as 'en' | 'ru';
+        const newLanguage = event.target.value as 'en' | 'ru' | 'es';
+        debug(`Language changed to: ${newLanguage}`);
         LanguageManager.setLanguage(newLanguage);
     };
 
@@ -67,6 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="last-updated-button"
                         onClick={() => {
                             if (!isUpdating) {
+                                debug('Manual update requested');
                                 // Trigger manual update
                                 const event = new CustomEvent('manualUpdateRequested');
                                 window.dispatchEvent(event);
@@ -92,6 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
                     className="dark-mode-toggle"
                     onClick={() => {
                         const isDark = document.body.classList.toggle('dark-mode');
+                        debug(`Dark mode ${isDark ? 'enabled' : 'disabled'}`);
                         localStorage.setItem('darkMode', isDark ? 'true' : 'false');
                         setIsDarkMode(isDark);
                     }}

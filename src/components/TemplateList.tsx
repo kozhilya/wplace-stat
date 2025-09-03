@@ -19,12 +19,14 @@ export const TemplateList: React.FC<TemplateListProps> = (props) => {
 
     const handleDelete = (index: number, templateName: string) => {
         if (window.confirm(LanguageManager.getText('confirmDelete').replace('{templateName}', templateName))) {
+            debug(`Deleting template: ${templateName}`);
             collection.current.removeTemplate(index);
             setTemplates(collection.current.getTemplates());
         }
     };
 
     const handleLoad = async (template: Template) => {
+        debug(`Loading template: ${template.name}`);
         try {
             // Load the template image
             await template.loadTemplateImage();
@@ -52,6 +54,7 @@ export const TemplateList: React.FC<TemplateListProps> = (props) => {
                 <button 
                     className="create-template-button"
                     onClick={() => {
+                        debug('Create new template button clicked');
                         // Ensure the onCreateTemplate callback is called
                         props.onCreateTemplate();
                     }}

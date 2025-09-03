@@ -122,6 +122,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
 
     const handlePaste = (e: React.ClipboardEvent) => {
         const pastedText = e.clipboardData.getData('text');
+        debug(`Pasted text: ${pastedText}`);
         // Try to parse 4 numbers separated by various delimiters
         const numbers = pastedText.split(/[\s,.;\-–—]+/).filter(num => num.trim() !== '');
         
@@ -133,17 +134,23 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             });
             
             if (validNumbers.every(num => num !== null)) {
+                debug(`Parsed coordinates: ${validNumbers.join(', ')}`);
                 e.preventDefault();
                 setTlX(validNumbers[0]!.toString());
                 setTlY(validNumbers[1]!.toString());
                 setPxX(validNumbers[2]!.toString());
                 setPxY(validNumbers[3]!.toString());
+            } else {
+                debug('Invalid numbers in pasted text');
             }
+        } else {
+            debug(`Expected 4 numbers, got ${numbers.length}`);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        debug('Submitting template form');
         
         const template = new Template(
             name,
@@ -168,6 +175,7 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             // Serialize and add to hash
             const serialized = template.serialize();
             window.location.hash = serialized;
+            debug('Template saved successfully');
         } catch (error) {
             debug('Error loading images:', error);
             alert('Failed to load images. Please check the image URL and try again.');

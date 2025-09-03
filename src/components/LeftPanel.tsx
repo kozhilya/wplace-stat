@@ -6,6 +6,7 @@ import { Template } from '../script/template';
 import { StatisticsRow } from '../script/managers/statistics-manager';
 import { TemplateCollection } from '../script/template';
 import { LanguageManager } from '../script/managers/language-manager';
+import { debug } from '../utils';
 
 interface LeftPanelProps {
     width: number;
@@ -57,6 +58,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
     }, []);
 
     const handleTemplateSave = (template: Template) => {
+        debug(`Saving template: ${template.name}`);
         // Add to collection
         collection.current.addTemplate(template);
         const updatedTemplates = collection.current.getTemplates();
@@ -71,6 +73,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
     };
 
     const handleCreateTemplate = () => {
+        debug('Creating new template');
         setIsNewTemplate(true);
         // The parent component should handle switching to the template view
         // We'll assume onCreateTemplate does this
@@ -78,6 +81,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
     };
 
     const handleTemplateLoad = (template: Template) => {
+        debug(`Loading template from list: ${template.name}`);
         if (onTemplateLoad) {
             onTemplateLoad(template);
         }
@@ -98,7 +102,10 @@ export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
                     {activeView !== null && (
                         <button 
                             className="close-button"
-                            onClick={onCloseView}
+                            onClick={() => {
+                                debug('Closing view');
+                                onCloseView();
+                            }}
                             title={LanguageManager.getText('close')}
                         >
                             ✕
