@@ -14,7 +14,6 @@ interface RightPanelProps {
 const RENDER_INTERVAL = 100; // 10 FPS
 
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId }) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
     const isInteractionManagerInitialized = useRef(false);
     const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('difference');
@@ -40,17 +39,18 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         };
     }, []);
 
+    // We need to get a reference to the canvas element for the interaction manager
+    // We'll use a callback ref to get the canvas element from the CanvasRenderer
+    const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
+    
     // Initialize interaction manager when canvas is available
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (canvas && !interactionManagerRef.current) {
+        if (canvasElement && !interactionManagerRef.current) {
             interactionManagerRef.current = new CanvasInteractionManager(
-                canvas,
+                canvasElement,
                 (newScale, newOffset) => {
                     setScale(newScale);
                     setOffset(newOffset);
-                    // Force redraw when position changes
-                    drawCanvasRef.current?.();
                 }
             );
             
@@ -65,23 +65,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
                 interactionManagerRef.current = null;
             }
         };
-    }, []);
+    }, [canvasElement, currentTemplate]);
 
-    // Setup and cleanup render interval
-    useEffect(() => {
-        // Start the render interval
-        renderIntervalRef.current = setInterval(() => {
-            drawCanvasRef.current?.();
-        }, RENDER_INTERVAL);
-
-        // Cleanup on component unmount
-        return () => {
-            if (renderIntervalRef.current) {
-                clearInterval(renderIntervalRef.current);
-                renderIntervalRef.current = null;
-            }
-        };
-    }, []);
 
     // Update interaction manager when template changes
     useEffect(() => {
@@ -292,27 +277,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         ctx.putImageData(resultData, x, y);
     }, [getDifferenceColors]);
 
-    // Helper function to draw image with transform
-    const drawImageWithTransform = (ctx: CanvasRenderingContext2D, image: HTMLImageElement) => {
-        // Clear the canvas
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        
-        // Disable image smoothing to keep pixels sharp
-        ctx.imageSmoothingEnabled = false;
-        
-        // Save the current context
-        ctx.save();
-        
-        // Use transform instead of separate translate and scale
-        ctx.transform(scale, 0, 0, scale, offset.x, offset.y);
-        
-        // Draw the image at the top-left corner (0,0)
-        ctx.drawImage(image, 0, 0);
-        
-        // Restore the context
-        ctx.restore();
-    };
-
     // Function to update the current image based on view mode
     const updateCurrentImageToDraw = useCallback(() => {
         let imageToDraw: HTMLImageElement | null = null;
@@ -330,44 +294,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         }
         
         setCurrentImageToDraw(imageToDraw);
-        // Force a redraw by calling drawCanvas directly
-        const canvas = canvasRef.current;
-        if (canvas && imageToDraw) {
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                // Set canvas dimensions to match the container
-                const container = canvas.parentElement;
-                if (container) {
-                    canvas.width = container.clientWidth;
-                    canvas.height = container.clientHeight;
-                }
-                drawImageWithTransform(ctx, imageToDraw);
-            }
-        }
-    }, [viewMode, currentTemplate, differenceImageRef.current, drawImageWithTransform]);
-
-    // Draw the appropriate image based on view mode
-    const drawCanvas = useCallback(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        // Set canvas dimensions to match the container
-        const container = canvas.parentElement;
-        if (container) {
-            // Only update dimensions if they changed to avoid unnecessary clears
-            if (canvas.width !== container.clientWidth || canvas.height !== container.clientHeight) {
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-            }
-        }
-
-        if (currentImageToDraw) {
-            drawImageWithTransform(ctx, currentImageToDraw);
-        }
-    }, [currentImageToDraw, drawImageWithTransform]);
+    }, [viewMode, currentTemplate, differenceImageRef.current]);
 
     // Generate difference image and cache it
     const generateDifferenceImage = useCallback((templateImage: HTMLImageElement, wplaceImage: HTMLImageElement) => {
@@ -390,11 +317,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             differenceImageRef.current = img;
             // Update the current image to draw
             updateCurrentImageToDraw();
-            // Redraw the canvas
-            drawCanvas();
         };
         img.src = tempCanvas.toDataURL('image/png');
-    }, [drawDifference, updateCurrentImageToDraw, drawCanvas]);
+    }, [drawDifference, updateCurrentImageToDraw, selectedColorId]);
 
     // Update the current image when view mode or template changes
     useEffect(() => {
@@ -427,15 +352,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         interactionManagerRef.current?.resetView();
     };
     
-    drawCanvasRef.current = drawCanvas;
 
     return (
         <div className="right-panel">
             {/* Canvas area */}
             <div className="canvas-area">
-                <canvas
-                    ref={canvasRef}
-                    className="canvas-element"
+                <CanvasRenderer
+                    currentImageToDraw={currentImageToDraw}
+                    scale={scale}
+                    offset={offset}
+                    canvasRefCallback={setCanvasElement}
                 />
 
                 {/* View mode selector */}
