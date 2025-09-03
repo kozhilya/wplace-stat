@@ -270,6 +270,14 @@
         color: var(--color-text-light);
         opacity: 0.7;
     }
+    
+    .paste-note {
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+        color: var(--color-text-light);
+        font-size: 0.8rem;
+        font-style: italic;
+    }
 }
 
 // Left panel styles
