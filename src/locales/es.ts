@@ -44,5 +44,6 @@ export const es = {
     lightMode: 'Modo claro',
     newTemplate: 'Nueva Plantilla',
     hideCompleted: 'Ocultar completados',
-    pingRemaining: 'Resaltar restantes'
+    pingRemaining: 'Resaltar restantes',
+    pasteTip: 'Consejo: Puede pegar 4 números (como "{{example}}") para completar todos los campos de coordenadas a la vez'
 };

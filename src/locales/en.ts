@@ -44,5 +44,6 @@ export const en = {
     lightMode: 'Light Mode',
     newTemplate: 'New Template',
     hideCompleted: 'Hide completed',
-    pingRemaining: 'Ping remaining'
+    pingRemaining: 'Ping remaining',
+    pasteTip: 'Tip: You can paste 4 numbers (like "{{example}}") to fill all coordinate fields at once'
 };

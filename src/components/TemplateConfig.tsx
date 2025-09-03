@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Template } from '../script/template';
 import { debug } from '../utils';
+import { LanguageManager } from '../script/managers/language-manager';
 
 interface TemplateConfigProps {
     onTemplateSave?: (template: Template) => void;
@@ -13,6 +14,22 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
     const [pxX, setPxX] = useState<string>('0');
     const [pxY, setPxY] = useState<string>('0');
     const [imageDataUrl, setImageDataUrl] = useState<string>('');
+    const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
+    const [exampleNumbers] = useState(() => 
+        Array.from({ length: 4 }, () => Math.floor(Math.random() * 1000)).join(' ')
+    );
+
+    useEffect(() => {
+        const handleLanguageChange = () => {
+            setLanguage(LanguageManager.getCurrentLanguage());
+        };
+        
+        LanguageManager.onLanguageChange(handleLanguageChange);
+        
+        return () => {
+            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
+        };
+    }, []);
 
     // Load template from hash on component mount
     useEffect(() => {
@@ -115,58 +132,62 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = ({ onTemplateSave }
                         placeholder="Untitled Template"
                     />
                 </div>
-                <div className="number-inputs-row" onPaste={handlePaste}>
-                    <div className="form-group">
-                        <label htmlFor="tl-x" data-i18n="tlX">Tl X:</label>
-                        <input 
-                            type="text" 
-                            id="tl-x" 
-                            required 
-                            value={tlX}
-                            onChange={(e) => setTlX(e.target.value.replace(/[^0-9\-]/g, ''))}
-                            inputMode="numeric"
-                            pattern="[0-9\-]*"
-                        />
+                <div className="coordinate-inputs-container" onPaste={handlePaste}>
+                    <div className="coordinate-inputs-row">
+                        <div className="form-group">
+                            <label htmlFor="tl-x" data-i18n="tlX">Tl X:</label>
+                            <input 
+                                type="text" 
+                                id="tl-x" 
+                                required 
+                                value={tlX}
+                                onChange={(e) => setTlX(e.target.value.replace(/[^0-9\-]/g, ''))}
+                                inputMode="numeric"
+                                pattern="[0-9\-]*"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="tl-y" data-i18n="tlY">Tl Y:</label>
+                            <input 
+                                type="text" 
+                                id="tl-y" 
+                                required 
+                                value={tlY}
+                                onChange={(e) => setTlY(e.target.value.replace(/[^0-9\-]/g, ''))}
+                                inputMode="numeric"
+                                pattern="[0-9\-]*"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="px-x" data-i18n="pxX">Px X:</label>
+                            <input 
+                                type="text" 
+                                id="px-x" 
+                                required 
+                                value={pxX}
+                                onChange={(e) => setPxX(e.target.value.replace(/[^0-9\-]/g, ''))}
+                                inputMode="numeric"
+                                pattern="[0-9\-]*"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="px-y" data-i18n="pxY">Px Y:</label>
+                            <input 
+                                type="text" 
+                                id="px-y" 
+                                required 
+                                value={pxY}
+                                onChange={(e) => setPxY(e.target.value.replace(/[^0-9\-]/g, ''))}
+                                inputMode="numeric"
+                                pattern="[0-9\-]*"
+                            />
+                        </div>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="tl-y" data-i18n="tlY">Tl Y:</label>
-                        <input 
-                            type="text" 
-                            id="tl-y" 
-                            required 
-                            value={tlY}
-                            onChange={(e) => setTlY(e.target.value.replace(/[^0-9\-]/g, ''))}
-                            inputMode="numeric"
-                            pattern="[0-9\-]*"
-                        />
+                    <div className="paste-note">
+                        <small>
+                            {LanguageManager.getText('pasteTip').replace('{{example}}', exampleNumbers)}
+                        </small>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="px-x" data-i18n="pxX">Px X:</label>
-                        <input 
-                            type="text" 
-                            id="px-x" 
-                            required 
-                            value={pxX}
-                            onChange={(e) => setPxX(e.target.value.replace(/[^0-9\-]/g, ''))}
-                            inputMode="numeric"
-                            pattern="[0-9\-]*"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="px-y" data-i18n="pxY">Px Y:</label>
-                        <input 
-                            type="text" 
-                            id="px-y" 
-                            required 
-                            value={pxY}
-                            onChange={(e) => setPxY(e.target.value.replace(/[^0-9\-]/g, ''))}
-                            inputMode="numeric"
-                            pattern="[0-9\-]*"
-                        />
-                    </div>
-                </div>
-                <div className="paste-note">
-                    <small>Tip: You can paste 4 numbers (like "1294 653 830 495") to fill all coordinate fields at once</small>
                 </div>
                 <div className="form-group" style={{ marginTop: '10px' }}>
                     <label htmlFor="image-url" data-i18n="imageUrl">Image URL:</label>
