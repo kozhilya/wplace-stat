@@ -4,6 +4,7 @@ import { CanvasInteractionManager } from '../script/managers/canvas-interaction-
 import { debug } from '../utils';
 import { LanguageManager } from '../script/managers/language-manager';
 import { WplacePalette } from '../script/wplace';
+import { CanvasRenderer } from './CanvasRenderer';
 
 interface RightPanelProps {
     currentTemplate?: Template;
