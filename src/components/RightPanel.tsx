@@ -16,7 +16,6 @@ interface RightPanelProps {
 }
 
 // Global constants
-const RENDER_INTERVAL = 100; // 10 FPS
 const MIN_REMAINING_FOR_BUTTON = 10;
 
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId, statistics = [] }) => {
@@ -28,7 +27,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     // Track the current image to draw separately from view mode
     const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
     const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
-    const renderIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const [remainingPixels, setRemainingPixels] = useState<number>(0);
     const [pingAnimations, setPingAnimations] = useState<Ping[]>([]);
     

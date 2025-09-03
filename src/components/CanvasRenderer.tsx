@@ -1,5 +1,8 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 
+// Global constant for update interval (milliseconds)
+const RENDER_INTERVAL = 100; // 10 FPS
+
 export interface Ping {
     startTime: number;
     centerX: number;
@@ -120,9 +123,15 @@ export const CanvasRenderer: React.FC<CanvasRendererProps> = ({
         };
     }, [canvasRefCallback]);
 
-    // Draw when props change
+    // Setup render interval
     useEffect(() => {
-        drawCanvas();
+        const intervalId = setInterval(() => {
+            drawCanvas();
+        }, RENDER_INTERVAL);
+        
+        return () => {
+            clearInterval(intervalId);
+        };
     }, [drawCanvas]);
 
     return (
