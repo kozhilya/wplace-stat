@@ -154,18 +154,22 @@ export const AppComponent: React.FC = () => {
     const handleTemplateLoad = async (template: Template) => {
         setTemplateName(template.name);
         setLastUpdated(new Date());
-        setCurrentTemplate(template);
-        // Serialize and add to hash
-        const serialized = template.serialize();
-        window.location.hash = serialized;
         
-        // Load images if they're not loaded
+        // Ensure the template image is loaded
         if (!template.templateImage) {
             await template.loadTemplateImage();
         }
+        // Load the Wplace image
         if (!template.wplaceImage) {
             await template.loadWplaceImage();
         }
+        
+        // Update the current template
+        setCurrentTemplate(template);
+        
+        // Serialize and add to hash
+        const serialized = template.serialize();
+        window.location.hash = serialized;
         
         // Update statistics
         if (template.templateImage && template.wplaceImage) {
@@ -193,8 +197,14 @@ export const AppComponent: React.FC = () => {
                 template.imageDataUrl
             );
             
-            // Copy the template image reference
-            updatedTemplate.templateImage = template.templateImage;
+            // Ensure the template image is loaded
+            if (template.templateImage) {
+                updatedTemplate.templateImage = template.templateImage;
+                updatedTemplate.imageWidth = template.imageWidth;
+                updatedTemplate.imageHeight = template.imageHeight;
+            } else {
+                await updatedTemplate.loadTemplateImage();
+            }
             
             // Reload the Wplace image
             await updatedTemplate.loadWplaceImage();
