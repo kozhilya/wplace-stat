@@ -21,6 +21,7 @@ export const AppComponent: React.FC = () => {
     const [leftPanelView, setLeftPanelView] = useState<'template' | 'templates' | null>(null);
     const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
     const autoUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
     useEffect(() => {
         LanguageManager.initialize();
@@ -186,6 +187,7 @@ export const AppComponent: React.FC = () => {
     
     // Function to update Wplace image and recalculate statistics
     const updateWplaceImage = async (template: Template) => {
+        setIsUpdating(true);
         try {
             // Reload the Wplace image directly on the current template
             await template.loadWplaceImage();
@@ -207,6 +209,8 @@ export const AppComponent: React.FC = () => {
             setCurrentTemplate(template);
         } catch (error) {
             console.error('Error updating Wplace image:', error);
+        } finally {
+            setIsUpdating(false);
         }
     };
     
@@ -248,6 +252,7 @@ export const AppComponent: React.FC = () => {
                 onTemplateButtonClick={() => setLeftPanelView('template')}
                 onTemplatesButtonClick={() => setLeftPanelView('templates')}
                 hasActiveTemplate={!!currentTemplate}
+                isUpdating={isUpdating}
             />
             <div className="main-content" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
                 <LeftPanel 

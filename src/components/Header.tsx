@@ -7,6 +7,7 @@ interface HeaderProps {
     onTemplateButtonClick: () => void;
     onTemplatesButtonClick: () => void;
     hasActiveTemplate: boolean;
+    isUpdating: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
@@ -14,7 +15,8 @@ export const Header: React.FC<HeaderProps> = ({
     lastUpdated, 
     onTemplateButtonClick, 
     onTemplatesButtonClick,
-    hasActiveTemplate 
+    hasActiveTemplate,
+    isUpdating 
 }) => {
     const [currentLanguage, setCurrentLanguage] = useState(LanguageManager.getCurrentLanguage());
     const [isDarkMode, setIsDarkMode] = useState(document.body.classList.contains('dark-mode'));
@@ -60,16 +62,21 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
             </div>
             <div className="header-right">
-                <div 
-                    className="last-updated clickable"
-                    onClick={() => {
-                        // Trigger manual update
-                        const event = new CustomEvent('manualUpdateRequested');
-                        window.dispatchEvent(event);
-                    }}
-                    title="Click to update now"
-                >
-                    {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
+                <div className="last-updated-container">
+                    <div 
+                        className="last-updated clickable"
+                        onClick={() => {
+                            if (!isUpdating) {
+                                // Trigger manual update
+                                const event = new CustomEvent('manualUpdateRequested');
+                                window.dispatchEvent(event);
+                            }
+                        }}
+                        title="Click to update now"
+                    >
+                        <i className={`fas fa-sync-alt refresh-icon ${isUpdating ? 'rotating' : ''}`}></i>
+                        {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
+                    </div>
                 </div>
                 <select 
                     value={currentLanguage}
