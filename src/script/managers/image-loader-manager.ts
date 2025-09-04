@@ -1,4 +1,4 @@
-import { Template } from '../template';
+import { Template, TileInfo } from '../template';
 import { WplaceTileWidth, WplacePalette } from '../wplace';
 import { debug } from '../../utils';
 
@@ -6,6 +6,7 @@ import { debug } from '../../utils';
  * Cooldown period for failed tile downloads (10 seconds)
  */
 export const COOLDOWN_PERIOD_MS: number = 10000;
+
 
 /**
  * Manages loading and processing of template and wplace images
@@ -38,6 +39,33 @@ export class ImageLoaderManager {
     }
 
     /**
+     * Calculate the number of tiles needed in X and Y directions
+     * The template starts at (pxX, pxY) within the starting tile (tlX, tlY)
+     * The image spans template.imageWidth x template.imageHeight pixels
+     */
+    static getWplaceTiles(template: Template): [number, number] {
+        // Calculate the end position in pixels within the starting tile coordinate system
+        const endPixelX = template.pxX + template.imageWidth;
+        const endPixelY = template.pxY + template.imageHeight;
+
+        // Determine which tiles are needed
+        // The starting tile is always included
+        const startTileX = template.tlX;
+        const startTileY = template.tlY;
+
+        // Calculate the ending tile indices
+        // Since pxX and pxY are within the starting tile, we need to see how many additional tiles are needed
+        const endTileX = startTileX + Math.floor((endPixelX - 1) / WplaceTileWidth);
+        const endTileY = startTileY + Math.floor((endPixelY - 1) / WplaceTileWidth);
+
+        // Number of tiles in each direction
+        const tileCountX = endTileX - startTileX + 1;
+        const tileCountY = endTileY - startTileY + 1;
+
+        return [tileCountX, tileCountY];
+    }
+
+    /**
      * Loads and stitches together wplace tiles to create a complete wplace image matching the template
      * @param template The template object to load wplace image for
      * @returns Promise that resolves when the wplace image is loaded and processed
@@ -49,59 +77,38 @@ export class ImageLoaderManager {
             debug('[ImageLoaderManager.loadWplaceImage] Template image not loaded, loading it first');
             await this.loadTemplateImage(template);
         }
-        
+
         // Ensure template image dimensions are loaded
         if (template.imageWidth === -1 || template.imageHeight === -1) {
             debug('[ImageLoaderManager.loadWplaceImage] Template image dimensions are not loaded');
             throw new Error('Template image dimensions are not loaded');
         }
-        
-        // Calculate the number of tiles needed in X and Y directions
-        // The template starts at (pxX, pxY) within the starting tile (tlX, tlY)
-        // The image spans template.imageWidth x template.imageHeight pixels
-        
-        // Calculate the end position in pixels within the starting tile coordinate system
-        const endPixelX = template.pxX + template.imageWidth;
-        const endPixelY = template.pxY + template.imageHeight;
-        
-        // Determine which tiles are needed
-        // The starting tile is always included
-        const startTileX = template.tlX;
-        const startTileY = template.tlY;
-        
-        // Calculate the ending tile indices
-        // Since pxX and pxY are within the starting tile, we need to see how many additional tiles are needed
-        const endTileX = startTileX + Math.floor((endPixelX - 1) / WplaceTileWidth);
-        const endTileY = startTileY + Math.floor((endPixelY - 1) / WplaceTileWidth);
-        
-        // Number of tiles in each direction
-        const tileCountX = endTileX - startTileX + 1;
-        const tileCountY = endTileY - startTileY + 1;
-        
-        debug(`[ImageLoaderManager.loadWplaceImage] Need ${tileCountX}x${tileCountY} tiles from (${startTileX},${startTileY}) to (${endTileX},${endTileY})`);
-        
+
+        const [tileCountX, tileCountY] = ImageLoaderManager.getWplaceTiles(template);
+
         // Create a canvas with the correct dimensions
         const canvas = document.createElement('canvas');
         canvas.width = tileCountX * WplaceTileWidth;
         canvas.height = tileCountY * WplaceTileWidth;
         const ctx = canvas.getContext('2d')!;
-        
-        // Load and draw each tile
+
+        debug(`[ImageLoaderManager.loadWplaceImage] Need ${tileCountX}x${tileCountY} tiles from (${template.tlX},${template.tlY}) to (${template.tlX + tileCountX},${template.tlY + tileCountY})`);
+
         const tilePromises = [];
-        
+
         for (let y = 0; y < tileCountY; y++) {
             for (let x = 0; x < tileCountX; x++) {
-                const tileX = startTileX + x;
-                const tileY = startTileY + y;
+                const tileX = template.tlX + x;
+                const tileY = template.tlY + y;
                 tilePromises.push(this.loadAndDrawTile(ctx, tileX, tileY, x, y));
             }
         }
-        
+
         await Promise.all(tilePromises);
-        
+
         // Log the canvas dimensions
         debug(`[ImageLoaderManager.loadWplaceImage] Canvas dimensions before cropping: ${canvas.width}x${canvas.height}`);
-        
+
         // Crop the canvas to match the template dimensions and position
         // The template starts at (pxX, pxY) within the starting tile
         // We need to extract a region of template.imageWidth x template.imageHeight
@@ -109,15 +116,15 @@ export class ImageLoaderManager {
         croppedCanvas.width = template.imageWidth;
         croppedCanvas.height = template.imageHeight;
         const croppedCtx = croppedCanvas.getContext('2d')!;
-        
+
         // Calculate the source coordinates in the original canvas
         // The starting tile is at offset (0, 0) in the canvas
         // The template starts at (pxX, pxY) within the starting tile
         const sourceX = template.pxX;
         const sourceY = template.pxY;
-        
+
         debug(`[ImageLoaderManager.loadWplaceImage] Cropping from (${sourceX},${sourceY}) to size ${template.imageWidth}x${template.imageHeight}`);
-        
+
         // Draw the relevant portion to the cropped canvas
         croppedCtx.drawImage(
             canvas,
@@ -126,7 +133,7 @@ export class ImageLoaderManager {
             0, 0,                               // Destination x, y
             template.imageWidth, template.imageHeight  // Destination width, height
         );
-        
+
         // Convert cropped canvas to image
         template.wplaceImage = await this.canvasToImage(croppedCanvas);
         debug(`[ImageLoaderManager.loadWplaceImage] Wplace image set: ${template.wplaceImage ? 'Yes' : 'No'}`);
@@ -156,42 +163,21 @@ export class ImageLoaderManager {
         });
     }
 
-    /**
-     * Sets whether to use CORS proxy directly for tile loading
-     * @param useProxy True to use CORS proxy directly, false to try direct requests first
-     */
-    static setUseCorsProxyDirectly(useProxy: boolean): void {
-        ImageLoaderManager.useCorsProxyDirectly = useProxy;
-        debug(`[ImageLoaderManager.setUseCorsProxyDirectly] CORS proxy usage set to: ${useProxy}`);
-    }
-    
-    /**
-     * Global flag to control whether to use CORS proxy directly
-     * Set to true by default to always use CORS proxies due to CORS restrictions
-     */
-    private static useCorsProxyDirectly: boolean = false;
-        
-    // Map to track cooldown end times for each tile
-    private static tileCooldowns: Map<string, number> = new Map();
-
     private static async loadAndDrawTile(
-        ctx: CanvasRenderingContext2D, 
-        tileX: number, 
-        tileY: number, 
-        offsetX: number, 
+        ctx: CanvasRenderingContext2D,
+        tileX: number,
+        tileY: number,
+        offsetX: number,
         offsetY: number
     ): Promise<void> {
-        // Check if this tile is in cooldown
-        const tileKey = `${tileX},${tileY}`;
-        const currentTime = Date.now();
-        const cooldownEnd = ImageLoaderManager.tileCooldowns.get(tileKey);
-        
-        if (cooldownEnd && currentTime < cooldownEnd) {
-            debug(`[ImageLoaderManager.loadAndDrawTile] Tile (${tileX}, ${tileY}) is in cooldown, skipping`);
-            return;
-        }
-        
-        return this.loadTileImage(ctx, tileX, tileY, offsetX, offsetY, tileKey, currentTime);
+        const tileImage = await this.loadTileImage(ctx, tileX, tileY, offsetX, offsetY);
+
+        const drawX = offsetX * WplaceTileWidth;
+        const drawY = offsetY * WplaceTileWidth;
+
+        ctx.drawImage(tileImage, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
+
+        debug(`[ImageLoaderManager.loadTileImage] Loaded tile at (${tileX}, ${tileY})`);
     }
 
     /**
@@ -204,84 +190,50 @@ export class ImageLoaderManager {
         tileY: number,
         offsetX: number,
         offsetY: number,
-        tileKey: string,
-        currentTime: number
-    ): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'Anonymous';
-            
-            // Track which URLs we've tried
-            const triedUrls: string[] = [];
-            
-            const tryLoadImage = (url: string) => {
-                triedUrls.push(url);
-                debug(`[ImageLoaderManager.loadTileImage] Loading tile (${tileX}, ${tileY}) from: ${url}`);
-                
-                img.onload = () => {
-                    // Calculate position to draw the tile
-                    const drawX = offsetX * WplaceTileWidth;
-                    const drawY = offsetY * WplaceTileWidth;
-                    ctx.drawImage(img, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
-                    debug(`[ImageLoaderManager.loadTileImage] Loaded tile at (${tileX}, ${tileY})`);
-                    // Remove from cooldown if it was there
-                    ImageLoaderManager.tileCooldowns.delete(tileKey);
-                    resolve();
-                };
-                
-                img.onerror = (error) => {
-                    // Try next URL in the fallback sequence
-                    const nextUrl = this.getNextUrl(triedUrls, tileX, tileY);
-                    if (nextUrl) {
-                        debug(`[ImageLoaderManager.loadTileImage] Failed to load tile from ${url}, trying next: ${nextUrl}`, error);
-                        tryLoadImage(nextUrl);
-                    } else {
-                        // If all URLs fail, put the tile in cooldown
-                        const cooldownEndTime = currentTime + COOLDOWN_PERIOD_MS;
-                        ImageLoaderManager.tileCooldowns.set(tileKey, cooldownEndTime);
-                        debug(`[ImageLoaderManager.loadTileImage] Failed to load tile at (${tileX}, ${tileY}) from all URLs. Cooldown until: ${new Date(cooldownEndTime).toISOString()}`);
-                        resolve();
-                    }
-                };
-                
-                img.src = url;
-            };
-            
-            // Start with the first URL in the sequence
-            const firstUrl = this.getNextUrl(triedUrls, tileX, tileY);
-            if (firstUrl) {
-                tryLoadImage(firstUrl);
-            } else {
-                debug(`[ImageLoaderManager.loadTileImage] No URLs to try for tile at (${tileX}, ${tileY})`);
-                resolve();
-            }
-        });
-    }
+    ): Promise<HTMLImageElement> {
+        const prefix = `[ImageLoaderManager.loadTileImage ${tileX}, ${tileY}]`;
 
-    /**
-     * Gets the next URL to try for loading a tile
-     * @param triedUrls URLs that have already been attempted
-     * @param tileX X coordinate of the tile
-     * @param tileY Y coordinate of the tile
-     * @returns The next URL to try, or null if all options exhausted
-     */
-    private static getNextUrl(triedUrls: string[], tileX: number, tileY: number): string | null {
-        const timestamp = Date.now();
-        const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
-        
-        // Always try direct URL first, then CORS proxy
-        const urlSequence = [
-            originalUrl,
-            `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`
-        ];
-        
-        // Find the next URL that hasn't been tried yet
-        for (const url of urlSequence) {
-            if (!triedUrls.includes(url)) {
-                return url;
+        debug(`${prefix} Loading tile`);
+
+        while (true) {
+            const timestamp = Date.now();
+            const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
+
+            const urls: string[] = [ originalUrl ];
+
+            if (location.hostname == 'localhost') {
+                urls.push(`https://corsproxy.io/?${encodeURIComponent(originalUrl)}`);
             }
+
+            for (const url of urls) {
+                debug(`${prefix} Attempting to load "${url}"...`);
+                let response;
+
+                try {
+                    response = await fetch(url);
+                }
+                catch (e) {
+                    debug(`${prefix} Load "${url}" failed error ${(e as Error).message}`);
+                    continue;
+                }
+
+                if (response.status !== 200) {
+                    debug(`${prefix} Load "${url}" failed with code ${response.status}: ${response.statusText}`);
+                    continue;
+                }
+
+                const imageBlob = await response.blob();
+
+                const image = new HTMLImageElement();
+                image.src = URL.createObjectURL(imageBlob);
+
+                return image;
+            }
+
+            debug(`${prefix} Tile loading failed, going on cooldown...`);
+            await new Promise(resolve => setTimeout(resolve, COOLDOWN_PERIOD_MS));
+            debug(`${prefix} Tile cooldown ready!`);
         }
-        return null;
     }
 
     // Helper function to check if two colors match exactly
@@ -299,11 +251,11 @@ export class ImageLoaderManager {
     ): boolean {
         const selectedColor = WplacePalette.find(color => color.id === selectedColorId);
         if (!selectedColor) return false;
-        
+
         // Exact match with the selected color from the palette
         return templateR === selectedColor.rgb[0] &&
-               templateG === selectedColor.rgb[1] &&
-               templateB === selectedColor.rgb[2];
+            templateG === selectedColor.rgb[1] &&
+            templateB === selectedColor.rgb[2];
     }
 
     // Function to get CSS variable value
@@ -322,7 +274,7 @@ export class ImageLoaderManager {
             const a = rgbMatch[4] ? parseFloat(rgbMatch[4]) : 1;
             return [r, g, b, Math.round(a * 255)];
         }
-        
+
         // Handle hex format
         const hexMatch = cssValue.match(/^#([0-9A-Fa-f]{3,8})$/);
         if (hexMatch) {
@@ -330,7 +282,7 @@ export class ImageLoaderManager {
             if (hex.length === 3 || hex.length === 4) {
                 hex = hex.split('').map(c => c + c).join('');
             }
-            
+
             if (hex.length === 6) {
                 const r = parseInt(hex.substring(0, 2), 16);
                 const g = parseInt(hex.substring(2, 4), 16);
@@ -344,7 +296,7 @@ export class ImageLoaderManager {
                 return [r, g, b, a];
             }
         }
-        
+
         // Default to black if parsing fails
         return [0, 0, 0, 255];
     }
@@ -417,7 +369,7 @@ export class ImageLoaderManager {
                 const isSelectedColor = ImageLoaderManager.isTemplatePixelSelectedColor(
                     templateR, templateG, templateB, selectedColorId
                 );
-                
+
                 if (!isSelectedColor) {
                     // Treat as unselected - use white
                     resultData.data[i] = differenceColors.unselected[0];
@@ -441,7 +393,7 @@ export class ImageLoaderManager {
                         resultData.data[i + 1] = differenceColors.missing[1];
                         resultData.data[i + 2] = differenceColors.missing[2];
                         resultData.data[i + 3] = differenceColors.missing[3];
-                        
+
                         // Track missing pixel coordinates
                         const pixelIndex = i / 4;
                         const pixelX = (pixelIndex % templateCanvas.width);
@@ -467,7 +419,7 @@ export class ImageLoaderManager {
                     resultData.data[i + 1] = differenceColors.missing[1];
                     resultData.data[i + 2] = differenceColors.missing[2];
                     resultData.data[i + 3] = differenceColors.missing[3];
-                    
+
                     // Track missing pixel coordinates
                     const pixelIndex = i / 4;
                     const pixelX = (pixelIndex % templateCanvas.width);
@@ -479,7 +431,7 @@ export class ImageLoaderManager {
 
         // Put the result data onto the canvas
         ctx.putImageData(resultData, x, y);
-        
+
         // Store missing pixels for ping animation
         // We'll use a global storage or pass them back somehow
         // For now, we'll store them in a global variable
