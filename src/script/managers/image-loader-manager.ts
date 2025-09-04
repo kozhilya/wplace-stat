@@ -163,7 +163,15 @@ export class ImageLoaderManager {
         });
     }
 
-    // Оформи JSDoc для методов ниже. AI!
+    /**
+     * Loads and draws a single tile onto the canvas at the specified offset
+     * @param ctx The canvas rendering context to draw onto
+     * @param tileX The X coordinate of the tile to load
+     * @param tileY The Y coordinate of the tile to load
+     * @param offsetX The X offset within the canvas to draw the tile
+     * @param offsetY The Y offset within the canvas to draw the tile
+     * @returns Promise that resolves when the tile is loaded and drawn
+     */
     private static async loadAndDrawTile(
         ctx: CanvasRenderingContext2D,
         tileX: number,
@@ -171,6 +179,7 @@ export class ImageLoaderManager {
         offsetX: number,
         offsetY: number
     ): Promise<void> {
+        debug(`[ImageLoaderManager.loadAndDrawTile] Loading and drawing tile at (${tileX}, ${tileY})`);
         const tileImage = await this.loadTileImage(ctx, tileX, tileY, offsetX, offsetY);
 
         const drawX = offsetX * WplaceTileWidth;
@@ -178,7 +187,7 @@ export class ImageLoaderManager {
 
         ctx.drawImage(tileImage, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
 
-        debug(`[ImageLoaderManager.loadTileImage] Loaded tile at (${tileX}, ${tileY})`);
+        debug(`[ImageLoaderManager.loadAndDrawTile] Loaded and drew tile at (${tileX}, ${tileY}) to position (${drawX}, ${drawY})`);
     }
 
     /**

@@ -61,6 +61,8 @@ export class StatisticsManager {
      */
     constructor(templateImage: HTMLImageElement, actualCanvas: HTMLImageElement) {
         debug('[StatisticsManager.constructor] Initializing StatisticsManager');
+        debug(`[StatisticsManager.constructor] Template image dimensions: ${templateImage.width}x${templateImage.height}`);
+        debug(`[StatisticsManager.constructor] Actual canvas dimensions: ${actualCanvas.width}x${actualCanvas.height}`);
         this.templateImage = templateImage;
         // Convert the image to a canvas for pixel analysis
         const canvas = document.createElement('canvas');
@@ -69,6 +71,7 @@ export class StatisticsManager {
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(actualCanvas, 0, 0);
         this.actualCanvas = canvas;
+        debug('[StatisticsManager.constructor] Converted actual canvas to canvas element for pixel analysis');
         this.updateStatistics();
     }
 
@@ -78,6 +81,8 @@ export class StatisticsManager {
      */
     updateStatistics(): void {
         debug('[StatisticsManager.updateStatistics] Updating statistics');
+        debug(`[StatisticsManager.updateStatistics] Template ready: ${this.templateImage.complete ? 'Yes' : 'No'}`);
+        debug(`[StatisticsManager.updateStatistics] Actual canvas ready: ${this.actualCanvas.width > 0 ? 'Yes' : 'No'}`);
         this.calculateStatistics();
     }
 
@@ -87,6 +92,7 @@ export class StatisticsManager {
      */
     setActualCanvas(actualCanvas: HTMLImageElement): void {
         debug('[StatisticsManager.setActualCanvas] Setting new actual canvas');
+        debug(`[StatisticsManager.setActualCanvas] New actual canvas dimensions: ${actualCanvas.width}x${actualCanvas.height}`);
         // Convert the image to a canvas for pixel analysis
         const canvas = document.createElement('canvas');
         canvas.width = actualCanvas.width;
@@ -94,6 +100,7 @@ export class StatisticsManager {
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(actualCanvas, 0, 0);
         this.actualCanvas = canvas;
+        debug('[StatisticsManager.setActualCanvas] Converted new actual canvas and updated internal reference');
         this.updateStatistics();
     }
 
@@ -103,6 +110,7 @@ export class StatisticsManager {
      */
     getStatistics(): StatisticsRow[] {
         debug('[StatisticsManager.getStatistics] Retrieving statistics');
+        debug(`[StatisticsManager.getStatistics] Returning ${this.statistics.length} statistics rows`);
         return this.statistics;
     }
 
