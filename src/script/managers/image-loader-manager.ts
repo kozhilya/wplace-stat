@@ -1,32 +1,53 @@
-// Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
-
+/**
+ * Manages loading and processing of template and wplace images
+ * Handles CORS issues, tile stitching, and difference calculations
+ */
 import { Template } from '../template';
 import { WplaceTileWidth, WplacePalette } from '../wplace';
 import { debug } from '../../utils';
 
 export class ImageLoaderManager {
+    /**
+     * Loads the template image from its data URL and sets dimensions on the template object
+     * @param template The template object to load the image for
+     * @returns Promise that resolves when the image is loaded
+     */
     static async loadTemplateImage(template: Template): Promise<void> {
+        debug('[ImageLoaderManager.loadTemplateImage] Loading template image');
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
             img.onload = () => {
+                debug(`[ImageLoaderManager.loadTemplateImage] Template image loaded: ${img.width}x${img.height}`);
                 template.templateImage = img;
                 template.imageWidth = img.width;
                 template.imageHeight = img.height;
                 resolve();
             };
-            img.onerror = reject;
+            img.onerror = (error) => {
+                debug('[ImageLoaderManager.loadTemplateImage] Failed to load template image:', error);
+                reject(error);
+            };
             img.src = template.imageDataUrl;
         });
     }
 
+    /**
+     * Loads and stitches together wplace tiles to create a complete wplace image matching the template
+     * @param template The template object to load wplace image for
+     * @returns Promise that resolves when the wplace image is loaded and processed
+     * @throws Error if template dimensions are not loaded
+     */
     static async loadWplaceImage(template: Template): Promise<void> {
+        debug('[ImageLoaderManager.loadWplaceImage] Loading wplace image');
         if (!template.templateImage) {
+            debug('[ImageLoaderManager.loadWplaceImage] Template image not loaded, loading it first');
             await this.loadTemplateImage(template);
         }
         
         // Ensure template image dimensions are loaded
         if (template.imageWidth === -1 || template.imageHeight === -1) {
+            debug('[ImageLoaderManager.loadWplaceImage] Template image dimensions are not loaded');
             throw new Error('Template image dimensions are not loaded');
         }
         
@@ -52,6 +73,8 @@ export class ImageLoaderManager {
         const tileCountX = endTileX - startTileX + 1;
         const tileCountY = endTileY - startTileY + 1;
         
+        debug(`[ImageLoaderManager.loadWplaceImage] Need ${tileCountX}x${tileCountY} tiles from (${startTileX},${startTileY}) to (${endTileX},${endTileY})`);
+        
         // Create a canvas with the correct dimensions
         const canvas = document.createElement('canvas');
         canvas.width = tileCountX * WplaceTileWidth;
@@ -72,7 +95,7 @@ export class ImageLoaderManager {
         await Promise.all(tilePromises);
         
         // Log the canvas dimensions
-        debug(`Canvas dimensions before cropping: ${canvas.width}x${canvas.height}`);
+        debug(`[ImageLoaderManager.loadWplaceImage] Canvas dimensions before cropping: ${canvas.width}x${canvas.height}`);
         
         // Crop the canvas to match the template dimensions and position
         // The template starts at (pxX, pxY) within the starting tile
@@ -88,6 +111,8 @@ export class ImageLoaderManager {
         const sourceX = template.pxX;
         const sourceY = template.pxY;
         
+        debug(`[ImageLoaderManager.loadWplaceImage] Cropping from (${sourceX},${sourceY}) to size ${template.imageWidth}x${template.imageHeight}`);
+        
         // Draw the relevant portion to the cropped canvas
         croppedCtx.drawImage(
             canvas,
@@ -99,25 +124,40 @@ export class ImageLoaderManager {
         
         // Convert cropped canvas to image
         template.wplaceImage = await this.canvasToImage(croppedCanvas);
-        debug(`Wplace image set: ${template.wplaceImage ? 'Yes' : 'No'}`);
+        debug(`[ImageLoaderManager.loadWplaceImage] Wplace image set: ${template.wplaceImage ? 'Yes' : 'No'}`);
         if (template.wplaceImage) {
-            debug(`Wplace image dimensions: ${template.wplaceImage.width}x${template.wplaceImage.height}`);
+            debug(`[ImageLoaderManager.loadWplaceImage] Wplace image dimensions: ${template.wplaceImage.width}x${template.wplaceImage.height}`);
         }
     }
 
+    /**
+     * Converts a canvas element to an HTMLImageElement
+     * @param canvas The canvas to convert
+     * @returns Promise that resolves with the image element
+     */
     private static async canvasToImage(canvas: HTMLCanvasElement): Promise<HTMLImageElement> {
+        debug('[ImageLoaderManager.canvasToImage] Converting canvas to image');
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = reject;
+            img.onload = () => {
+                debug('[ImageLoaderManager.canvasToImage] Canvas converted to image successfully');
+                resolve(img);
+            };
+            img.onerror = (error) => {
+                debug('[ImageLoaderManager.canvasToImage] Failed to convert canvas to image:', error);
+                reject(error);
+            };
             img.src = canvas.toDataURL('image/png');
         });
     }
 
-    // Method to set whether to use CORS proxy directly
+    /**
+     * Sets whether to use CORS proxy directly for tile loading
+     * @param useProxy True to use CORS proxy directly, false to try direct requests first
+     */
     static setUseCorsProxyDirectly(useProxy: boolean): void {
         ImageLoaderManager.useCorsProxyDirectly = useProxy;
-        debug(`CORS proxy usage set to: ${useProxy}`);
+        debug(`[ImageLoaderManager.setUseCorsProxyDirectly] CORS proxy usage set to: ${useProxy}`);
     }
 
     // Global flag to control whether to use CORS proxy directly
