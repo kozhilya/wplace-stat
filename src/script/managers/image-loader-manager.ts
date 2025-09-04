@@ -3,6 +3,11 @@ import { WplaceTileWidth, WplacePalette } from '../wplace';
 import { debug } from '../../utils';
 
 /**
+ * Cooldown period for failed tile downloads (10 seconds)
+ */
+export const COOLDOWN_PERIOD_MS: number = 10000;
+
+/**
  * Manages loading and processing of template and wplace images
  * Handles CORS issues, tile stitching, and difference calculations
  */
@@ -159,14 +164,13 @@ export class ImageLoaderManager {
         ImageLoaderManager.useCorsProxyDirectly = useProxy;
         debug(`[ImageLoaderManager.setUseCorsProxyDirectly] CORS proxy usage set to: ${useProxy}`);
     }
-
-    // Global flag to control whether to use CORS proxy directly
-    // Set to true by default to always use CORS proxies due to CORS restrictions
+    
+    /**
+     * Global flag to control whether to use CORS proxy directly
+     * Set to true by default to always use CORS proxies due to CORS restrictions
+     */
     private static useCorsProxyDirectly: boolean = false;
-    
-    // Cooldown period for failed tile downloads (10 seconds)
-    private static readonly COOLDOWN_PERIOD_MS = 10000;
-    
+        
     // Map to track cooldown end times for each tile
     private static tileCooldowns: Map<string, number> = new Map();
 
@@ -187,6 +191,7 @@ export class ImageLoaderManager {
             return;
         }
         
+        // Вынеси этот Promise в отдельный async-метод. AI!
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
@@ -217,7 +222,7 @@ export class ImageLoaderManager {
                         tryLoadImage(nextUrl);
                     } else {
                         // If all URLs fail, put the tile in cooldown
-                        const cooldownEndTime = currentTime + ImageLoaderManager.COOLDOWN_PERIOD_MS;
+                        const cooldownEndTime = currentTime + COOLDOWN_PERIOD_MS;
                         ImageLoaderManager.tileCooldowns.set(tileKey, cooldownEndTime);
                         debug(`[ImageLoaderManager.loadAndDrawTile] Failed to load tile at (${tileX}, ${tileY}) from all URLs. Cooldown until: ${new Date(cooldownEndTime).toISOString()}`);
                         resolve();
