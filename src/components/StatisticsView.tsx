@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { LanguageManager } from '../script/managers/language-manager';
-import { WplacePalette } from '../script/wplace';
 import { StatisticsRow } from '../script/managers/statistics-manager';
 
 interface StatisticsViewProps {

@@ -1,9 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Template } from '../script/template';
 import { CanvasInteractionManager } from '../script/managers/canvas-interaction-manager';
-import { debug } from '../utils';
 import { LanguageManager } from '../script/managers/language-manager';
-import { WplacePalette } from '../script/wplace';
 import { CanvasRenderer, Ping } from './CanvasRenderer';
 
 import { StatisticsRow } from '../script/managers/statistics-manager';

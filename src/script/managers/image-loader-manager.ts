@@ -1,11 +1,11 @@
-/**
- * Manages loading and processing of template and wplace images
- * Handles CORS issues, tile stitching, and difference calculations
- */
 import { Template } from '../template';
 import { WplaceTileWidth, WplacePalette } from '../wplace';
 import { debug } from '../../utils';
 
+/**
+ * Manages loading and processing of template and wplace images
+ * Handles CORS issues, tile stitching, and difference calculations
+ */
 export class ImageLoaderManager {
     /**
      * Loads the template image from its data URL and sets dimensions on the template object
