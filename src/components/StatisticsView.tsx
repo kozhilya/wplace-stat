@@ -169,8 +169,8 @@ export const StatisticsView: React.FC<StatisticsViewProps> = ({ statistics = [],
                                         <span 
                                             className="color-swatch"
                                             style={{
-                                                backgroundColor: `rgb(${row.color?.rgb.join(',') || '0,0,0'})`,
-                                                '--color-rgb': row.color?.rgb.join(',') || '0,0,0'
+                                                backgroundColor: (row.color?.color.toString() ?? '#000000'),
+                                                '--color-rgb': (row.color?.color.toString() ?? '#000000')
                                             } as React.CSSProperties}
                                         />
                                         <span className="color-name">

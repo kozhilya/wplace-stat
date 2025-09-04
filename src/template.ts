@@ -1,3 +1,4 @@
+import { ImageLoaderManager } from './managers/image-loader-manager';
 import { debug } from './utils';
 
 export interface TileInfo {
@@ -30,13 +31,11 @@ export class Template {
 
     // Load the template image using ImageLoaderManager
     async loadTemplateImage(): Promise<void> {
-        const { ImageLoaderManager } = await import('./managers/image-loader-manager');
         await ImageLoaderManager.loadTemplateImage(this);
     }
 
     // Load the Wplace image from the server using ImageLoaderManager
     async loadWplaceImage(): Promise<void> {
-        const { ImageLoaderManager } = await import('./managers/image-loader-manager');
         await ImageLoaderManager.loadWplaceImage(this);
     }
 

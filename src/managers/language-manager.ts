@@ -8,8 +8,10 @@ import { es } from '../locales/es';
 
 /** Supported language codes */
 type Language = 'en' | 'ru' | 'es';
+
 /** Type for translation objects matching the structure of the English translations */
 type Translations = typeof en;
+
 /** Callback function type for language change events */
 type LanguageChangeCallback = () => void;
 

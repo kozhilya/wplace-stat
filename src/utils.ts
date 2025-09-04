@@ -1,3 +1,5 @@
+import { IS_LOCALHOST } from "./settings";
+
 // Global flag to control debug mode
 declare global {
     interface Window {
@@ -7,7 +9,7 @@ declare global {
 
 // Set DEBUG_MODE based on environment or query parameter
 if (typeof window !== 'undefined') {
-    window.DEBUG_MODE = window.DEBUG_MODE || 
+    window.DEBUG_MODE = window.DEBUG_MODE || IS_LOCALHOST ||
                         new URLSearchParams(window.location.search).has('debug');
 }
 

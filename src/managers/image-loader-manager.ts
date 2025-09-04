@@ -1,12 +1,7 @@
-import { WplaceTileWidth, WplacePalette } from '../settings';
+import { WPLACE_TILE_SIZE, WplacePalette, IS_LOCALHOST, COOLDOWN_PERIOD_MS } from '../settings';
 import { Template } from '../template';
 import { debug } from '../utils';
-
-/**
- * Cooldown period for failed tile downloads (10 seconds)
- */
-export const COOLDOWN_PERIOD_MS: number = 10000;
-
+import { Color } from "../color";
 
 /**
  * Manages loading and processing of template and wplace images
@@ -55,8 +50,8 @@ export class ImageLoaderManager {
 
         // Calculate the ending tile indices
         // Since pxX and pxY are within the starting tile, we need to see how many additional tiles are needed
-        const endTileX = startTileX + Math.floor((endPixelX - 1) / WplaceTileWidth);
-        const endTileY = startTileY + Math.floor((endPixelY - 1) / WplaceTileWidth);
+        const endTileX = startTileX + Math.floor((endPixelX - 1) / WPLACE_TILE_SIZE);
+        const endTileY = startTileY + Math.floor((endPixelY - 1) / WPLACE_TILE_SIZE);
 
         // Number of tiles in each direction
         const tileCountX = endTileX - startTileX + 1;
@@ -88,8 +83,8 @@ export class ImageLoaderManager {
 
         // Create a canvas with the correct dimensions
         const canvas = document.createElement('canvas');
-        canvas.width = tileCountX * WplaceTileWidth;
-        canvas.height = tileCountY * WplaceTileWidth;
+        canvas.width = tileCountX * WPLACE_TILE_SIZE;
+        canvas.height = tileCountY * WPLACE_TILE_SIZE;
         const ctx = canvas.getContext('2d')!;
 
         debug(`[ImageLoaderManager.loadWplaceImage] Need ${tileCountX}x${tileCountY} tiles from (${template.tlX},${template.tlY}) to (${template.tlX + tileCountX},${template.tlY + tileCountY})`);
@@ -179,13 +174,15 @@ export class ImageLoaderManager {
         offsetX: number,
         offsetY: number
     ): Promise<void> {
+        debugger;
         debug(`[ImageLoaderManager.loadAndDrawTile] Loading and drawing tile at (${tileX}, ${tileY})`);
-        const tileImage = await this.loadTileImage(ctx, tileX, tileY, offsetX, offsetY);
+        const tileImage = await this.loadTileImage(tileX, tileY);
 
-        const drawX = offsetX * WplaceTileWidth;
-        const drawY = offsetY * WplaceTileWidth;
+        const drawX = offsetX * WPLACE_TILE_SIZE;
+        const drawY = offsetY * WPLACE_TILE_SIZE;
 
-        ctx.drawImage(tileImage, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
+        
+        ctx.drawImage(tileImage, drawX, drawY, WPLACE_TILE_SIZE, WPLACE_TILE_SIZE);
 
         debug(`[ImageLoaderManager.loadAndDrawTile] Loaded and drew tile at (${tileX}, ${tileY}) to position (${drawX}, ${drawY})`);
     }
@@ -194,13 +191,7 @@ export class ImageLoaderManager {
      * Loads a single tile image and draws it to the canvas
      * Handles URL fallback logic and cooldown management
      */
-    private static async loadTileImage(
-        ctx: CanvasRenderingContext2D,
-        tileX: number,
-        tileY: number,
-        offsetX: number,
-        offsetY: number,
-    ): Promise<HTMLImageElement> {
+    private static async loadTileImage(tileX: number, tileY: number): Promise<HTMLImageElement> {
         const prefix = `[ImageLoaderManager.loadTileImage ${tileX}, ${tileY}]`;
 
         debug(`${prefix} Loading tile`);
@@ -209,9 +200,9 @@ export class ImageLoaderManager {
             const timestamp = Date.now();
             const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
 
-            const urls: string[] = [ originalUrl ];
+            const urls: string[] = [originalUrl];
 
-            if (location.hostname == 'localhost') {
+            if (IS_LOCALHOST) {
                 urls.push(`https://api.codetabs.com/v1/proxy/?quest=${originalUrl}`);
                 urls.push(`https://corsproxy.io/?${encodeURIComponent(originalUrl)}`);
             }
@@ -235,7 +226,7 @@ export class ImageLoaderManager {
 
                 const imageBlob = await response.blob();
 
-                const image = new HTMLImageElement();
+                const image = new Image();
                 image.src = URL.createObjectURL(imageBlob);
 
                 return image;
@@ -247,26 +238,16 @@ export class ImageLoaderManager {
         }
     }
 
-    // Helper function to check if two colors match exactly
-    static colorsMatchExactly(
-        r1: number, g1: number, b1: number, a1: number,
-        r2: number, g2: number, b2: number, a2: number
-    ): boolean {
-        return r1 === r2 && g1 === g2 && b1 === b2 && a1 === a2;
-    }
-
     // Helper function to check if template pixel matches selected color
     static isTemplatePixelSelectedColor(
-        templateR: number, templateG: number, templateB: number,
+        templateColor: Color,
         selectedColorId: number
     ): boolean {
         const selectedColor = WplacePalette.find(color => color.id === selectedColorId);
         if (!selectedColor) return false;
 
         // Exact match with the selected color from the palette
-        return templateR === selectedColor.rgb[0] &&
-            templateG === selectedColor.rgb[1] &&
-            templateB === selectedColor.rgb[2];
+        return templateColor.compareTo(selectedColor.color);
     }
 
     // Function to get CSS variable value
@@ -274,52 +255,21 @@ export class ImageLoaderManager {
         return getComputedStyle(document.body).getPropertyValue(name).trim();
     }
 
-    // Function to parse RGB/RGBA from CSS variable
-    static parseRgbFromCssVariable(cssValue: string): number[] {
-        // Handle rgb() and rgba() formats
-        const rgbMatch = cssValue.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/);
-        if (rgbMatch) {
-            const r = parseInt(rgbMatch[1]);
-            const g = parseInt(rgbMatch[2]);
-            const b = parseInt(rgbMatch[3]);
-            const a = rgbMatch[4] ? parseFloat(rgbMatch[4]) : 1;
-            return [r, g, b, Math.round(a * 255)];
-        }
-
-        // Handle hex format
-        const hexMatch = cssValue.match(/^#([0-9A-Fa-f]{3,8})$/);
-        if (hexMatch) {
-            let hex = hexMatch[1];
-            if (hex.length === 3 || hex.length === 4) {
-                hex = hex.split('').map(c => c + c).join('');
-            }
-
-            if (hex.length === 6) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                return [r, g, b, 255];
-            } else if (hex.length === 8) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                const a = parseInt(hex.substring(6, 8), 16);
-                return [r, g, b, a];
-            }
-        }
-
-        // Default to black if parsing fails
-        return [0, 0, 0, 255];
-    }
-
     // Get difference colors from CSS variables
-    static getDifferenceColors() {
+    static getDifferenceColors(): {
+        transparent: Color,
+        unselected: Color,
+        match: Color,
+        missing: Color
+    } {
         // These are example CSS variable names - you may need to adjust them
+        const get = (name: string, def: string) => Color.fromCss(getComputedStyle(document.body).getPropertyValue(name).trim() || def);
+
         return {
-            transparent: [0, 0, 0, 0],          // Always fully transparent
-            unselected: ImageLoaderManager.parseRgbFromCssVariable(ImageLoaderManager.getCssVariable('--color-difference-unselected') || '#ffffff'),
-            match: ImageLoaderManager.parseRgbFromCssVariable(ImageLoaderManager.getCssVariable('--color-difference-match') || '#4CAF50'),
-            missing: ImageLoaderManager.parseRgbFromCssVariable(ImageLoaderManager.getCssVariable('--color-difference-missing') || '#ff0000')
+            transparent: new Color(0, 0, 0, 0),          // Always fully transparent
+            unselected: get('--color-difference-unselected', '#ffffff'),
+            match: get('--color-difference-match', '#4CAF50'),
+            missing: get('--color-difference-missing', '#ff0000')
         };
     }
 
@@ -355,88 +305,51 @@ export class ImageLoaderManager {
         // Create result image data
         const resultData = new ImageData(templateCanvas.width, templateCanvas.height);
 
+        const setData = (i: number, color: Color): void => {
+            const colorParts = [color.r, color.g, color.b, color.a];
+
+            for (let j = 0; j < colorParts.length; j++) {
+                resultData.data[i + j] = colorParts[j];
+            }
+        }
+
         // Compare pixels
         for (let i = 0; i < templateData.data.length; i += 4) {
-            const templateR = templateData.data[i];
-            const templateG = templateData.data[i + 1];
-            const templateB = templateData.data[i + 2];
-            const templateA = templateData.data[i + 3];
-
-            const wplaceR = wplaceData.data[i];
-            const wplaceG = wplaceData.data[i + 1];
-            const wplaceB = wplaceData.data[i + 2];
-            const wplaceA = wplaceData.data[i + 3];
+            const templateColor = Color.fromImageData(templateData.data, i);
+            const wplaceColor = Color.fromImageData(wplaceData.data, i);
 
             // 1) If template pixel is transparent - use black
-            if (templateA === 0) {
-                resultData.data[i] = differenceColors.transparent[0];
-                resultData.data[i + 1] = differenceColors.transparent[1];
-                resultData.data[i + 2] = differenceColors.transparent[2];
-                resultData.data[i + 3] = differenceColors.transparent[3];
+            if (templateColor.a === 0) {
+                setData(i, differenceColors.transparent);
+                continue;
             }
+
             // 2) If a specific color is selected and this pixel doesn't match, treat as unselected
-            else if (selectedColorId !== null && selectedColorId !== undefined) {
+            if (selectedColorId !== null && selectedColorId !== undefined) {
                 // Check if this pixel matches the selected color in the template
-                const isSelectedColor = ImageLoaderManager.isTemplatePixelSelectedColor(
-                    templateR, templateG, templateB, selectedColorId
-                );
+                const isSelectedColor = ImageLoaderManager.isTemplatePixelSelectedColor(templateColor, selectedColorId);
 
                 if (!isSelectedColor) {
                     // Treat as unselected - use white
-                    resultData.data[i] = differenceColors.unselected[0];
-                    resultData.data[i + 1] = differenceColors.unselected[1];
-                    resultData.data[i + 2] = differenceColors.unselected[2];
-                    resultData.data[i + 3] = differenceColors.unselected[3];
-                } else {
-                    // Check if colors match between template and actual
-                    if (ImageLoaderManager.colorsMatchExactly(
-                        templateR, templateG, templateB, templateA,
-                        wplaceR, wplaceG, wplaceB, wplaceA
-                    )) {
-                        // 3) Colors match - use green
-                        resultData.data[i] = differenceColors.match[0];
-                        resultData.data[i + 1] = differenceColors.match[1];
-                        resultData.data[i + 2] = differenceColors.match[2];
-                        resultData.data[i + 3] = differenceColors.match[3];
-                    } else {
-                        // 4) Colors don't match - use red
-                        resultData.data[i] = differenceColors.missing[0];
-                        resultData.data[i + 1] = differenceColors.missing[1];
-                        resultData.data[i + 2] = differenceColors.missing[2];
-                        resultData.data[i + 3] = differenceColors.missing[3];
-
-                        // Track missing pixel coordinates
-                        const pixelIndex = i / 4;
-                        const pixelX = (pixelIndex % templateCanvas.width);
-                        const pixelY = Math.floor(pixelIndex / templateCanvas.width);
-                        missingPixels.push({ x: pixelX, y: pixelY });
-                    }
+                    setData(i, differenceColors.unselected);
                 }
+
+                continue;
+            }
+
+            // Check if colors match
+            if (templateColor.compareTo(wplaceColor)) {
+                // 3) Colors match - use green
+                setData(i, differenceColors.match);
             } else {
-                // No color selected - show all
-                // Check if colors match
-                if (ImageLoaderManager.colorsMatchExactly(
-                    templateR, templateG, templateB, templateA,
-                    wplaceR, wplaceG, wplaceB, wplaceA
-                )) {
-                    // 3) Colors match - use green
-                    resultData.data[i] = differenceColors.match[0];
-                    resultData.data[i + 1] = differenceColors.match[1];
-                    resultData.data[i + 2] = differenceColors.match[2];
-                    resultData.data[i + 3] = differenceColors.match[3];
-                } else {
-                    // 4) Colors don't match - use red
-                    resultData.data[i] = differenceColors.missing[0];
-                    resultData.data[i + 1] = differenceColors.missing[1];
-                    resultData.data[i + 2] = differenceColors.missing[2];
-                    resultData.data[i + 3] = differenceColors.missing[3];
+                // 4) Colors don't match - use red
+                setData(i, differenceColors.missing);
 
-                    // Track missing pixel coordinates
-                    const pixelIndex = i / 4;
-                    const pixelX = (pixelIndex % templateCanvas.width);
-                    const pixelY = Math.floor(pixelIndex / templateCanvas.width);
-                    missingPixels.push({ x: pixelX, y: pixelY });
-                }
+                // Track missing pixel coordinates
+                const pixelIndex = i / 4;
+                const pixelX = (pixelIndex % templateCanvas.width);
+                const pixelY = Math.floor(pixelIndex / templateCanvas.width);
+                missingPixels.push({ x: pixelX, y: pixelY });
             }
         }
 
