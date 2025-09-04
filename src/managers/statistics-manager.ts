@@ -123,6 +123,7 @@ export class StatisticsManager {
         debug('[StatisticsManager.calculateStatistics] Starting statistics calculation');
         // Reset statistics
         this.statistics = [];
+        debug('[StatisticsManager.calculateStatistics] Reset statistics array');
         
         // Initialize all colors
         WplacePalette.forEach(color => {
@@ -141,25 +142,31 @@ export class StatisticsManager {
             debug(`[StatisticsManager.calculateStatistics] Actual canvas dimensions: ${this.actualCanvas.width}x${this.actualCanvas.height}`);
             return;
         }
+        debug('[StatisticsManager.calculateStatistics] Both images are ready for analysis');
 
         // Create a temporary canvas to draw the template image
         const templateCanvas = document.createElement('canvas');
         templateCanvas.width = this.templateImage.width;
         templateCanvas.height = this.templateImage.height;
+        debug(`[StatisticsManager.calculateStatistics] Created template canvas: ${templateCanvas.width}x${templateCanvas.height}`);
+        
         const templateCtx = templateCanvas.getContext('2d');
         if (!templateCtx) {
             debug('[StatisticsManager.calculateStatistics] Could not get template canvas context');
             return;
         }
+        debug('[StatisticsManager.calculateStatistics] Successfully obtained template canvas context');
 
         // Draw the template image
         templateCtx.drawImage(this.templateImage, 0, 0);
+        debug('[StatisticsManager.calculateStatistics] Drew template image onto canvas');
 
         const actualCtx = this.actualCanvas.getContext('2d');
         if (!actualCtx) {
             debug('[StatisticsManager.calculateStatistics] Could not get actual canvas context');
             return;
         }
+        debug('[StatisticsManager.calculateStatistics] Successfully obtained actual canvas context');
 
         try {
             // Get image data from both canvases
@@ -172,20 +179,26 @@ export class StatisticsManager {
             const scaledActualCanvas = document.createElement('canvas');
             scaledActualCanvas.width = templateCanvas.width;
             scaledActualCanvas.height = templateCanvas.height;
+            debug(`[StatisticsManager.calculateStatistics] Created scaled actual canvas: ${scaledActualCanvas.width}x${scaledActualCanvas.height}`);
+            
             const scaledActualCtx = scaledActualCanvas.getContext('2d');
             if (!scaledActualCtx) {
                 debug('[StatisticsManager.calculateStatistics] Could not get scaled actual canvas context');
                 return;
             }
+            debug('[StatisticsManager.calculateStatistics] Successfully obtained scaled actual canvas context');
             
             // Draw the actual canvas scaled to match template dimensions
             scaledActualCtx.drawImage(this.actualCanvas, 0, 0, templateCanvas.width, templateCanvas.height);
+            debug('[StatisticsManager.calculateStatistics] Drew actual canvas onto scaled canvas');
+            
             const actualImageData = scaledActualCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
             debug(`[StatisticsManager.calculateStatistics] Actual image data size: ${actualImageData.data.length} bytes`);
             debug('[StatisticsManager.calculateStatistics] Processing image data');
 
             const templateData = templateImageData.data;
             const actualData = actualImageData.data;
+            debug(`[StatisticsManager.calculateStatistics] Total pixels to process: ${templateData.length / 4}`);
 
             // Process each pixel
             let processedPixels = 0;
@@ -205,11 +218,15 @@ export class StatisticsManager {
 
                 // Find the closest color in the Wplace palette for the template pixel
                 const templateColorId = this.findClosestColorId(templateR, templateG, templateB);
+                debug(`[StatisticsManager.calculateStatistics] Pixel ${i / 4}: RGB(${templateR}, ${templateG}, ${templateB}) -> Color ID ${templateColorId}`);
                 
                 // Update total count
                 const templateRow = this.statistics.find(row => row.color?.id === templateColorId);
                 if (templateRow) {
                     templateRow.total++;
+                    debug(`[StatisticsManager.calculateStatistics] Incremented total for color ID ${templateColorId}: ${templateRow.total}`);
+                } else {
+                    debug(`[StatisticsManager.calculateStatistics] Could not find statistics row for color ID ${templateColorId}`);
                 }
 
                 // Check if pixels match
@@ -223,11 +240,19 @@ export class StatisticsManager {
                     if (templateRow) {
                         templateRow.completed++;
                         matchedPixels++;
+                        debug(`[StatisticsManager.calculateStatistics] Incremented completed for color ID ${templateColorId}: ${templateRow.completed}`);
                     }
+                } else {
+                    debug(`[StatisticsManager.calculateStatistics] Pixel ${i / 4} mismatch: Template RGB(${templateR}, ${templateG}, ${templateB}) vs Actual RGB(${actualR}, ${actualG}, ${actualB})`);
                 }
                 processedPixels++;
+                
+                // Log progress every 10000 pixels to avoid flooding
+                if (processedPixels % 10000 === 0) {
+                    debug(`[StatisticsManager.calculateStatistics] Processed ${processedPixels} pixels so far`);
+                }
             }
-            debug(`[StatisticsManager.calculateStatistics] Processed ${processedPixels} pixels`);
+            debug(`[StatisticsManager.calculateStatistics] Total processed pixels: ${processedPixels}`);
             debug(`[StatisticsManager.calculateStatistics] Transparent pixels: ${transparentPixels}`);
             debug(`[StatisticsManager.calculateStatistics] Matched pixels: ${matchedPixels}`);
             
