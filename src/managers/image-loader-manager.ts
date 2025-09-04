@@ -181,7 +181,7 @@ export class ImageLoaderManager {
         const drawX = offsetX * WPLACE_TILE_SIZE;
         const drawY = offsetY * WPLACE_TILE_SIZE;
 
-        
+        // В этом месте на ctx ничего не рисуется правильно почему-то. AI!
         ctx.drawImage(tileImage, drawX, drawY, WPLACE_TILE_SIZE, WPLACE_TILE_SIZE);
 
         debug(`[ImageLoaderManager.loadAndDrawTile] Loaded and drew tile at (${tileX}, ${tileY}) to position (${drawX}, ${drawY})`);
