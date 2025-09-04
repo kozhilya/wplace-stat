@@ -163,6 +163,7 @@ export class ImageLoaderManager {
         });
     }
 
+    // Оформи JSDoc для методов ниже. AI!
     private static async loadAndDrawTile(
         ctx: CanvasRenderingContext2D,
         tileX: number,
