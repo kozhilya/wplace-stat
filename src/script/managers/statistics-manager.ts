@@ -120,8 +120,10 @@ export class StatisticsManager {
         WplacePalette.forEach(color => {
             if (color.id !== 0) { // Skip transparent
                 this.statistics.push(new StatisticsRow(color));
+                debug(`[StatisticsManager.calculateStatistics] Added statistics row for color ID: ${color.id} (${color.name})`);
             }
         });
+        debug(`[StatisticsManager.calculateStatistics] Initialized ${this.statistics.length} color statistics`);
 
         // Ensure both images are loaded and have valid dimensions
         if (this.templateImage.width === 0 || this.templateImage.height === 0 ||
