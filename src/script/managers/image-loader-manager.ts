@@ -212,6 +212,7 @@ export class ImageLoaderManager {
             const urls: string[] = [ originalUrl ];
 
             if (location.hostname == 'localhost') {
+                urls.push(`https://api.codetabs.com/v1/proxy/?quest=${originalUrl}`);
                 urls.push(`https://corsproxy.io/?${encodeURIComponent(originalUrl)}`);
             }
 
