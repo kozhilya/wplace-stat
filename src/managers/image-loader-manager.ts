@@ -174,14 +174,22 @@ export class ImageLoaderManager {
         offsetX: number,
         offsetY: number
     ): Promise<void> {
-        debugger;
         debug(`[ImageLoaderManager.loadAndDrawTile] Loading and drawing tile at (${tileX}, ${tileY})`);
         const tileImage = await this.loadTileImage(tileX, tileY);
+        
+        // Wait for the image to fully load before drawing
+        await new Promise<void>((resolve, reject) => {
+            if (tileImage.complete && tileImage.naturalHeight !== 0) {
+                resolve();
+            } else {
+                tileImage.onload = () => resolve();
+                tileImage.onerror = (error) => reject(error);
+            }
+        });
 
         const drawX = offsetX * WPLACE_TILE_SIZE;
         const drawY = offsetY * WPLACE_TILE_SIZE;
 
-        // В этом месте на ctx ничего не рисуется правильно почему-то. AI!
         ctx.drawImage(tileImage, drawX, drawY, WPLACE_TILE_SIZE, WPLACE_TILE_SIZE);
 
         debug(`[ImageLoaderManager.loadAndDrawTile] Loaded and drew tile at (${tileX}, ${tileY}) to position (${drawX}, ${drawY})`);
@@ -225,9 +233,24 @@ export class ImageLoaderManager {
                 }
 
                 const imageBlob = await response.blob();
+                const objectUrl = URL.createObjectURL(imageBlob);
 
+                // Create a promise to wait for the image to load
                 const image = new Image();
-                image.src = URL.createObjectURL(imageBlob);
+                image.crossOrigin = 'Anonymous';
+                
+                // Wait for the image to load
+                await new Promise<void>((resolve, reject) => {
+                    image.onload = () => {
+                        URL.revokeObjectURL(objectUrl);
+                        resolve();
+                    };
+                    image.onerror = (error) => {
+                        URL.revokeObjectURL(objectUrl);
+                        reject(error);
+                    };
+                    image.src = objectUrl;
+                });
 
                 return image;
             }
