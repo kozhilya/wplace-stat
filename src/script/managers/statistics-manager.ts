@@ -1,4 +1,5 @@
-import { LanguageManager } from './language-manager';
+// Создай документацию для методов этого файла. AI!
+
 import { WplaceColorDefinition, WplacePalette } from '../wplace';
 import { debug } from '../../utils';
 
