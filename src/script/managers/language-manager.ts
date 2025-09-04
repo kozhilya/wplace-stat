@@ -1,3 +1,5 @@
+// Создай документацию для методов этого файла. AI!
+
 import { en } from '../../locales/en';
 import { ru } from '../../locales/ru';
 import { es } from '../../locales/es';
