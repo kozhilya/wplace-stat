@@ -191,7 +191,22 @@ export class ImageLoaderManager {
             return;
         }
         
-        // Вынеси этот Promise в отдельный async-метод. AI!
+        return this.loadTileImage(ctx, tileX, tileY, offsetX, offsetY, tileKey, currentTime);
+    }
+
+    /**
+     * Loads a single tile image and draws it to the canvas
+     * Handles URL fallback logic and cooldown management
+     */
+    private static async loadTileImage(
+        ctx: CanvasRenderingContext2D,
+        tileX: number,
+        tileY: number,
+        offsetX: number,
+        offsetY: number,
+        tileKey: string,
+        currentTime: number
+    ): Promise<void> {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
@@ -201,14 +216,14 @@ export class ImageLoaderManager {
             
             const tryLoadImage = (url: string) => {
                 triedUrls.push(url);
-                debug(`[ImageLoaderManager.loadAndDrawTile] Loading tile (${tileX}, ${tileY}) from: ${url}`);
+                debug(`[ImageLoaderManager.loadTileImage] Loading tile (${tileX}, ${tileY}) from: ${url}`);
                 
                 img.onload = () => {
                     // Calculate position to draw the tile
                     const drawX = offsetX * WplaceTileWidth;
                     const drawY = offsetY * WplaceTileWidth;
                     ctx.drawImage(img, drawX, drawY, WplaceTileWidth, WplaceTileWidth);
-                    debug(`[ImageLoaderManager.loadAndDrawTile] Loaded tile at (${tileX}, ${tileY})`);
+                    debug(`[ImageLoaderManager.loadTileImage] Loaded tile at (${tileX}, ${tileY})`);
                     // Remove from cooldown if it was there
                     ImageLoaderManager.tileCooldowns.delete(tileKey);
                     resolve();
@@ -216,15 +231,15 @@ export class ImageLoaderManager {
                 
                 img.onerror = (error) => {
                     // Try next URL in the fallback sequence
-                    const nextUrl = getNextUrl(triedUrls, tileX, tileY);
+                    const nextUrl = this.getNextUrl(triedUrls, tileX, tileY);
                     if (nextUrl) {
-                        debug(`[ImageLoaderManager.loadAndDrawTile] Failed to load tile from ${url}, trying next: ${nextUrl}`, error);
+                        debug(`[ImageLoaderManager.loadTileImage] Failed to load tile from ${url}, trying next: ${nextUrl}`, error);
                         tryLoadImage(nextUrl);
                     } else {
                         // If all URLs fail, put the tile in cooldown
                         const cooldownEndTime = currentTime + COOLDOWN_PERIOD_MS;
                         ImageLoaderManager.tileCooldowns.set(tileKey, cooldownEndTime);
-                        debug(`[ImageLoaderManager.loadAndDrawTile] Failed to load tile at (${tileX}, ${tileY}) from all URLs. Cooldown until: ${new Date(cooldownEndTime).toISOString()}`);
+                        debug(`[ImageLoaderManager.loadTileImage] Failed to load tile at (${tileX}, ${tileY}) from all URLs. Cooldown until: ${new Date(cooldownEndTime).toISOString()}`);
                         resolve();
                     }
                 };
@@ -232,35 +247,41 @@ export class ImageLoaderManager {
                 img.src = url;
             };
             
-            // Get the sequence of URLs to try
-            const getNextUrl = (triedUrls: string[], tileX: number, tileY: number): string | null => {
-                const timestamp = Date.now();
-                const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
-                
-                // Always try direct URL first, then CORS proxy
-                const urlSequence = [
-                    originalUrl,
-                    `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`
-                ];
-                
-                // Find the next URL that hasn't been tried yet
-                for (const url of urlSequence) {
-                    if (!triedUrls.includes(url)) {
-                        return url;
-                    }
-                }
-                return null;
-            };
-            
             // Start with the first URL in the sequence
-            const firstUrl = getNextUrl(triedUrls, tileX, tileY);
+            const firstUrl = this.getNextUrl(triedUrls, tileX, tileY);
             if (firstUrl) {
                 tryLoadImage(firstUrl);
             } else {
-                debug(`[ImageLoaderManager.loadAndDrawTile] No URLs to try for tile at (${tileX}, ${tileY})`);
+                debug(`[ImageLoaderManager.loadTileImage] No URLs to try for tile at (${tileX}, ${tileY})`);
                 resolve();
             }
         });
+    }
+
+    /**
+     * Gets the next URL to try for loading a tile
+     * @param triedUrls URLs that have already been attempted
+     * @param tileX X coordinate of the tile
+     * @param tileY Y coordinate of the tile
+     * @returns The next URL to try, or null if all options exhausted
+     */
+    private static getNextUrl(triedUrls: string[], tileX: number, tileY: number): string | null {
+        const timestamp = Date.now();
+        const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
+        
+        // Always try direct URL first, then CORS proxy
+        const urlSequence = [
+            originalUrl,
+            `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`
+        ];
+        
+        // Find the next URL that hasn't been tried yet
+        for (const url of urlSequence) {
+            if (!triedUrls.includes(url)) {
+                return url;
+            }
+        }
+        return null;
     }
 
     // Helper function to check if two colors match exactly

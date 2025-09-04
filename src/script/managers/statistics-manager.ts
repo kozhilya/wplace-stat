@@ -127,6 +127,8 @@ export class StatisticsManager {
         if (this.templateImage.width === 0 || this.templateImage.height === 0 ||
             this.actualCanvas.width === 0 || this.actualCanvas.height === 0) {
             debug('[StatisticsManager.calculateStatistics] Images not ready for analysis - skipping');
+            debug(`[StatisticsManager.calculateStatistics] Template dimensions: ${this.templateImage.width}x${this.templateImage.height}`);
+            debug(`[StatisticsManager.calculateStatistics] Actual canvas dimensions: ${this.actualCanvas.width}x${this.actualCanvas.height}`);
             return;
         }
 
@@ -153,6 +155,7 @@ export class StatisticsManager {
             // Get image data from both canvases
             // We need to ensure they're the same size, so we'll use the template dimensions
             const templateImageData = templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
+            debug(`[StatisticsManager.calculateStatistics] Template image data size: ${templateImageData.data.length} bytes`);
 
             // Scale actual canvas to match template dimensions if necessary
             // Create a temporary canvas to scale the actual image to match template dimensions
@@ -168,6 +171,7 @@ export class StatisticsManager {
             // Draw the actual canvas scaled to match template dimensions
             scaledActualCtx.drawImage(this.actualCanvas, 0, 0, templateCanvas.width, templateCanvas.height);
             const actualImageData = scaledActualCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
+            debug(`[StatisticsManager.calculateStatistics] Actual image data size: ${actualImageData.data.length} bytes`);
             debug('[StatisticsManager.calculateStatistics] Processing image data');
 
             const templateData = templateImageData.data;
@@ -175,6 +179,8 @@ export class StatisticsManager {
 
             // Process each pixel
             let processedPixels = 0;
+            let transparentPixels = 0;
+            let matchedPixels = 0;
             for (let i = 0; i < templateData.length; i += 4) {
                 const templateR = templateData[i];
                 const templateG = templateData[i + 1];
@@ -182,7 +188,10 @@ export class StatisticsManager {
                 const templateA = templateData[i + 3];
 
                 // Skip transparent pixels in template
-                if (templateA === 0) continue;
+                if (templateA === 0) {
+                    transparentPixels++;
+                    continue;
+                }
 
                 // Find the closest color in the Wplace palette for the template pixel
                 const templateColorId = this.findClosestColorId(templateR, templateG, templateB);
@@ -203,11 +212,21 @@ export class StatisticsManager {
                     // Update completed count
                     if (templateRow) {
                         templateRow.completed++;
+                        matchedPixels++;
                     }
                 }
                 processedPixels++;
             }
             debug(`[StatisticsManager.calculateStatistics] Processed ${processedPixels} pixels`);
+            debug(`[StatisticsManager.calculateStatistics] Transparent pixels: ${transparentPixels}`);
+            debug(`[StatisticsManager.calculateStatistics] Matched pixels: ${matchedPixels}`);
+            
+            // Log statistics summary
+            this.statistics.forEach(row => {
+                if (row.total > 0) {
+                    debug(`[StatisticsManager.calculateStatistics] Color ${row.color?.id}: ${row.completed}/${row.total} (${(row.percentage * 100).toFixed(2)}%)`);
+                }
+            });
         } catch (error) {
             debug('[StatisticsManager.calculateStatistics] Could not analyze image:', error);
         }
