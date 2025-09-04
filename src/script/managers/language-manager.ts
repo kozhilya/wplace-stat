@@ -1,23 +1,39 @@
-// Создай документацию для методов этого файла. AI!
-
+/**
+ * Manages internationalization (i18n) for the application
+ * Handles language switching, translation retrieval, and UI text updates
+ */
 import { en } from '../../locales/en';
 import { ru } from '../../locales/ru';
 import { es } from '../../locales/es';
 
+/** Supported language codes */
 type Language = 'en' | 'ru' | 'es';
+/** Type for translation objects matching the structure of the English translations */
 type Translations = typeof en;
-
+/** Callback function type for language change events */
 type LanguageChangeCallback = () => void;
 
+/**
+ * A static class that manages application internationalization
+ * Provides methods to set/get current language, retrieve translations, and update UI elements
+ */
 export class LanguageManager {
+    /** The currently selected language code */
     private static currentLanguage: Language = 'en';
+    /** Dictionary of all available translations by language code */
     private static translations: Record<Language, Translations> = {
         en: en,
         ru: ru,
         es: es
     };
+    /** Array of callbacks to be notified when the language changes */
     private static languageChangeCallbacks: LanguageChangeCallback[] = [];
 
+    /**
+     * Initializes the language manager by loading the saved language preference
+     * Updates all UI texts and notifies listeners of the current language
+     * Should be called when the application starts
+     */
     static initialize(): void {
         // Load language preference from localStorage
         const savedLanguage = localStorage.getItem('language') as Language;
@@ -28,6 +44,10 @@ export class LanguageManager {
         this.notifyLanguageChange();
     }
 
+    /**
+     * Changes the application's current language
+     * @param language The language code to switch to ('en', 'ru', or 'es')
+     */
     static setLanguage(language: Language): void {
         if (this.translations[language]) {
             this.currentLanguage = language;
@@ -37,14 +57,26 @@ export class LanguageManager {
         }
     }
 
+    /**
+     * Gets the currently active language code
+     * @returns The current language code
+     */
     static getCurrentLanguage(): Language {
         return this.currentLanguage;
     }
 
+    /**
+     * Registers a callback to be notified when the language changes
+     * @param callback Function to call when the language changes
+     */
     static onLanguageChange(callback: LanguageChangeCallback): void {
         this.languageChangeCallbacks.push(callback);
     }
 
+    /**
+     * Removes a previously registered language change callback
+     * @param callback The callback function to remove
+     */
     static removeLanguageChangeListener(callback: LanguageChangeCallback): void {
         const index = this.languageChangeCallbacks.indexOf(callback);
         if (index > -1) {
@@ -52,10 +84,17 @@ export class LanguageManager {
         }
     }
 
+    /**
+     * Notifies all registered callbacks that the language has changed
+     */
     private static notifyLanguageChange(): void {
         this.languageChangeCallbacks.forEach(callback => callback());
     }
 
+    /**
+     * Updates all UI elements with data-i18n attributes to display text in the current language
+     * Handles different element types (inputs, buttons, table cells) appropriately
+     */
     static updateTexts(): void {
         // Update all elements with data-i18n attributes
         const elements = document.querySelectorAll('[data-i18n]');
@@ -82,6 +121,11 @@ export class LanguageManager {
         });
     }
 
+    /**
+     * Retrieves a translated string for the given key in the current language
+     * @param key The translation key to look up
+     * @returns The translated string
+     */
     static getText(key: keyof Translations): string {
         return this.translations[this.currentLanguage][key];
     }
