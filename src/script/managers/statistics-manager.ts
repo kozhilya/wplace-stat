@@ -1,7 +1,5 @@
-/**
- * A class representing a row in the statistics table for a specific color
- * Tracks total, completed, and calculated percentage and remaining pixels
- */
+// Создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
+
 import { WplaceColorDefinition, WplacePalette } from '../wplace';
 import { debug } from '../../utils';
 
@@ -9,7 +7,6 @@ import { debug } from '../../utils';
  * Represents a statistics row for a specific color in the template
  * Tracks the number of pixels that should be this color vs how many are correctly placed
  */
-
 export class StatisticsRow {
     /** The color definition from the Wplace palette, or null for special cases */
     public color: WplaceColorDefinition | null;
@@ -113,7 +110,7 @@ export class StatisticsManager {
     private calculateStatistics(): void {
         // Reset statistics
         this.statistics = [];
-        
+
         // Initialize all colors
         WplacePalette.forEach(color => {
             if (color.id !== 0) { // Skip transparent
@@ -144,7 +141,7 @@ export class StatisticsManager {
             // Get image data from both canvases
             // We need to ensure they're the same size, so we'll use the template dimensions
             const templateImageData = templateCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
-            
+
             // Scale actual canvas to match template dimensions if necessary
             // Create a temporary canvas to scale the actual image to match template dimensions
             const scaledActualCanvas = document.createElement('canvas');
@@ -152,7 +149,7 @@ export class StatisticsManager {
             scaledActualCanvas.height = templateCanvas.height;
             const scaledActualCtx = scaledActualCanvas.getContext('2d');
             if (!scaledActualCtx) return;
-            
+
             // Draw the actual canvas scaled to match template dimensions
             scaledActualCtx.drawImage(this.actualCanvas, 0, 0, templateCanvas.width, templateCanvas.height);
             const actualImageData = scaledActualCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
@@ -172,7 +169,7 @@ export class StatisticsManager {
 
                 // Find the closest color in the Wplace palette for the template pixel
                 const templateColorId = this.findClosestColorId(templateR, templateG, templateB);
-                
+
                 // Update total count
                 const templateRow = this.statistics.find(row => row.color?.id === templateColorId);
                 if (templateRow) {
@@ -184,7 +181,7 @@ export class StatisticsManager {
                 const actualG = actualData[i + 1];
                 const actualB = actualData[i + 2];
                 const actualA = actualData[i + 3];
-                
+
                 if (templateR === actualR && templateG === actualG && templateB === actualB && templateA === actualA) {
                     // Update completed count
                     if (templateRow) {
