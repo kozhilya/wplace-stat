@@ -1,33 +1,67 @@
-// Создай документацию для методов этого файла. AI!
-
+/**
+ * A class representing a row in the statistics table for a specific color
+ * Tracks total, completed, and calculated percentage and remaining pixels
+ */
 import { WplaceColorDefinition, WplacePalette } from '../wplace';
 import { debug } from '../../utils';
 
+/**
+ * Represents a statistics row for a specific color in the template
+ * Tracks the number of pixels that should be this color vs how many are correctly placed
+ */
+
 export class StatisticsRow {
+    /** The color definition from the Wplace palette, or null for special cases */
     public color: WplaceColorDefinition | null;
 
+    /** Total number of pixels in the template that should be this color */
     public total: number = 0;
 
+    /** Number of pixels that are correctly placed with this color */
     public completed: number = 0;
 
+    /**
+     * Gets the completion percentage for this color (0 to 1)
+     * @returns The ratio of completed pixels to total pixels, or 1 if total is 0
+     */
     public get percentage(): number {
         return (this.total > 0) ? this.completed / this.total : 1;
     }
 
+    /**
+     * Gets the number of remaining pixels to be placed for this color
+     * @returns The difference between total and completed pixels
+     */
     public get remain(): number {
         return this.total - this.completed;
     }
 
+    /**
+     * Creates a new StatisticsRow for a specific color
+     * @param color The color definition from Wplace palette
+     */
     constructor(color: WplaceColorDefinition | null) {
         this.color = color;
     }
 };
 
+/**
+ * Manages the calculation and tracking of statistics for template completion
+ * Compares the template image with the actual canvas to determine progress
+ */
 export class StatisticsManager {
+    /** The template image to compare against */
     private templateImage: HTMLImageElement;
+    /** Canvas containing the actual pixel data from the current state */
     private actualCanvas: HTMLCanvasElement;
+    /** Array of statistics rows for each color */
     private statistics: StatisticsRow[] = [];
 
+    /**
+     * Creates a new StatisticsManager instance
+     * @param templateImage The template image to use for comparison
+     * @param actualCanvas The actual canvas/image showing current progress
+     */
     constructor(templateImage: HTMLImageElement, actualCanvas: HTMLImageElement) {
         this.templateImage = templateImage;
         // Convert the image to a canvas for pixel analysis
@@ -40,10 +74,18 @@ export class StatisticsManager {
         this.updateStatistics();
     }
 
+    /**
+     * Triggers a recalculation of all statistics
+     * Should be called when the actual canvas has been updated
+     */
     updateStatistics(): void {
         this.calculateStatistics();
     }
 
+    /**
+     * Updates the actual canvas used for comparison and recalculates statistics
+     * @param actualCanvas The new actual canvas/image to use for comparison
+     */
     setActualCanvas(actualCanvas: HTMLImageElement): void {
         // Convert the image to a canvas for pixel analysis
         const canvas = document.createElement('canvas');
@@ -55,10 +97,19 @@ export class StatisticsManager {
         this.updateStatistics();
     }
 
+    /**
+     * Gets the current statistics data
+     * @returns Array of StatisticsRow objects containing progress information for each color
+     */
     getStatistics(): StatisticsRow[] {
         return this.statistics;
     }
 
+    /**
+     * Calculates statistics by comparing the template image with the actual canvas
+     * Counts total and completed pixels for each color in the Wplace palette
+     * Resets and repopulates the statistics array
+     */
     private calculateStatistics(): void {
         // Reset statistics
         this.statistics = [];
@@ -146,6 +197,13 @@ export class StatisticsManager {
         }
     }
 
+    /**
+     * Finds the closest matching color ID from the Wplace palette for a given RGB value
+     * @param r Red component (0-255)
+     * @param g Green component (0-255)
+     * @param b Blue component (0-255)
+     * @returns The ID of the closest matching color in the Wplace palette
+     */
     private findClosestColorId(r: number, g: number, b: number): number {
         let minDistance = Infinity;
         let closestColorId = 1; // Default to Black
@@ -164,6 +222,16 @@ export class StatisticsManager {
         return closestColorId;
     }
 
+    /**
+     * Calculates the Euclidean distance between two RGB colors
+     * @param r1 Red component of first color (0-255)
+     * @param g1 Green component of first color (0-255)
+     * @param b1 Blue component of first color (0-255)
+     * @param r2 Red component of second color (0-255)
+     * @param g2 Green component of second color (0-255)
+     * @param b2 Blue component of second color (0-255)
+     * @returns The Euclidean distance between the two colors
+     */
     private colorDistance(r1: number, g1: number, b1: number,
         r2: number, g2: number, b2: number): number {
         return Math.sqrt(
