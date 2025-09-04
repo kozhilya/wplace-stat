@@ -1,6 +1,6 @@
-import { Template, TileInfo } from '../template';
-import { WplaceTileWidth, WplacePalette } from '../wplace';
-import { debug } from '../../utils';
+import { WplaceTileWidth, WplacePalette } from '../settings';
+import { Template } from '../template';
+import { debug } from '../utils';
 
 /**
  * Cooldown period for failed tile downloads (10 seconds)

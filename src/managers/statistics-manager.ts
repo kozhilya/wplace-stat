@@ -1,7 +1,7 @@
 // Создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
 
 import { WplaceColorDefinition, WplacePalette } from '../settings';
-import { debug } from '../../utils';
+import { debug } from '../utils';
 
 /**
  * Represents a statistics row for a specific color in the template

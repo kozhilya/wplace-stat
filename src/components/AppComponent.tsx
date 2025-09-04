@@ -3,10 +3,10 @@ import { Header } from './Header';
 import { LeftPanel } from './LeftPanel';
 import { RightPanel } from './RightPanel';
 import { Splitter } from './Splitter';
-import { LanguageManager } from '../script/managers/language-manager';
-import { Template, TemplateCollection } from '../script/template';
-import { StatisticsRow, StatisticsManager } from '../script/managers/statistics-manager';
-import { AUTO_UPDATE_INTERVAL } from '../script/wplace';
+import { LanguageManager } from '../managers/language-manager';
+import { Template, TemplateCollection } from '../template';
+import { StatisticsRow, StatisticsManager } from '../managers/statistics-manager';
+import { AUTO_UPDATE_INTERVAL } from '../settings';
 import { debug } from '../utils';
 
 export const AppComponent: React.FC = () => {

@@ -2,9 +2,9 @@
  * Manages internationalization (i18n) for the application
  * Handles language switching, translation retrieval, and UI text updates
  */
-import { en } from '../../locales/en';
-import { ru } from '../../locales/ru';
-import { es } from '../../locales/es';
+import { en } from '../locales/en';
+import { ru } from '../locales/ru';
+import { es } from '../locales/es';
 
 /** Supported language codes */
 type Language = 'en' | 'ru' | 'es';

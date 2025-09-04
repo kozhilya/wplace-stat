@@ -1,8 +1,8 @@
 import React from 'react';
-import { Template } from '../script/template';
-import { TemplateCollection } from '../script/template';
+import { Template } from '../template';
+import { TemplateCollection } from '../template';
 import { debug } from '../utils';
-import { LanguageManager } from '../script/managers/language-manager';
+import { LanguageManager } from '../managers/language-manager';
 
 interface TemplateListProps {
     onTemplateSelect: (template: Template) => void;

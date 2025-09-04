@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Template } from '../script/template';
-import { CanvasInteractionManager } from '../script/managers/canvas-interaction-manager';
-import { LanguageManager } from '../script/managers/language-manager';
+import { Template } from '../template';
+import { CanvasInteractionManager } from '../managers/canvas-interaction-manager';
+import { LanguageManager } from '../managers/language-manager';
 import { CanvasRenderer, Ping } from './CanvasRenderer';
 
-import { StatisticsRow } from '../script/managers/statistics-manager';
-import { ImageLoaderManager } from '../script/managers/image-loader-manager';
+import { StatisticsRow } from '../managers/statistics-manager';
+import { ImageLoaderManager } from '../managers/image-loader-manager';
 
 interface RightPanelProps {
     currentTemplate?: Template;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LanguageManager } from '../script/managers/language-manager';
+import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
 
 interface HeaderProps {

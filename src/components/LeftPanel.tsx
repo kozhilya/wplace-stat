@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { TemplateConfig } from './TemplateConfig';
 import { StatisticsView } from './StatisticsView';
 import { TemplateList } from './TemplateList';
-import { Template } from '../script/template';
-import { StatisticsRow } from '../script/managers/statistics-manager';
-import { TemplateCollection } from '../script/template';
-import { LanguageManager } from '../script/managers/language-manager';
+import { Template } from '../template';
+import { StatisticsRow } from '../managers/statistics-manager';
+import { TemplateCollection } from '../template';
+import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
 
 interface LeftPanelProps {

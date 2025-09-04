@@ -1,5 +1,5 @@
 import { Template } from '../template';
-import { clamp, debug } from '../../utils';
+import { clamp, debug } from '../utils';
 
 export class CanvasInteractionManager {
     private canvas: HTMLCanvasElement;

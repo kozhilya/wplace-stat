@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { LanguageManager } from '../script/managers/language-manager';
-import { StatisticsRow } from '../script/managers/statistics-manager';
+import { LanguageManager } from '../managers/language-manager';
+import { StatisticsRow } from '../managers/statistics-manager';
 
 interface StatisticsViewProps {
     statistics?: StatisticsRow[];
