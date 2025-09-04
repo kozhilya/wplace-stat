@@ -1,5 +1,3 @@
-// Создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
-
 import { WplaceColorDefinition, WplacePalette } from '../settings';
 import { debug } from '../utils';
 
@@ -22,7 +20,9 @@ export class StatisticsRow {
      * @returns The ratio of completed pixels to total pixels, or 1 if total is 0
      */
     public get percentage(): number {
-        return (this.total > 0) ? this.completed / this.total : 1;
+        const result = (this.total > 0) ? this.completed / this.total : 1;
+        debug(`[StatisticsRow.percentage] Color ID ${this.color?.id || 'null'}: ${result.toFixed(4)} (${this.completed}/${this.total})`);
+        return result;
     }
 
     /**
@@ -30,7 +30,9 @@ export class StatisticsRow {
      * @returns The difference between total and completed pixels
      */
     public get remain(): number {
-        return this.total - this.completed;
+        const result = this.total - this.completed;
+        debug(`[StatisticsRow.remain] Color ID ${this.color?.id || 'null'}: ${result} (${this.total} - ${this.completed})`);
+        return result;
     }
 
     /**
@@ -38,6 +40,7 @@ export class StatisticsRow {
      * @param color The color definition from Wplace palette
      */
     constructor(color: WplaceColorDefinition | null) {
+        debug(`[StatisticsRow.constructor] Creating StatisticsRow for color ID: ${color?.id || 'null'}`);
         this.color = color;
     }
 };
@@ -307,10 +310,12 @@ export class StatisticsManager {
      */
     private colorDistance(r1: number, g1: number, b1: number,
         r2: number, g2: number, b2: number): number {
-        return Math.sqrt(
+        const distance = Math.sqrt(
             Math.pow(r2 - r1, 2) +
             Math.pow(g2 - g1, 2) +
             Math.pow(b2 - b1, 2)
         );
+        debug(`[StatisticsManager.colorDistance] RGB(${r1},${g1},${b1}) vs RGB(${r2},${g2},${b2}) -> ${distance.toFixed(2)}`);
+        return distance;
     }
 }
