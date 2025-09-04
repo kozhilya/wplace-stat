@@ -1,5 +1,7 @@
+// Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
+
 import { Template } from '../template';
-import { WplaceTileWidth, WplacePalette, WplaceColorDefinition } from '../wplace';
+import { WplaceTileWidth, WplacePalette } from '../wplace';
 import { debug } from '../../utils';
 
 export class ImageLoaderManager {
@@ -120,7 +122,7 @@ export class ImageLoaderManager {
 
     // Global flag to control whether to use CORS proxy directly
     // Set to true by default to always use CORS proxies due to CORS restrictions
-    private static useCorsProxyDirectly: boolean = true;
+    private static useCorsProxyDirectly: boolean = false;
 
     private static async loadAndDrawTile(
         ctx: CanvasRenderingContext2D, 
@@ -190,6 +192,7 @@ export class ImageLoaderManager {
                 // Find the next URL that hasn't been tried yet
                 for (const url of urlSequence) {
                     if (!triedUrls.includes(url)) {
+                        ImageLoaderManager.useCorsProxyDirectly = url !== originalUrl;
                         return url;
                     }
                 }
