@@ -213,49 +213,31 @@ export class CanvasInteractionManager {
         const originalOffsetX = this.offset.x;
         const originalOffsetY = this.offset.y;
         
-        // Calculate bounds for offset
-        if (scaledWidth <= canvasWidth) {
-            // When image is smaller than canvas, center it by allowing offsets between 0 and canvasWidth - scaledWidth
-            // But since the image can be positioned anywhere, we need to keep it within the canvas
-            const minOffsetX = 0;
-            const maxOffsetX = canvasWidth - scaledWidth;
-            this.offset.x = clamp(this.offset.x, minOffsetX, maxOffsetX);
-        } else {
-            // When image is larger than canvas, offset can be negative to pan across the image
-            // The valid range is [canvasWidth - scaledWidth, 0] which is [-N, 0] where N > 0
-            const minOffsetX = canvasWidth - scaledWidth; // This will be negative
-            const maxOffsetX = 0;
-            this.offset.x = clamp(this.offset.x, minOffsetX, maxOffsetX);
-        }
+        // Allow the image to be positioned such that any corner can be at the center of the canvas
+        // The center of the canvas is at (canvasWidth/2, canvasHeight/2)
+        // To place a corner at the center, the offset needs to be adjusted
         
-        if (scaledHeight <= canvasHeight) {
-            // When image is smaller than canvas
-            const minOffsetY = 0;
-            const maxOffsetY = canvasHeight - scaledHeight;
-            this.offset.y = clamp(this.offset.y, minOffsetY, maxOffsetY);
-        } else {
-            // When image is larger than canvas
-            const minOffsetY = canvasHeight - scaledHeight; // This will be negative
-            const maxOffsetY = 0;
-            this.offset.y = clamp(this.offset.y, minOffsetY, maxOffsetY);
-        }
+        // For x-axis:
+        // The minimum offset is when the right edge of the image is at the center of the canvas
+        // offset.x = canvasWidth/2 - scaledWidth
+        // The maximum offset is when the left edge of the image is at the center of the canvas
+        // offset.x = canvasWidth/2
+        
+        // Similarly for y-axis
+        const minOffsetX = canvasWidth / 2 - scaledWidth;
+        const maxOffsetX = canvasWidth / 2;
+        const minOffsetY = canvasHeight / 2 - scaledHeight;
+        const maxOffsetY = canvasHeight / 2;
+        
+        this.offset.x = clamp(this.offset.x, minOffsetX, maxOffsetX);
+        this.offset.y = clamp(this.offset.y, minOffsetY, maxOffsetY);
         
         // Debug logging
         if (originalOffsetX !== this.offset.x || originalOffsetY !== this.offset.y) {
             debug(`applyBounds: offset adjusted from (${originalOffsetX}, ${originalOffsetY}) to (${this.offset.x}, ${this.offset.y})`);
             debug(`  Canvas: ${canvasWidth}x${canvasHeight}, Scaled image: ${scaledWidth}x${scaledHeight}`);
-            
-            if (scaledWidth <= canvasWidth) {
-                debug(`  X bounds: [0, ${canvasWidth - scaledWidth}]`);
-            } else {
-                debug(`  X bounds: [${canvasWidth - scaledWidth}, 0]`);
-            }
-            
-            if (scaledHeight <= canvasHeight) {
-                debug(`  Y bounds: [0, ${canvasHeight - scaledHeight}]`);
-            } else {
-                debug(`  Y bounds: [${canvasHeight - scaledHeight}, 0]`);
-            }
+            debug(`  X bounds: [${minOffsetX}, ${maxOffsetX}]`);
+            debug(`  Y bounds: [${minOffsetY}, ${maxOffsetY}]`);
         }
         
         // Update through the callback
