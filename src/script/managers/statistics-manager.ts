@@ -60,6 +60,7 @@ export class StatisticsManager {
      * @param actualCanvas The actual canvas/image showing current progress
      */
     constructor(templateImage: HTMLImageElement, actualCanvas: HTMLImageElement) {
+        debug('[StatisticsManager.constructor] Initializing StatisticsManager');
         this.templateImage = templateImage;
         // Convert the image to a canvas for pixel analysis
         const canvas = document.createElement('canvas');
@@ -76,6 +77,7 @@ export class StatisticsManager {
      * Should be called when the actual canvas has been updated
      */
     updateStatistics(): void {
+        debug('[StatisticsManager.updateStatistics] Updating statistics');
         this.calculateStatistics();
     }
 
@@ -84,6 +86,7 @@ export class StatisticsManager {
      * @param actualCanvas The new actual canvas/image to use for comparison
      */
     setActualCanvas(actualCanvas: HTMLImageElement): void {
+        debug('[StatisticsManager.setActualCanvas] Setting new actual canvas');
         // Convert the image to a canvas for pixel analysis
         const canvas = document.createElement('canvas');
         canvas.width = actualCanvas.width;
@@ -99,6 +102,7 @@ export class StatisticsManager {
      * @returns Array of StatisticsRow objects containing progress information for each color
      */
     getStatistics(): StatisticsRow[] {
+        debug('[StatisticsManager.getStatistics] Retrieving statistics');
         return this.statistics;
     }
 
@@ -108,9 +112,10 @@ export class StatisticsManager {
      * Resets and repopulates the statistics array
      */
     private calculateStatistics(): void {
+        debug('[StatisticsManager.calculateStatistics] Starting statistics calculation');
         // Reset statistics
         this.statistics = [];
-
+        
         // Initialize all colors
         WplacePalette.forEach(color => {
             if (color.id !== 0) { // Skip transparent
@@ -121,6 +126,7 @@ export class StatisticsManager {
         // Ensure both images are loaded and have valid dimensions
         if (this.templateImage.width === 0 || this.templateImage.height === 0 ||
             this.actualCanvas.width === 0 || this.actualCanvas.height === 0) {
+            debug('[StatisticsManager.calculateStatistics] Images not ready for analysis - skipping');
             return;
         }
 
@@ -129,13 +135,19 @@ export class StatisticsManager {
         templateCanvas.width = this.templateImage.width;
         templateCanvas.height = this.templateImage.height;
         const templateCtx = templateCanvas.getContext('2d');
-        if (!templateCtx) return;
+        if (!templateCtx) {
+            debug('[StatisticsManager.calculateStatistics] Could not get template canvas context');
+            return;
+        }
 
         // Draw the template image
         templateCtx.drawImage(this.templateImage, 0, 0);
 
         const actualCtx = this.actualCanvas.getContext('2d');
-        if (!actualCtx) return;
+        if (!actualCtx) {
+            debug('[StatisticsManager.calculateStatistics] Could not get actual canvas context');
+            return;
+        }
 
         try {
             // Get image data from both canvases
@@ -148,16 +160,21 @@ export class StatisticsManager {
             scaledActualCanvas.width = templateCanvas.width;
             scaledActualCanvas.height = templateCanvas.height;
             const scaledActualCtx = scaledActualCanvas.getContext('2d');
-            if (!scaledActualCtx) return;
-
+            if (!scaledActualCtx) {
+                debug('[StatisticsManager.calculateStatistics] Could not get scaled actual canvas context');
+                return;
+            }
+            
             // Draw the actual canvas scaled to match template dimensions
             scaledActualCtx.drawImage(this.actualCanvas, 0, 0, templateCanvas.width, templateCanvas.height);
             const actualImageData = scaledActualCtx.getImageData(0, 0, templateCanvas.width, templateCanvas.height);
+            debug('[StatisticsManager.calculateStatistics] Processing image data');
 
             const templateData = templateImageData.data;
             const actualData = actualImageData.data;
 
             // Process each pixel
+            let processedPixels = 0;
             for (let i = 0; i < templateData.length; i += 4) {
                 const templateR = templateData[i];
                 const templateG = templateData[i + 1];
@@ -169,7 +186,7 @@ export class StatisticsManager {
 
                 // Find the closest color in the Wplace palette for the template pixel
                 const templateColorId = this.findClosestColorId(templateR, templateG, templateB);
-
+                
                 // Update total count
                 const templateRow = this.statistics.find(row => row.color?.id === templateColorId);
                 if (templateRow) {
@@ -181,17 +198,20 @@ export class StatisticsManager {
                 const actualG = actualData[i + 1];
                 const actualB = actualData[i + 2];
                 const actualA = actualData[i + 3];
-
+                
                 if (templateR === actualR && templateG === actualG && templateB === actualB && templateA === actualA) {
                     // Update completed count
                     if (templateRow) {
                         templateRow.completed++;
                     }
                 }
+                processedPixels++;
             }
+            debug(`[StatisticsManager.calculateStatistics] Processed ${processedPixels} pixels`);
         } catch (error) {
-            debug('Could not analyze image:', error);
+            debug('[StatisticsManager.calculateStatistics] Could not analyze image:', error);
         }
+        debug('[StatisticsManager.calculateStatistics] Statistics calculation completed');
     }
 
     /**
@@ -202,6 +222,7 @@ export class StatisticsManager {
      * @returns The ID of the closest matching color in the Wplace palette
      */
     private findClosestColorId(r: number, g: number, b: number): number {
+        debug(`[StatisticsManager.findClosestColorId] Finding closest color for RGB(${r}, ${g}, ${b})`);
         let minDistance = Infinity;
         let closestColorId = 1; // Default to Black
 
@@ -215,6 +236,7 @@ export class StatisticsManager {
                 closestColorId = color.id;
             }
         }
+        debug(`[StatisticsManager.findClosestColorId] Closest color ID: ${closestColorId}, distance: ${minDistance}`);
 
         return closestColorId;
     }
