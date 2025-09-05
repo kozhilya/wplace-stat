@@ -1,16 +1,13 @@
-// Переделай этот React-компонент в представление в виде `class`. Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
-
-
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import { Template } from '../types/template';
 import { CanvasInteractionManager } from '../managers/canvas-interaction-manager';
 import { LanguageManager } from '../managers/language-manager';
 import { CanvasRenderer, Ping } from './CanvasRenderer';
-
 import { StatisticsRow } from '../managers/statistics-manager';
 import { ImageLoaderManager } from '../managers/image-loader-manager';
 import { MIN_REMAINING_FOR_BUTTON } from '../settings';
 import { EventManager } from '../managers/event-manager';
+import { debug } from '../utils';
 
 interface RightPanelProps {
     currentTemplate?: Template;
@@ -18,155 +15,113 @@ interface RightPanelProps {
     statistics?: StatisticsRow[];
 }
 
-export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId, statistics = [] }) => {
-    const eventManager = EventManager.getInstance();
+interface RightPanelState {
+    viewMode: 'template' | 'wplace' | 'difference';
+    scale: number;
+    offset: { x: number; y: number };
+    currentImageToDraw: HTMLImageElement | null;
+    language: string;
+    remainingPixels: number;
+    pingAnimations: Ping[];
+    canvasElement: HTMLCanvasElement | null;
+}
 
-    const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
-    const isInteractionManagerInitialized = useRef(false);
-    const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('difference');
-    const [scale, setScale] = useState<number>(1);
-    const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-    // Track the current image to draw separately from view mode
-    const [currentImageToDraw, setCurrentImageToDraw] = useState<HTMLImageElement | null>(null);
-    const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
-    const [remainingPixels, setRemainingPixels] = useState<number>(0);
-    const [pingAnimations, setPingAnimations] = useState<Ping[]>([]);
-    
-    // Use a ref to store the draw function to avoid dependency issues
-    const drawCanvasRef = useRef<() => void>();
-    
-    // Draw function that will be called when needed
-    const drawCanvas = useCallback(() => {
-        // This will be implemented by the CanvasRenderer component
-        // We'll just trigger a re-render by updating state
-        setCurrentImageToDraw(prev => prev);
-    }, []);
-    
-    // Update the draw function ref
-    useEffect(() => {
-        drawCanvasRef.current = drawCanvas;
-    }, [drawCanvas]);
+/**
+ * Class component for the right panel that displays canvas and controls
+ * Handles image rendering, view modes, zoom controls, and ping animations
+ */
+export class RightPanel extends React.Component<RightPanelProps, RightPanelState> {
+    private eventManager: EventManager;
+    private interactionManager: CanvasInteractionManager | null = null;
+    private differenceImageRef: React.RefObject<HTMLImageElement>;
+    private animationFrameId: number = 0;
+    private languageChangeCallback: () => void;
+    private darkModeObserver: MutationObserver;
 
-    
-
-    useEffect(() => {
-        const handleLanguageChange = () => {
-            setLanguage(LanguageManager.getCurrentLanguage());
-        };
+    /**
+     * Creates a new RightPanel instance
+     * @param props Component properties
+     */
+    constructor(props: RightPanelProps) {
+        super(props);
+        debug('[RightPanel.constructor] Creating RightPanel instance');
         
-        LanguageManager.onLanguageChange(handleLanguageChange);
+        this.eventManager = EventManager.getInstance();
+        this.differenceImageRef = React.createRef();
         
-        return () => {
-            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
+        this.state = {
+            viewMode: 'difference',
+            scale: 1,
+            offset: { x: 0, y: 0 },
+            currentImageToDraw: null,
+            language: LanguageManager.getCurrentLanguage(),
+            remainingPixels: 0,
+            pingAnimations: [],
+            canvasElement: null
         };
-    }, []);
 
-    // We need to get a reference to the canvas element for the interaction manager
-    // We'll use a callback ref to get the canvas element from the CanvasRenderer
-    const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
-    
-    // Initialize interaction manager when canvas is available
-    useEffect(() => {
-        if (canvasElement && !interactionManagerRef.current) {
-            interactionManagerRef.current = new CanvasInteractionManager(canvasElement);
+        this.languageChangeCallback = this.handleLanguageChange.bind(this);
+        this.darkModeObserver = new MutationObserver(this.handleDarkModeChange.bind(this));
+    }
 
-            // eventManager.on('canvas:movement', event => {
-            //     setScale(event.scale);
-            //     setOffset(event.offset);
-            //     drawCanvasRef.current?.();
-            // });
-            
-            // Update the current template
-            interactionManagerRef.current.setTemplate(currentTemplate);
-        }
+    /**
+     * Handles language change events from LanguageManager
+     */
+    private handleLanguageChange(): void {
+        debug('[RightPanel.handleLanguageChange] Language changed');
+        this.setState({ language: LanguageManager.getCurrentLanguage() });
+    }
 
-        return () => {
-            // Cleanup on component unmount
-            if (interactionManagerRef.current) {
-                interactionManagerRef.current.cleanup();
-                interactionManagerRef.current = null;
+    /**
+     * Handles dark mode changes by regenerating difference image if needed
+     * @param mutations DOM mutation records
+     */
+    private handleDarkModeChange(mutations: MutationRecord[]): void {
+        debug('[RightPanel.handleDarkModeChange] Dark mode changed');
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                if (this.state.viewMode === 'difference' && 
+                    this.props.currentTemplate?.templateImage && 
+                    this.props.currentTemplate?.wplaceImage) {
+                    this.generateDifferenceImage(
+                        this.props.currentTemplate.templateImage, 
+                        this.props.currentTemplate.wplaceImage
+                    );
+                }
             }
-        };
-    }, [canvasElement, currentTemplate]);
+        });
+    }
 
-
-    // Update remaining pixels when selected color or statistics change
-    useEffect(() => {
-        if (selectedColorId !== null && selectedColorId !== undefined) {
-            // Find the statistics row for the selected color
-            const selectedRow = statistics.find(row => row.color?.id === selectedColorId);
-            if (selectedRow) {
-                setRemainingPixels(selectedRow.remain);
-            } else {
-                setRemainingPixels(0);
-            }
-        } else {
-            // If no color is selected, set remaining to 0 to disable the button
-            setRemainingPixels(0);
-        }
-    }, [selectedColorId, statistics]);
-
-    // Handle keyboard events for space key
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.code === 'Space' && 
-                remainingPixels <= MIN_REMAINING_FOR_BUTTON && 
-                remainingPixels > 0) {
-                e.preventDefault();
-                handlePingRemaining();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [remainingPixels]);
-
-    // Update interaction manager when template changes
-    useEffect(() => {
-        if (interactionManagerRef.current) {
-            interactionManagerRef.current.setTemplate(currentTemplate);
-        }
-        // Reset view when template changes
-        // Reset through the interaction manager to ensure proper synchronization
-        interactionManagerRef.current?.resetView();
-        // Update current image
-        updateCurrentImageToDraw();
-    }, [currentTemplate]);
-
-    // Cache for difference image
-    const differenceImageRef = useRef<HTMLImageElement | null>(null);
-
-
-
-    // Function to update the current image based on view mode
-    const updateCurrentImageToDraw = useCallback(() => {
+    /**
+     * Updates the current image to draw based on view mode and template
+     */
+    private updateCurrentImageToDraw(): void {
+        debug('[RightPanel.updateCurrentImageToDraw] Updating current image to draw');
         let imageToDraw: HTMLImageElement | null = null;
         
-        switch (viewMode) {
+        switch (this.state.viewMode) {
             case 'template':
-                imageToDraw = currentTemplate?.templateImage || null;
+                imageToDraw = this.props.currentTemplate?.templateImage || null;
                 break;
             case 'wplace':
-                imageToDraw = currentTemplate?.wplaceImage || null;
+                imageToDraw = this.props.currentTemplate?.wplaceImage || null;
                 break;
             case 'difference':
-                imageToDraw = differenceImageRef.current;
+                imageToDraw = this.differenceImageRef.current;
                 break;
         }
         
-        setCurrentImageToDraw(imageToDraw);
-    }, [viewMode, currentTemplate]);
+        this.setState({ currentImageToDraw: imageToDraw });
+    }
 
-    // Handle ping remaining button click
-    const handlePingRemaining = useCallback(() => {
-        // Get missing pixels from global storage
+    /**
+     * Handles ping remaining button click by creating ping animations for missing pixels
+     */
+    private handlePingRemaining(): void {
+        debug('[RightPanel.handlePingRemaining] Handling ping remaining');
         const missingPixels = (window as any).missingPixels || [];
         
-        // Create a ping for each missing pixel using image coordinates
         const newPings: Ping[] = missingPixels.map((pixel: { x: number; y: number }) => {
-            // Store coordinates in image space (add 0.5 to target the center of the pixel)
             return {
                 startTime: Date.now(),
                 centerX: pixel.x + 0.5,
@@ -175,206 +130,265 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             };
         });
         
-        setPingAnimations(prev => [...prev, ...newPings]);
-    }, []);
+        this.setState(prevState => ({
+            pingAnimations: [...prevState.pingAnimations, ...newPings]
+        }));
+    }
 
-    // Animation loop for updating ping animations
-    useEffect(() => {
-        let animationFrameId: number;
+    /**
+     * Updates ping animations in the animation loop
+     */
+    private updatePings(): void {
+        debug('[RightPanel.updatePings] Updating ping animations');
+        const currentTime = Date.now();
         
-        const updatePings = () => {
-            const currentTime = Date.now();
+        this.setState(prevState => {
+            const updatedPings = prevState.pingAnimations
+                .map(ping => {
+                    const elapsed = currentTime - ping.startTime;
+                    if (elapsed > 1000) return null;
+                    
+                    const progress = elapsed / 1000;
+                    return {
+                        ...ping,
+                        radius: progress * 30
+                    };
+                })
+                .filter(Boolean) as Ping[];
             
-            setPingAnimations(prev => {
-                // Update radii and filter out old pings
-                const updatedPings = prev
-                    .map(ping => {
-                        const elapsed = currentTime - ping.startTime;
-                        if (elapsed > 1000) return null; // Mark for removal
-                        
-                        const progress = elapsed / 1000;
-                        return {
-                            ...ping,
-                            radius: progress * 30 // Update radius
-                        };
-                    })
-                    .filter(Boolean) as Ping[]; // Remove nulls
-                
-                // Continue animation if there are active pings
-                if (updatedPings.length > 0) {
-                    animationFrameId = requestAnimationFrame(updatePings);
-                }
-                
-                return updatedPings;
-            });
-        };
-        
-        // Start animation if there are pings
-        if (pingAnimations.length > 0) {
-            animationFrameId = requestAnimationFrame(updatePings);
-        }
-        
-        return () => {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
+            if (updatedPings.length > 0) {
+                this.animationFrameId = requestAnimationFrame(this.updatePings.bind(this));
             }
-        };
-    }, [pingAnimations.length]);
+            
+            return { pingAnimations: updatedPings };
+        });
+    }
 
-
-    // Generate difference image and cache it
-    const generateDifferenceImage = useCallback((templateImage: HTMLImageElement, wplaceImage: HTMLImageElement) => {
-        // Create a canvas to draw the difference
+    /**
+     * Generates a difference image between template and wplace images
+     * @param templateImage Template image element
+     * @param wplaceImage Wplace image element
+     */
+    private generateDifferenceImage(templateImage: HTMLImageElement, wplaceImage: HTMLImageElement): void {
+        debug('[RightPanel.generateDifferenceImage] Generating difference image');
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = templateImage.width;
         tempCanvas.height = templateImage.height;
         const tempCtx = tempCanvas.getContext('2d');
         if (!tempCtx) return;
         
-        // Disable image smoothing for the difference image
         tempCtx.imageSmoothingEnabled = false;
+        ImageLoaderManager.drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, this.props.selectedColorId);
         
-        // Draw difference onto the temporary canvas with selected color
-        ImageLoaderManager.drawDifference(tempCtx, templateImage, wplaceImage, 0, 0, selectedColorId);
-        
-        // Convert to image and cache it
         const img = new Image();
         img.onload = () => {
-            differenceImageRef.current = img;
-            // Update the current image to draw
-            updateCurrentImageToDraw();
+            this.differenceImageRef.current = img;
+            this.updateCurrentImageToDraw();
         };
         img.src = tempCanvas.toDataURL('image/png');
-    }, [selectedColorId, updateCurrentImageToDraw]);
+    }
 
-    // Regenerate difference image when dark mode changes
-    useEffect(() => {
-        const handleDarkModeChange = () => {
-            if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
-                generateDifferenceImage(currentTemplate.templateImage, currentTemplate.wplaceImage);
+    /**
+     * Handles zoom in button click
+     */
+    private handleZoomIn(): void {
+        debug('[RightPanel.handleZoomIn] Zooming in');
+        const newScale = Math.min(this.state.scale * 1.25, 10);
+        this.setState({ scale: newScale });
+        if (this.interactionManager) {
+            this.interactionManager.setScale(newScale);
+        }
+    }
+
+    /**
+     * Handles zoom out button click
+     */
+    private handleZoomOut(): void {
+        debug('[RightPanel.handleZoomOut] Zooming out');
+        const newScale = Math.max(this.state.scale / 1.25, 0.1);
+        this.setState({ scale: newScale });
+        if (this.interactionManager) {
+            this.interactionManager.setScale(newScale);
+        }
+    }
+
+    /**
+     * Handles zoom reset button click
+     */
+    private handleZoomReset(): void {
+        debug('[RightPanel.handleZoomReset] Resetting zoom');
+        this.interactionManager?.resetView();
+    }
+
+    /**
+     * Sets the canvas element reference and initializes interaction manager
+     * @param canvas Canvas element or null
+     */
+    private setCanvasElement(canvas: HTMLCanvasElement | null): void {
+        debug('[RightPanel.setCanvasElement] Setting canvas element');
+        this.setState({ canvasElement: canvas });
+        
+        if (canvas && !this.interactionManager) {
+            debug('[RightPanel.setCanvasElement] Initializing interaction manager');
+            this.interactionManager = new CanvasInteractionManager(canvas);
+            this.interactionManager.setTemplate(this.props.currentTemplate);
+        }
+    }
+
+    /**
+     * React lifecycle method called after component mounts
+     * Sets up event listeners and starts dark mode observation
+     */
+    componentDidMount(): void {
+        debug('[RightPanel.componentDidMount] Component mounted');
+        LanguageManager.onLanguageChange(this.languageChangeCallback);
+        this.darkModeObserver.observe(document.body, { attributes: true });
+        
+        // Start ping animation if there are existing pings
+        if (this.state.pingAnimations.length > 0) {
+            this.animationFrameId = requestAnimationFrame(this.updatePings.bind(this));
+        }
+    }
+
+    /**
+     * React lifecycle method called before component unmounts
+     * Cleans up event listeners and stops animation
+     */
+    componentWillUnmount(): void {
+        debug('[RightPanel.componentWillUnmount] Component unmounting');
+        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+        this.darkModeObserver.disconnect();
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+        }
+        if (this.interactionManager) {
+            this.interactionManager.cleanup();
+        }
+    }
+
+    /**
+     * React lifecycle method called when props or state update
+     * @param prevProps Previous props
+     * @param prevState Previous state
+     */
+    componentDidUpdate(prevProps: RightPanelProps, prevState: RightPanelState): void {
+        debug('[RightPanel.componentDidUpdate] Component updated');
+        
+        // Update remaining pixels when selected color or statistics change
+        if (this.props.selectedColorId !== prevProps.selectedColorId || 
+            this.props.statistics !== prevProps.statistics) {
+            debug('[RightPanel.componentDidUpdate] Updating remaining pixels');
+            if (this.props.selectedColorId !== null && this.props.selectedColorId !== undefined) {
+                const selectedRow = this.props.statistics?.find(row => row.color?.id === this.props.selectedColorId);
+                this.setState({ remainingPixels: selectedRow ? selectedRow.remain : 0 });
+            } else {
+                this.setState({ remainingPixels: 0 });
             }
-        };
-
-        // Listen for dark mode changes
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'class') {
-                    handleDarkModeChange();
-                }
-            });
-        });
-
-        observer.observe(document.body, { attributes: true });
-
-        return () => {
-            observer.disconnect();
-        };
-    }, [viewMode, currentTemplate, selectedColorId, generateDifferenceImage]);
-
-    // Update the current image when view mode or template changes
-    useEffect(() => {
-        updateCurrentImageToDraw();
-    }, [viewMode, currentTemplate, updateCurrentImageToDraw]);
-
-    // Zoom handlers
-    const handleZoomIn = () => {
-        const newScale = Math.min(scale * 1.25, 10);
-        setScale(newScale);
-        // Update interaction manager's scale
-        if (interactionManagerRef.current) {
-            // We need to add a method to set the scale in the interaction manager
-            // For now, we'll trigger the wheel event programmatically
-            // This is a temporary workaround
-            interactionManagerRef.current.setScale(newScale);
         }
-    };
 
-    const handleZoomOut = () => {
-        const newScale = Math.max(scale / 1.25, 0.1);
-        setScale(newScale);
-        // Update interaction manager's scale
-        if (interactionManagerRef.current) {
-            interactionManagerRef.current.setScale(newScale);
+        // Update interaction manager when template changes
+        if (this.props.currentTemplate !== prevProps.currentTemplate) {
+            debug('[RightPanel.componentDidUpdate] Template changed, updating interaction manager');
+            if (this.interactionManager) {
+                this.interactionManager.setTemplate(this.props.currentTemplate);
+                this.interactionManager.resetView();
+            }
+            this.updateCurrentImageToDraw();
         }
-    };
 
-    const handleZoomReset = () => {
-        interactionManagerRef.current?.resetView();
-    };
-    
-
-    // Generate difference image when template, view mode, selected color changes, or wplaceImage updates
-    useEffect(() => {
-        if (viewMode === 'difference' && currentTemplate?.templateImage && currentTemplate?.wplaceImage) {
-            generateDifferenceImage(currentTemplate.templateImage, currentTemplate.wplaceImage);
-        } else {
-            differenceImageRef.current = null;
-            // Update current image when switching away from difference mode
-            updateCurrentImageToDraw();
+        // Update current image when view mode changes
+        if (this.state.viewMode !== prevState.viewMode) {
+            debug('[RightPanel.componentDidUpdate] View mode changed');
+            this.updateCurrentImageToDraw();
         }
-    }, [currentTemplate, viewMode, selectedColorId, generateDifferenceImage, updateCurrentImageToDraw, currentTemplate?.wplaceImage]);
 
-    return (
-        <div className="right-panel">
-            {/* Canvas area */}
-            <div className="canvas-area">
-                <CanvasRenderer
-                    currentImageToDraw={currentImageToDraw}
-                    canvasRefCallback={setCanvasElement}
-                    pingAnimations={pingAnimations}
-                />
+        // Generate difference image when needed
+        if (this.state.viewMode === 'difference' && 
+            this.props.currentTemplate?.templateImage && 
+            this.props.currentTemplate?.wplaceImage &&
+            (this.props.currentTemplate !== prevProps.currentTemplate ||
+             this.state.viewMode !== prevState.viewMode ||
+             this.props.selectedColorId !== prevProps.selectedColorId)) {
+            debug('[RightPanel.componentDidUpdate] Regenerating difference image');
+            this.generateDifferenceImage(
+                this.props.currentTemplate.templateImage, 
+                this.props.currentTemplate.wplaceImage
+            );
+        }
 
-                {/* View mode selector */}
-                <div className="view-mode-selector">
-                    <button
-                        onClick={() => setViewMode('template')}
-                        className={viewMode === 'template' ? 'active' : ''}
-                        title={LanguageManager.getText('template')}
-                    >
-                        <i className="fas fa-image"></i>
-                        <span>{LanguageManager.getText('template')}</span>
-                    </button>
-                    <button
-                        onClick={() => setViewMode('wplace')}
-                        className={viewMode === 'wplace' ? 'active' : ''}
-                        title={LanguageManager.getText('wplace')}
-                    >
-                        <i className="fas fa-globe"></i>
-                        <span>{LanguageManager.getText('wplace')}</span>
-                    </button>
-                    <button
-                        onClick={() => setViewMode('difference')}
-                        className={viewMode === 'difference' ? 'active' : ''}
-                        title={LanguageManager.getText('difference')}
-                    >
-                        <i className="fas fa-code-compare"></i>
-                        <span>{LanguageManager.getText('difference')}</span>
-                    </button>
-                </div>
+        // Start/stop ping animation
+        if (this.state.pingAnimations.length !== prevState.pingAnimations.length) {
+            debug('[RightPanel.componentDidUpdate] Ping animations changed');
+            if (this.state.pingAnimations.length > 0) {
+                this.animationFrameId = requestAnimationFrame(this.updatePings.bind(this));
+            }
+        }
+    }
 
-                {/* Zoom controls */}
-                <div className="zoom-controls">
-                    <button onClick={handleZoomIn} title={LanguageManager.getText('zoomIn')}>
-                        <i className="fas fa-search-plus"></i>
-                    </button>
-                    <button onClick={handleZoomReset} title={LanguageManager.getText('resetZoom')}>
-                        <i className="fas fa-sync-alt"></i>
-                    </button>
-                    <button onClick={handleZoomOut} title={LanguageManager.getText('zoomOut')}>
-                        <i className="fas fa-search-minus"></i>
-                    </button>
-                    
-                    {/* Ping remaining button */}
-                    <button 
-                        onClick={handlePingRemaining} 
-                        title={`${LanguageManager.getText('pingRemaining')} [Space]`}
-                        disabled={remainingPixels > MIN_REMAINING_FOR_BUTTON || remainingPixels === 0}
-                        className="new-action-button"
-                    >
-                        <i className="fas fa-bullseye"></i>
-                    </button>
+    /**
+     * React render method
+     * @returns Rendered component
+     */
+    render(): React.ReactNode {
+        debug('[RightPanel.render] Rendering component');
+        return (
+            <div className="right-panel">
+                <div className="canvas-area">
+                    <CanvasRenderer
+                        currentImageToDraw={this.state.currentImageToDraw}
+                        canvasRefCallback={this.setCanvasElement.bind(this)}
+                        pingAnimations={this.state.pingAnimations}
+                    />
+
+                    <div className="view-mode-selector">
+                        <button
+                            onClick={() => this.setState({ viewMode: 'template' })}
+                            className={this.state.viewMode === 'template' ? 'active' : ''}
+                            title={LanguageManager.getText('template')}
+                        >
+                            <i className="fas fa-image"></i>
+                            <span>{LanguageManager.getText('template')}</span>
+                        </button>
+                        <button
+                            onClick={() => this.setState({ viewMode: 'wplace' })}
+                            className={this.state.viewMode === 'wplace' ? 'active' : ''}
+                            title={LanguageManager.getText('wplace')}
+                        >
+                            <i className="fas fa-globe"></i>
+                            <span>{LanguageManager.getText('wplace')}</span>
+                        </button>
+                        <button
+                            onClick={() => this.setState({ viewMode: 'difference' })}
+                            className={this.state.viewMode === 'difference' ? 'active' : ''}
+                            title={LanguageManager.getText('difference')}
+                        >
+                            <i className="fas fa-code-compare"></i>
+                            <span>{LanguageManager.getText('difference')}</span>
+                        </button>
+                    </div>
+
+                    <div className="zoom-controls">
+                        <button onClick={this.handleZoomIn.bind(this)} title={LanguageManager.getText('zoomIn')}>
+                            <i className="fas fa-search-plus"></i>
+                        </button>
+                        <button onClick={this.handleZoomReset.bind(this)} title={LanguageManager.getText('resetZoom')}>
+                            <i className="fas fa-sync-alt"></i>
+                        </button>
+                        <button onClick={this.handleZoomOut.bind(this)} title={LanguageManager.getText('zoomOut')}>
+                            <i className="fas fa-search-minus"></i>
+                        </button>
+                        
+                        <button 
+                            onClick={this.handlePingRemaining.bind(this)} 
+                            title={`${LanguageManager.getText('pingRemaining')} [Space]`}
+                            disabled={this.state.remainingPixels > MIN_REMAINING_FOR_BUTTON || this.state.remainingPixels === 0}
+                            className="new-action-button"
+                        >
+                            <i className="fas fa-bullseye"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
-};
+        );
+    }
+}
