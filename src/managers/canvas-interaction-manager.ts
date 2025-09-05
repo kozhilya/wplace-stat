@@ -356,13 +356,25 @@ export class CanvasInteractionManager {
     }
 }
 
-// Добавь документацию для этих EventArgs. AI!
+/**
+ * Event arguments for canvas movement events
+ * Contains information about the current canvas offset and scale
+ */
 export class CanvasMovementEventArgs implements IEventArgs {
+    /** The CanvasInteractionManager instance that generated this event */
     sender: CanvasInteractionManager;
 
+    /** The current offset of the canvas in pixels */
     offset: Point;
+    /** The current zoom scale of the canvas (1 = 100%) */
     scale: number;
 
+    /**
+     * Creates a new CanvasMovementEventArgs instance
+     * @param sender The CanvasInteractionManager that generated the event
+     * @param offset The current canvas offset
+     * @param scale The current zoom scale
+     */
     constructor(sender: CanvasInteractionManager, offset: Point, scale: number) {        
         this.sender = sender;
         this.offset = offset;
@@ -370,11 +382,23 @@ export class CanvasMovementEventArgs implements IEventArgs {
     }
 }
 
+/**
+ * Type definition for canvas zoom request operations
+ */
 export type CanvasZoomRequest = 'zoom-out' | 'zoom-in' | 'zoom-reset';
 
+/**
+ * Event arguments for canvas zoom request events
+ * Contains information about the requested zoom operation
+ */
 export class CanvasZoomRequestEventArgs implements IEventArgs {
+    /** The type of zoom operation requested */
     request: CanvasZoomRequest;
 
+    /**
+     * Creates a new CanvasZoomRequestEventArgs instance
+     * @param request The type of zoom operation requested
+     */
     constructor(request: CanvasZoomRequest) {
         this.request = request;
     }
