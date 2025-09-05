@@ -355,9 +355,8 @@ export class ImageLoaderManager {
                 if (!isSelectedColor) {
                     // Treat as unselected - use white
                     setData(i, differenceColors.unselected);
+                    continue;
                 }
-
-                continue;
             }
 
             // Check if colors match
