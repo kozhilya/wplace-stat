@@ -1,6 +1,4 @@
-// Переделай этот React-компонент в представление в виде `class`. Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { TemplateConfig } from './TemplateConfig';
 import { StatisticsView } from './StatisticsView';
 import { TemplateList } from './TemplateList';
@@ -24,135 +22,210 @@ interface LeftPanelProps {
     selectedColorId?: number | null;
 }
 
-export const LeftPanel: React.FC<LeftPanelProps> = (props) => {
-    const { 
-        width, 
-        onTemplateSave, 
-        onTemplateLoad, 
-        statistics = [], 
-        currentTemplate,
-        activeView,
-        onCloseView,
-        onStatisticsRowClick,
-        onCreateTemplate,
-        onTemplateButtonClick,
-        selectedColorId
-    } = props;
-    const collection = React.useRef(new TemplateCollection());
-    const [templates, setTemplates] = useState<Template[]>([]);
-    const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
-    const [isNewTemplate, setIsNewTemplate] = useState(false);
+interface LeftPanelState {
+    templates: Template[];
+    language: string;
+    isNewTemplate: boolean;
+}
 
-    useEffect(() => {
-        debug('LeftPanel.useEffect: Loading templates on mount');
-        // Load templates on mount
-        const loadedTemplates = collection.current.getTemplates();
-        debug(`LeftPanel.useEffect: Loaded ${loadedTemplates.length} templates`);
-        setTemplates(loadedTemplates);
-    }, []);
+/**
+ * Class component for the left panel that displays template management and statistics
+ * Handles template creation, loading, and statistics display
+ */
+export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
+    private collection: TemplateCollection;
+    private languageChangeCallback: () => void;
 
-    useEffect(() => {
-        debug('LeftPanel.useEffect: Setting up language change listener');
-        const handleLanguageChange = () => {
-            debug('LeftPanel.handleLanguageChange: Language changed, updating state');
-            setLanguage(LanguageManager.getCurrentLanguage());
-        };
+    /**
+     * Creates a new LeftPanel instance
+     * @param props Component properties
+     */
+    constructor(props: LeftPanelProps) {
+        super(props);
+        debug('[LeftPanel.constructor] Creating LeftPanel instance');
         
-        LanguageManager.onLanguageChange(handleLanguageChange);
+        this.collection = new TemplateCollection();
+        this.languageChangeCallback = this.handleLanguageChange.bind(this);
         
-        return () => {
-            debug('LeftPanel.useEffect: Cleaning up language change listener');
-            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
+        this.state = {
+            templates: [],
+            language: LanguageManager.getCurrentLanguage(),
+            isNewTemplate: false
         };
-    }, []);
+    }
 
-    const handleTemplateSave = (template: Template) => {
-        debug(`LeftPanel.handleTemplateSave: Saving template: ${template.name}`);
+    /**
+     * Handles language change events from LanguageManager
+     * Updates the component state with the new language
+     */
+    private handleLanguageChange(): void {
+        debug('[LeftPanel.handleLanguageChange] Language changed, updating state');
+        this.setState({ language: LanguageManager.getCurrentLanguage() });
+    }
+
+    /**
+     * Handles template save operations
+     * Adds template to collection and updates parent component
+     * @param template The template to save
+     */
+    private handleTemplateSave(template: Template): void {
+        debug(`[LeftPanel.handleTemplateSave] Saving template: ${template.name}`);
         // Add to collection
-        collection.current.addTemplate(template);
-        const updatedTemplates = collection.current.getTemplates();
-        setTemplates(updatedTemplates);
-        if (onTemplateSave) {
-            onTemplateSave(template);
-        }
-        // Reset new template flag
-        setIsNewTemplate(false);
-        // Close the view
-        onCloseView();
-    };
-
-    const handleCreateTemplate = () => {
-        debug('LeftPanel.handleCreateTemplate: Creating new template');
-        setIsNewTemplate(true);
-        // The parent component should handle switching to the template view
-        // We'll assume onCreateTemplate does this
-        onCreateTemplate();
-    };
-
-    const handleTemplateLoad = (template: Template) => {
-        debug(`LeftPanel.handleTemplateLoad: Loading template from list: ${template.name}`);
-        if (onTemplateLoad) {
-            onTemplateLoad(template);
+        this.collection.addTemplate(template);
+        const updatedTemplates = this.collection.getTemplates();
+        this.setState({ templates: updatedTemplates, isNewTemplate: false });
+        
+        if (this.props.onTemplateSave) {
+            this.props.onTemplateSave(template);
         }
         // Close the view
-        onCloseView();
-    };
+        this.props.onCloseView();
+    }
 
+    /**
+     * Handles new template creation
+     * Sets new template flag and notifies parent component
+     */
+    private handleCreateTemplate(): void {
+        debug('[LeftPanel.handleCreateTemplate] Creating new template');
+        this.setState({ isNewTemplate: true });
+        this.props.onCreateTemplate();
+    }
 
-    return (
-        <div className="left-panel" style={{ width: `${width}px` }}>
-            {/* Show header when NOT in statistics view (activeView is not null) or when showing new template */}
-            {(activeView !== null || (templates.length === 0 && !currentTemplate)) && (
-                <div className="left-panel-header">
-                    <h2>
-                        {activeView === 'template' || (templates.length === 0 && !currentTemplate) 
-                            ? (isNewTemplate || (templates.length === 0 && !currentTemplate) ? LanguageManager.getText('newTemplate') : LanguageManager.getText('editTemplateHeader'))
-                            : LanguageManager.getText('savedTemplatesHeader')}
-                    </h2>
-                    {activeView !== null && (
-                        <button 
-                            className="close-button"
-                            onClick={() => {
-                                debug('LeftPanel.onClick: Closing view');
-                                onCloseView();
-                            }}
-                            title={LanguageManager.getText('close')}
-                        >
-                            ✕
-                        </button>
-                    )}
-                </div>
-            )}
-            {activeView === 'template' && (
-                <TemplateConfig 
-                    onTemplateSave={handleTemplateSave} 
-                    isNewTemplate={isNewTemplate}
-                    currentTemplate={isNewTemplate ? undefined : currentTemplate}
-                    editedTemplate={isNewTemplate ? null : currentTemplate}
-                />
-            )}
-            {activeView === 'templates' && (
-                <TemplateList 
-                    onTemplateSelect={handleTemplateLoad} 
-                    onCreateTemplate={handleCreateTemplate}
-                />
-            )}
-            {/* Show TemplateConfig when no templates exist and no current template */}
-            {templates.length === 0 && !currentTemplate && activeView === null && (
-                <TemplateConfig 
-                    onTemplateSave={handleTemplateSave} 
-                    isNewTemplate={isNewTemplate}
-                    currentTemplate={isNewTemplate ? undefined : currentTemplate}
-                    editedTemplate={isNewTemplate ? null : undefined}
-                />
-            )}
-            {currentTemplate && activeView === null && (
-                <StatisticsView 
-                    statistics={statistics} 
-                    onRowClick={onStatisticsRowClick} 
-                    selectedColorId={selectedColorId}
-                />
-            )}
-        </div>
-    );
-};
+    /**
+     * Handles template load operations
+     * Notifies parent component and closes the view
+     * @param template The template to load
+     */
+    private handleTemplateLoad(template: Template): void {
+        debug(`[LeftPanel.handleTemplateLoad] Loading template from list: ${template.name}`);
+        if (this.props.onTemplateLoad) {
+            this.props.onTemplateLoad(template);
+        }
+        // Close the view
+        this.props.onCloseView();
+    }
+
+    /**
+     * Handles view close button click
+     * Notifies parent component to close the current view
+     */
+    private handleCloseView(): void {
+        debug('[LeftPanel.handleCloseView] Closing view');
+        this.props.onCloseView();
+    }
+
+    /**
+     * React lifecycle method called after component mounts
+     * Loads templates and sets up language change listener
+     */
+    componentDidMount(): void {
+        debug('[LeftPanel.componentDidMount] Component mounted');
+        // Load templates on mount
+        const loadedTemplates = this.collection.getTemplates();
+        debug(`[LeftPanel.componentDidMount] Loaded ${loadedTemplates.length} templates`);
+        this.setState({ templates: loadedTemplates });
+        
+        LanguageManager.onLanguageChange(this.languageChangeCallback);
+    }
+
+    /**
+     * React lifecycle method called before component unmounts
+     * Cleans up language change listener
+     */
+    componentWillUnmount(): void {
+        debug('[LeftPanel.componentWillUnmount] Component unmounting');
+        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+    }
+
+    /**
+     * React lifecycle method called when props or state update
+     * @param prevProps Previous props
+     * @param prevState Previous state
+     */
+    componentDidUpdate(prevProps: LeftPanelProps, prevState: LeftPanelState): void {
+        debug('[LeftPanel.componentDidUpdate] Component updated');
+        
+        if (this.props.activeView !== prevProps.activeView) {
+            debug(`[LeftPanel.componentDidUpdate] Active view changed: ${prevProps.activeView} -> ${this.props.activeView}`);
+        }
+        
+        if (this.props.currentTemplate !== prevProps.currentTemplate) {
+            debug(`[LeftPanel.componentDidUpdate] Current template changed: ${prevProps.currentTemplate?.name || 'undefined'} -> ${this.props.currentTemplate?.name || 'undefined'}`);
+        }
+        
+        if (this.state.templates !== prevState.templates) {
+            debug(`[LeftPanel.componentDidUpdate] Templates changed: ${prevState.templates.length} -> ${this.state.templates.length}`);
+        }
+    }
+
+    /**
+     * React render method
+     * @returns Rendered component
+     */
+    render(): React.ReactNode {
+        debug('[LeftPanel.render] Rendering component');
+        const { 
+            width, 
+            statistics, 
+            currentTemplate,
+            activeView,
+            onStatisticsRowClick,
+            selectedColorId
+        } = this.props;
+
+        return (
+            <div className="left-panel" style={{ width: `${width}px` }}>
+                {/* Show header when NOT in statistics view (activeView is not null) or when showing new template */}
+                {(activeView !== null || (this.state.templates.length === 0 && !currentTemplate)) && (
+                    <div className="left-panel-header">
+                        <h2>
+                            {activeView === 'template' || (this.state.templates.length === 0 && !currentTemplate) 
+                                ? (this.state.isNewTemplate || (this.state.templates.length === 0 && !currentTemplate) ? LanguageManager.getText('newTemplate') : LanguageManager.getText('editTemplateHeader'))
+                                : LanguageManager.getText('savedTemplatesHeader')}
+                        </h2>
+                        {activeView !== null && (
+                            <button 
+                                className="close-button"
+                                onClick={this.handleCloseView.bind(this)}
+                                title={LanguageManager.getText('close')}
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+                )}
+                {activeView === 'template' && (
+                    <TemplateConfig 
+                        onTemplateSave={this.handleTemplateSave.bind(this)} 
+                        isNewTemplate={this.state.isNewTemplate}
+                        currentTemplate={this.state.isNewTemplate ? undefined : currentTemplate}
+                        editedTemplate={this.state.isNewTemplate ? null : currentTemplate}
+                    />
+                )}
+                {activeView === 'templates' && (
+                    <TemplateList 
+                        onTemplateSelect={this.handleTemplateLoad.bind(this)} 
+                        onCreateTemplate={this.handleCreateTemplate.bind(this)}
+                    />
+                )}
+                {/* Show TemplateConfig when no templates exist and no current template */}
+                {this.state.templates.length === 0 && !currentTemplate && activeView === null && (
+                    <TemplateConfig 
+                        onTemplateSave={this.handleTemplateSave.bind(this)} 
+                        isNewTemplate={this.state.isNewTemplate}
+                        currentTemplate={this.state.isNewTemplate ? undefined : currentTemplate}
+                        editedTemplate={this.state.isNewTemplate ? null : undefined}
+                    />
+                )}
+                {currentTemplate && activeView === null && (
+                    <StatisticsView 
+                        statistics={statistics} 
+                        onRowClick={onStatisticsRowClick} 
+                        selectedColorId={selectedColorId}
+                    />
+                )}
+            </div>
+        );
+    }
+}
