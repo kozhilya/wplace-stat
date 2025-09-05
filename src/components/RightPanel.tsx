@@ -1,3 +1,5 @@
+// Переделай этот React-компонент в представление в виде `class`. Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
+
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Template } from '../types/template';
 import { CanvasInteractionManager } from '../managers/canvas-interaction-manager';
@@ -7,6 +9,7 @@ import { CanvasRenderer, Ping } from './CanvasRenderer';
 import { StatisticsRow } from '../managers/statistics-manager';
 import { ImageLoaderManager } from '../managers/image-loader-manager';
 import { MIN_REMAINING_FOR_BUTTON } from '../settings';
+import { EventManager } from '../managers/event-manager';
 
 interface RightPanelProps {
     currentTemplate?: Template;
@@ -15,6 +18,8 @@ interface RightPanelProps {
 }
 
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId, statistics = [] }) => {
+    const eventManager = EventManager.getInstance();
+
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
     const isInteractionManagerInitialized = useRef(false);
     const [viewMode, setViewMode] = useState<'template' | 'wplace' | 'difference'>('difference');
@@ -41,6 +46,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
         drawCanvasRef.current = drawCanvas;
     }, [drawCanvas]);
 
+    
+
     useEffect(() => {
         const handleLanguageChange = () => {
             setLanguage(LanguageManager.getCurrentLanguage());
@@ -60,15 +67,13 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
     // Initialize interaction manager when canvas is available
     useEffect(() => {
         if (canvasElement && !interactionManagerRef.current) {
-            interactionManagerRef.current = new CanvasInteractionManager(
-                canvasElement,
-                (newScale, newOffset) => {
-                    setScale(newScale);
-                    setOffset(newOffset);
-                    // Force a redraw when position changes
-                    drawCanvasRef.current?.();
-                }
-            );
+            interactionManagerRef.current = new CanvasInteractionManager(canvasElement);
+
+            // eventManager.on('canvas:movement', event => {
+            //     setScale(event.scale);
+            //     setOffset(event.offset);
+            //     drawCanvasRef.current?.();
+            // });
             
             // Update the current template
             interactionManagerRef.current.setTemplate(currentTemplate);
@@ -314,12 +319,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selecte
             <div className="canvas-area">
                 <CanvasRenderer
                     currentImageToDraw={currentImageToDraw}
-                    scale={scale}
-                    offset={offset}
                     canvasRefCallback={setCanvasElement}
                     pingAnimations={pingAnimations}
-                    selectedColorId={selectedColorId}
-                    statistics={statistics}
                 />
 
                 {/* View mode selector */}
