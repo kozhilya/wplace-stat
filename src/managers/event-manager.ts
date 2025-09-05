@@ -1,3 +1,17 @@
+// Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
+
+export class EventArgs {   
+    // Base class for all event arguments
+}
+
+export type EventMappingType = { [key in string]: typeof EventArgs };
+
+export const EventMapping: EventMappingType = {
+    'app:start': EventArgs,
+} as const;
+
+export type EventNames = keyof typeof EventMapping;
+
 type EventHandler<T extends EventArgs> = (args: T) => void;
 
 export class EventManager {
@@ -6,16 +20,6 @@ export class EventManager {
 
     private constructor() {
         // Private constructor for singleton pattern
-    }
-
-    /**
-     * Gets the singleton instance of EventManager
-     */
-    public static getInstance(): EventManager {
-        if (!EventManager.instance) {
-            EventManager.instance = new EventManager();
-        }
-        return EventManager.instance;
     }
 
     /**
@@ -77,14 +81,14 @@ export class EventManager {
     public clearAll(): void {
         this.handlers.clear();
     }
+
+    /**
+     * Gets the singleton instance of EventManager
+     */
+    public static getInstance(): EventManager {
+        if (!EventManager.instance) {
+            EventManager.instance = new EventManager();
+        }
+        return EventManager.instance;
+    }
 }
-
-export class EventArgs {   
-    // Base class for all event arguments
-}
-
-export const EventMapping: { [key in EventNames]: typeof EventArgs } = {
-    'app:start': EventArgs,
-} as const;
-
-export type EventNames = keyof typeof EventMapping;
