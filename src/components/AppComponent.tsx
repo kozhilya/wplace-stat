@@ -127,21 +127,11 @@ export const AppComponent: React.FC = () => {
                     await template.loadTemplateImage();
                     debug('AppComponent.handleInitialHash: Loading Wplace image');
                     await template.loadWplaceImage();
-                    setCurrentTemplate(template);
-                    setTemplateName(template.name);
-                    setLastUpdated(new Date());
-                    debug(`AppComponent.handleInitialHash: Set current template: ${template.name}`);
                     
-                    // Update statistics
-                    if (template.templateImage && template.wplaceImage) {
-                        debug('AppComponent.handleInitialHash: Creating statistics manager');
-                        statisticsManagerRef.current = new StatisticsManager(
-                            template.templateImage, 
-                            template.wplaceImage
-                        );
-                        setStatistics(statisticsManagerRef.current.getStatistics());
-                        debug('AppComponent.handleInitialHash: Statistics updated');
-                    }
+                    // Emit template load event
+                    eventManager.emit('template:load', new TemplateLoadEventArts(template));
+                    debug(`AppComponent.handleInitialHash: Emitted template:load event for: ${template.name}`);
+                    
                 } catch (error) {
                     debug('AppComponent.handleInitialHash: Error loading template from hash:', error);
                 }
@@ -166,28 +156,78 @@ export const AppComponent: React.FC = () => {
                     const template = Template.deserialize(hash);
                     await template.loadTemplateImage();
                     await template.loadWplaceImage();
-                    setCurrentTemplate(template);
-                    setTemplateName(template.name);
-                    setLastUpdated(new Date());
-                    debug(`AppComponent.handleHashChange: Updated template to: ${template.name}`);
+                    
+                    // Emit template load event
+                    eventManager.emit('template:load', new TemplateLoadEventArts(template));
+                    debug(`AppComponent.handleHashChange: Emitted template:load event for: ${template.name}`);
+                    
                 } catch (error) {
                     debug('AppComponent.handleHashChange: Error loading template from hash change:', error);
                 }
             } else {
                 debug('AppComponent.handleHashChange: Hash cleared, resetting template');
-                setCurrentTemplate(undefined);
-                setTemplateName('Untitled Template');
-                setLastUpdated(new Date());
+                // Emit template change event with undefined
+                eventManager.emit('template:change', new TemplateChangeEventArts(undefined));
             }
         };
 
         window.addEventListener('hashchange', handleHashChange);
         
-        // Set up auto-update interval
-        if (currentTemplate) {
-            debug('AppComponent.useEffect: Starting auto-update');
-            startAutoUpdate();
-        }
+        // Set up event listeners
+        const handleTemplateSave = (args: TemplateSaveEventArts) => {
+            debug(`AppComponent.handleTemplateSave: Received template:save event for: ${args.template.name}`);
+            handleTemplateSaveInternal(args.template);
+        };
+
+        const handleTemplateLoad = (args: TemplateLoadEventArts) => {
+            debug(`AppComponent.handleTemplateLoad: Received template:load event for: ${args.template.name}`);
+            handleTemplateLoadInternal(args.template);
+        };
+
+        const handleTemplateChange = (args: TemplateChangeEventArts) => {
+            debug(`AppComponent.handleTemplateChange: Received template:change event`);
+            setCurrentTemplate(args.template);
+            setTemplateName(args.template?.name || 'Untitled Template');
+            setLastUpdated(new Date());
+            
+            // Update statistics if template exists
+            if (args.template?.templateImage && args.template?.wplaceImage) {
+                statisticsManagerRef.current = new StatisticsManager(
+                    args.template.templateImage, 
+                    args.template.wplaceImage
+                );
+                const newStatistics = statisticsManagerRef.current.getStatistics();
+                setStatistics(newStatistics);
+                eventManager.emit('statistics:update', new StatisticsUpdateEventArts(newStatistics));
+            } else {
+                setStatistics([]);
+                eventManager.emit('statistics:update', new StatisticsUpdateEventArts([]));
+            }
+            
+            // Start/stop auto-update
+            if (args.template) {
+                startAutoUpdate();
+            } else {
+                stopAutoUpdate();
+            }
+        };
+
+        const handleStatisticsUpdate = (args: StatisticsUpdateEventArts) => {
+            debug(`AppComponent.handleStatisticsUpdate: Received statistics:update event with ${args.statistics.length} rows`);
+            setStatistics(args.statistics);
+        };
+
+        const handleLastUpdatedChange = (args: LastUpdatedEventArts) => {
+            debug(`AppComponent.handleLastUpdatedChange: Received last-updated:change event`);
+            setLastUpdated(args.lastUpdated);
+        };
+
+        // Subscribe to events
+        eventManager.on('template:save', handleTemplateSave);
+        eventManager.on('template:load', handleTemplateLoad);
+        eventManager.on('template:change', handleTemplateChange);
+        eventManager.on('statistics:update', handleStatisticsUpdate);
+        eventManager.on('last-updated:change', handleLastUpdatedChange);
         
         // Listen for manual update requests
         const handleManualUpdate = async () => {
@@ -206,6 +246,14 @@ export const AppComponent: React.FC = () => {
             debug('AppComponent.useEffect: Cleaning up event listeners and intervals');
             window.removeEventListener('hashchange', handleHashChange);
             window.removeEventListener('manualUpdateRequested', handleManualUpdate);
+            
+            // Unsubscribe from events
+            eventManager.off('template:save', handleTemplateSave);
+            eventManager.off('template:load', handleTemplateLoad);
+            eventManager.off('template:change', handleTemplateChange);
+            eventManager.off('statistics:update', handleStatisticsUpdate);
+            eventManager.off('last-updated:change', handleLastUpdatedChange);
+            
             stopAutoUpdate();
         };
     }, []);
@@ -221,20 +269,19 @@ export const AppComponent: React.FC = () => {
         });
     };
 
-    const handleTemplateSave = (template: Template) => {
-        debug(`AppComponent.handleTemplateSave: Saving template: ${template.name}`);
-        setTemplateName(template.name);
-        setLastUpdated(new Date());
-        setCurrentTemplate(template);
+    const handleTemplateSaveInternal = (template: Template) => {
+        debug(`AppComponent.handleTemplateSaveInternal: Saving template: ${template.name}`);
+        // Emit template change event
+        eventManager.emit('template:change', new TemplateChangeEventArts(template));
         // Serialize and add to hash
         const serialized = template.serialize();
         window.location.hash = serialized;
+        // Emit last updated event
+        eventManager.emit('last-updated:change', new LastUpdatedEventArts(new Date()));
     };
 
-    const handleTemplateLoad = async (template: Template) => {
-        debug(`AppComponent.handleTemplateLoad: Loading template: ${template.name}`);
-        setTemplateName(template.name);
-        setLastUpdated(new Date());
+    const handleTemplateLoadInternal = async (template: Template) => {
+        debug(`AppComponent.handleTemplateLoadInternal: Loading template: ${template.name}`);
         
         // Ensure the template image is loaded
         if (!template.templateImage) {
@@ -245,21 +292,15 @@ export const AppComponent: React.FC = () => {
             await template.loadWplaceImage();
         }
         
-        // Update the current template
-        setCurrentTemplate(template);
+        // Emit template change event
+        eventManager.emit('template:change', new TemplateChangeEventArts(template));
         
         // Serialize and add to hash
         const serialized = template.serialize();
         window.location.hash = serialized;
         
-        // Update statistics
-        if (template.templateImage && template.wplaceImage) {
-            statisticsManagerRef.current = new StatisticsManager(
-                template.templateImage, 
-                template.wplaceImage
-            );
-            setStatistics(statisticsManagerRef.current.getStatistics());
-        }
+        // Emit last updated event
+        eventManager.emit('last-updated:change', new LastUpdatedEventArts(new Date()));
         
         // Start auto-update when a template is loaded
         startAutoUpdate();

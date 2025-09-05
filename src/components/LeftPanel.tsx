@@ -75,9 +75,10 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         const updatedTemplates = this.collection.getTemplates();
         this.setState({ templates: updatedTemplates, isNewTemplate: false });
         
-        if (this.props.onTemplateSave) {
-            this.props.onTemplateSave(template);
-        }
+        // Emit template save event
+        const eventManager = EventManager.getInstance();
+        eventManager.emit('template:save', new TemplateSaveEventArts(template));
+        
         // Close the view
         this.props.onCloseView();
     }
@@ -99,9 +100,11 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     private handleTemplateLoad(template: Template): void {
         debug(`[LeftPanel.handleTemplateLoad] Loading template from list: ${template.name}`);
-        if (this.props.onTemplateLoad) {
-            this.props.onTemplateLoad(template);
-        }
+        
+        // Emit template load event
+        const eventManager = EventManager.getInstance();
+        eventManager.emit('template:load', new TemplateLoadEventArts(template));
+        
         // Close the view
         this.props.onCloseView();
     }
