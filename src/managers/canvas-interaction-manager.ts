@@ -1,25 +1,41 @@
-// Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
-
 import { Template } from '../types/template';
 import { clamp, debug } from '../utils';
 import { EventManager, IEventArgs } from './event-manager';
 
+/**
+ * Represents a 2D point with x and y coordinates
+ */
 export type Point = { x: number; y: number };
 
 
+/**
+ * Manages canvas interactions including panning, zooming, and touch events
+ * Handles user input and transforms canvas view accordingly
+ */
 export class CanvasInteractionManager {
     private eventManager = EventManager.getInstance();
 
+    /** The HTML canvas element being managed */
     private canvas: HTMLCanvasElement;
+    /** Current zoom scale (1 = 100%) */
     private scale: number = 1;
+    /** Current pan offset in canvas coordinates */
     private offset: Point = { x: 0, y: 0 };
+    /** Flag indicating if the user is currently dragging the canvas */
     private isDragging: boolean = false;
+    /** Last recorded mouse position for drag calculations */
     private lastMousePosition: Point = { x: 0, y: 0 };
+    /** The current template being displayed on the canvas */
     private currentTemplate?: Template;
 
+    /**
+     * Creates a new CanvasInteractionManager instance
+     * @param canvas The HTML canvas element to manage
+     */
     constructor(
         canvas: HTMLCanvasElement
     ) {
+        debug('[CanvasInteractionManager.constructor] Creating new CanvasInteractionManager');
         this.canvas = canvas;
         // Set initial cursor style
         this.canvas.style.cursor = 'grab';
@@ -31,12 +47,22 @@ export class CanvasInteractionManager {
         debug('[CanvasInteractionManager.constructor] Subscribed to canvas:zoom-request events');
     }
 
+    /**
+     * Sets the current template and resets the view
+     * @param template The template to display on the canvas
+     */
     setTemplate(template?: Template): void {
+        debug(`[CanvasInteractionManager.setTemplate] Setting template: ${template?.name || 'undefined'}`);
         this.currentTemplate = template;
         this.resetView();
     }
 
+    /**
+     * Sets the zoom scale and applies bounds constraints
+     * @param newScale The new zoom scale value
+     */
     setScale(newScale: number): void {
+        debug(`[CanvasInteractionManager.setScale] Setting scale from ${this.scale} to ${newScale}`);
         this.scale = newScale;
         // Apply bounds when scale changes
         this.applyBounds();
@@ -45,13 +71,19 @@ export class CanvasInteractionManager {
         this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
     }
 
+    /**
+     * Resets the canvas view to default position and scale
+     * Centers the template image if available
+     */
     resetView(): void {
+        debug('[CanvasInteractionManager.resetView] Resetting canvas view');
         this.scale = 1;
         
         // Ensure canvas dimensions are up to date
         // The canvas might not have been sized yet, so we need to check its parent
         const container = this.canvas.parentElement;
         if (container) {
+            debug(`[CanvasInteractionManager.resetView] Setting canvas dimensions to ${container.clientWidth}x${container.clientHeight}`);
             this.canvas.width = container.clientWidth;
             this.canvas.height = container.clientHeight;
         }
@@ -64,15 +96,21 @@ export class CanvasInteractionManager {
             const centerX = (this.canvas.width - img.width) / 2;
             const centerY = (this.canvas.height - img.height) / 2;
             this.offset = { x: centerX, y: centerY };
+            debug(`[CanvasInteractionManager.resetView] Centered template image at (${centerX}, ${centerY})`);
         } else {
             this.offset = { x: 0, y: 0 };
+            debug('[CanvasInteractionManager.resetView] No template image, reset offset to (0, 0)');
         }
         
         // Update through callback
         this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
     }
 
+    /**
+     * Sets up all event listeners for canvas interactions
+     */
     private setupEventListeners(): void {
+        debug('[CanvasInteractionManager.setupEventListeners] Setting up event listeners');
         // Mouse events
         this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -84,10 +122,15 @@ export class CanvasInteractionManager {
         this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
         this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
         this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this));
+        debug('[CanvasInteractionManager.setupEventListeners] Event listeners setup complete');
     }
 
+    /**
+     * Handles mouse down events for starting drag operations
+     * @param e Mouse event
+     */
     private handleMouseDown(e: MouseEvent): void {
-        console.log('Mouse down on canvas');
+        debug('[CanvasInteractionManager.handleMouseDown] Mouse down on canvas');
         this.isDragging = true;
         this.lastMousePosition = { x: e.clientX, y: e.clientY };
         this.canvas.style.cursor = 'grabbing';
@@ -95,6 +138,10 @@ export class CanvasInteractionManager {
         e.preventDefault();
     }
 
+    /**
+     * Handles mouse move events for drag operations
+     * @param e Mouse event
+     */
     private handleMouseMove(e: MouseEvent): void {
         if (this.isDragging) {
             const deltaX = e.clientX - this.lastMousePosition.x;
@@ -110,25 +157,31 @@ export class CanvasInteractionManager {
             
             this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
             
-            // Test output in one line
-            debug(`Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
+            debug(`[CanvasInteractionManager.handleMouseMove] Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
             
             // Prevent default during drag
             e.preventDefault();
         }
     }
 
+    /**
+     * Handles mouse up events for ending drag operations
+     */
     private handleMouseUp(): void {
+        debug('[CanvasInteractionManager.handleMouseUp] Mouse up, ending drag');
         this.isDragging = false;
         this.canvas.style.cursor = 'grab';
     }
 
+    /**
+     * Handles mouse wheel events for zoom operations
+     * @param e Wheel event
+     */
     private handleWheel(e: WheelEvent): void {
         e.preventDefault();
         e.stopPropagation(); // Prevent event from bubbling up
 
-        // Add debug message
-        debug(`handleWheel called: deltaY=${e.deltaY}, deltaMode=${e.deltaMode}`);
+        debug(`[CanvasInteractionManager.handleWheel] Wheel event: deltaY=${e.deltaY}, deltaMode=${e.deltaMode}`);
         
         // Use a smaller zoom intensity for smoother zooming
         const zoomIntensity = 0.05;
