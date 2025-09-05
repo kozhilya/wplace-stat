@@ -10,6 +10,48 @@ import { StatisticsRow, StatisticsManager } from '../managers/statistics-manager
 import { AUTO_UPDATE_INTERVAL } from '../settings';
 import { debug } from '../utils';
 import { EventManager } from '../managers/event-manager';
+import { IEventArgs } from '../managers/event-manager';
+
+// Event classes for AppComponent
+export class TemplateSaveEventArts implements IEventArgs {
+    template: Template;
+    
+    constructor(template: Template) {
+        this.template = template;
+    }
+}
+
+export class TemplateLoadEventArts implements IEventArgs {
+    template: Template;
+    
+    constructor(template: Template) {
+        this.template = template;
+    }
+}
+
+export class TemplateChangeEventArts implements IEventArgs {
+    template?: Template;
+    
+    constructor(template?: Template) {
+        this.template = template;
+    }
+}
+
+export class StatisticsUpdateEventArts implements IEventArgs {
+    statistics: StatisticsRow[];
+    
+    constructor(statistics: StatisticsRow[]) {
+        this.statistics = statistics;
+    }
+}
+
+export class LastUpdatedEventArts implements IEventArgs {
+    lastUpdated: Date;
+    
+    constructor(lastUpdated: Date) {
+        this.lastUpdated = lastUpdated;
+    }
+}
 
 export const AppComponent: React.FC = () => {
     const eventManager = EventManager.getInstance();

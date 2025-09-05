@@ -1,6 +1,13 @@
 import { debug } from '../utils';
 import { CanvasMovementEventArgs, CanvasZoomRequestEventArgs } from './canvas-interaction-manager';
 import { LanguageChangeEventArts, LanguageRequestEventArts } from './language-manager';
+import { 
+    TemplateSaveEventArts, 
+    TemplateLoadEventArts, 
+    TemplateChangeEventArts, 
+    StatisticsUpdateEventArts, 
+    LastUpdatedEventArts 
+} from '../components/AppComponent';
 
 export interface IEventArgs {}
 
@@ -34,6 +41,12 @@ export interface EventMapping {
     'language:request': LanguageRequestEventArts,
     'language:change': LanguageChangeEventArts,
 
+    // AppComponent events
+    'template:save': TemplateSaveEventArts,
+    'template:load': TemplateLoadEventArts,
+    'template:change': TemplateChangeEventArts,
+    'statistics:update': StatisticsUpdateEventArts,
+    'last-updated:change': LastUpdatedEventArts,
 };
 
 /**
