@@ -1,3 +1,5 @@
+// Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
+
 import { Template } from '../types/template';
 import { clamp, debug } from '../utils';
 import { EventManager, IEventArgs } from './event-manager';
