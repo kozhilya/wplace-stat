@@ -1,6 +1,4 @@
-// Переделай этот React-компонент в представление в виде `class`. Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
 
@@ -13,114 +11,201 @@ interface HeaderProps {
     isUpdating: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ 
-    templateName, 
-    lastUpdated, 
-    onTemplateButtonClick, 
-    onTemplatesButtonClick,
-    hasActiveTemplate,
-    isUpdating 
-}) => {
-    const [currentLanguage, setCurrentLanguage] = useState(LanguageManager.getCurrentLanguage());
-    const [isDarkMode, setIsDarkMode] = useState(document.body.classList.contains('dark-mode'));
-    
-    useEffect(() => {
-        debug('Header.useEffect: Setting up language change listener');
-        const handleLanguageChange = () => {
-            debug('Header.handleLanguageChange: Language changed, updating state');
-            setCurrentLanguage(LanguageManager.getCurrentLanguage());
-        };
-        
-        LanguageManager.onLanguageChange(handleLanguageChange);
-        
-        return () => {
-            debug('Header.useEffect: Cleaning up language change listener');
-            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
-        };
-    }, []);
+interface HeaderState {
+    currentLanguage: string;
+    isDarkMode: boolean;
+}
 
-    const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+/**
+ * Class component for the application header
+ * Displays template information, controls, and settings
+ */
+export class Header extends React.Component<HeaderProps, HeaderState> {
+    private languageChangeCallback: () => void;
+
+    /**
+     * Creates a new Header instance
+     * @param props Component properties
+     */
+    constructor(props: HeaderProps) {
+        super(props);
+        debug('[Header.constructor] Creating Header instance');
+        
+        this.state = {
+            currentLanguage: LanguageManager.getCurrentLanguage(),
+            isDarkMode: document.body.classList.contains('dark-mode')
+        };
+
+        this.languageChangeCallback = this.handleLanguageChange.bind(this);
+    }
+
+    /**
+     * Handles language change events from LanguageManager
+     * Updates the component state with the new language
+     */
+    private handleLanguageChange(): void {
+        debug('[Header.handleLanguageChange] Language changed, updating state');
+        this.setState({ currentLanguage: LanguageManager.getCurrentLanguage() });
+    }
+
+    /**
+     * Handles language selector change events
+     * @param event Change event from the language selector
+     */
+    private handleLanguageSelectorChange(event: React.ChangeEvent<HTMLSelectElement>): void {
         const newLanguage = event.target.value as 'en' | 'ru' | 'es';
-        debug(`Header.handleLanguageChange: Language changed to: ${newLanguage}`);
+        debug(`[Header.handleLanguageSelectorChange] Language changed to: ${newLanguage}`);
         LanguageManager.setLanguage(newLanguage);
-    };
+    }
 
-    return (
-        <header className="header">
-            <div className="header-left">
-                <button 
-                    className="templates-button"
-                    onClick={onTemplatesButtonClick}
-                    title={LanguageManager.getText('templates')}
-                >
-                    <i className="fas fa-bars"></i>
-                </button>
-                <h1>
-                    WPlace Progress Tracker - {templateName}
-                </h1>
-                {hasActiveTemplate && (
+    /**
+     * Handles dark mode toggle button click
+     * Toggles dark mode and updates localStorage
+     */
+    private handleDarkModeToggle(): void {
+        const isDark = document.body.classList.toggle('dark-mode');
+        debug(`[Header.handleDarkModeToggle] Dark mode ${isDark ? 'enabled' : 'disabled'}`);
+        localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+        this.setState({ isDarkMode: isDark });
+    }
+
+    /**
+     * Handles manual update button click
+     * Dispatches a custom event to request a manual update
+     */
+    private handleManualUpdate(): void {
+        if (!this.props.isUpdating) {
+            debug('[Header.handleManualUpdate] Manual update requested');
+            const event = new CustomEvent('manualUpdateRequested');
+            window.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * Handles template button click
+     * Calls the parent component's callback with debug logging
+     */
+    private handleTemplateButtonClick(): void {
+        debug('[Header.handleTemplateButtonClick] Template edit button clicked');
+        this.props.onTemplateButtonClick();
+    }
+
+    /**
+     * Handles templates button click
+     * Calls the parent component's callback
+     */
+    private handleTemplatesButtonClick(): void {
+        debug('[Header.handleTemplatesButtonClick] Templates button clicked');
+        this.props.onTemplatesButtonClick();
+    }
+
+    /**
+     * React lifecycle method called after component mounts
+     * Sets up language change listener
+     */
+    componentDidMount(): void {
+        debug('[Header.componentDidMount] Component mounted');
+        LanguageManager.onLanguageChange(this.languageChangeCallback);
+    }
+
+    /**
+     * React lifecycle method called before component unmounts
+     * Cleans up language change listener
+     */
+    componentWillUnmount(): void {
+        debug('[Header.componentWillUnmount] Component unmounting');
+        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+    }
+
+    /**
+     * React lifecycle method called when props or state update
+     * @param prevProps Previous props
+     * @param prevState Previous state
+     */
+    componentDidUpdate(prevProps: HeaderProps, prevState: HeaderState): void {
+        debug('[Header.componentDidUpdate] Component updated');
+        
+        if (this.props.templateName !== prevProps.templateName) {
+            debug(`[Header.componentDidUpdate] Template name changed: ${prevProps.templateName} -> ${this.props.templateName}`);
+        }
+        
+        if (this.props.lastUpdated !== prevProps.lastUpdated) {
+            debug(`[Header.componentDidUpdate] Last updated changed: ${prevProps.lastUpdated} -> ${this.props.lastUpdated}`);
+        }
+        
+        if (this.props.isUpdating !== prevProps.isUpdating) {
+            debug(`[Header.componentDidUpdate] Updating state changed: ${prevProps.isUpdating} -> ${this.props.isUpdating}`);
+        }
+    }
+
+    /**
+     * React render method
+     * @returns Rendered component
+     */
+    render(): React.ReactNode {
+        debug('[Header.render] Rendering component');
+        return (
+            <header className="header">
+                <div className="header-left">
                     <button 
-                        className="template-button"
-                        onClick={() => {
-                            debug('Header.onClick: Template edit button clicked');
-                            onTemplateButtonClick();
-                        }}
-                        title={LanguageManager.getText('template')}
+                        className="templates-button"
+                        onClick={this.handleTemplatesButtonClick.bind(this)}
+                        title={LanguageManager.getText('templates')}
                     >
-                        <i className="fas fa-pencil-alt"></i>
+                        <i className="fas fa-bars"></i>
                     </button>
-                )}
-            </div>
-            <div className="header-right">
-                <div className="last-updated-container">
-                    <button 
-                        className="last-updated-button"
-                        onClick={() => {
-                            if (!isUpdating) {
-                                debug('Header.onClick: Manual update requested');
-                                // Trigger manual update
-                                const event = new CustomEvent('manualUpdateRequested');
-                                window.dispatchEvent(event);
-                            }
-                        }}
-                        title="Click to update now"
-                        disabled={isUpdating}
-                    >
-                        <i className={`fas fa-sync-alt refresh-icon ${isUpdating ? 'rotating' : ''}`}></i>
-                        {LanguageManager.getText('lastUpdated')}: {lastUpdated.toLocaleTimeString()}
-                    </button>
+                    <h1>
+                        WPlace Progress Tracker - {this.props.templateName}
+                    </h1>
+                    {this.props.hasActiveTemplate && (
+                        <button 
+                            className="template-button"
+                            onClick={this.handleTemplateButtonClick.bind(this)}
+                            title={LanguageManager.getText('template')}
+                        >
+                            <i className="fas fa-pencil-alt"></i>
+                        </button>
+                    )}
                 </div>
-                <select 
-                    value={currentLanguage}
-                    onChange={handleLanguageChange}
-                    className="language-selector"
-                >
-                    <option value="en">EN</option>
-                    <option value="ru">RU</option>
-                    <option value="es">ES</option>
-                </select>
-                <button 
-                    className="dark-mode-toggle"
-                    onClick={() => {
-                        const isDark = document.body.classList.toggle('dark-mode');
-                        debug(`Header.onClick: Dark mode ${isDark ? 'enabled' : 'disabled'}`);
-                        localStorage.setItem('darkMode', isDark ? 'true' : 'false');
-                        setIsDarkMode(isDark);
-                    }}
-                    title={isDarkMode ? LanguageManager.getText('lightMode') : LanguageManager.getText('darkMode')}
-                >
-                    <i className={isDarkMode ? 'fas fa-sun' : 'fas fa-moon'}></i>
-                </button>
-                <a 
-                    href="https://github.com/kozhilya/wplace-stat" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="button github-link"
-                    title="View on GitHub"
-                >
-                    <i className="fab fa-github"></i>
-                </a>
-            </div>
-        </header>
-    );
-};
+                <div className="header-right">
+                    <div className="last-updated-container">
+                        <button 
+                            className="last-updated-button"
+                            onClick={this.handleManualUpdate.bind(this)}
+                            title="Click to update now"
+                            disabled={this.props.isUpdating}
+                        >
+                            <i className={`fas fa-sync-alt refresh-icon ${this.props.isUpdating ? 'rotating' : ''}`}></i>
+                            {LanguageManager.getText('lastUpdated')}: {this.props.lastUpdated.toLocaleTimeString()}
+                        </button>
+                    </div>
+                    <select 
+                        value={this.state.currentLanguage}
+                        onChange={this.handleLanguageSelectorChange.bind(this)}
+                        className="language-selector"
+                    >
+                        <option value="en">EN</option>
+                        <option value="ru">RU</option>
+                        <option value="es">ES</option>
+                    </select>
+                    <button 
+                        className="dark-mode-toggle"
+                        onClick={this.handleDarkModeToggle.bind(this)}
+                        title={this.state.isDarkMode ? LanguageManager.getText('lightMode') : LanguageManager.getText('darkMode')}
+                    >
+                        <i className={this.state.isDarkMode ? 'fas fa-sun' : 'fas fa-moon'}></i>
+                    </button>
+                    <a 
+                        href="https://github.com/kozhilya/wplace-stat" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="button github-link"
+                        title="View on GitHub"
+                    >
+                        <i className="fab fa-github"></i>
+                    </a>
+                </div>
+            </header>
+        );
+    }
+}
