@@ -1,6 +1,4 @@
-// Переделай этот React-компонент в представление в виде `class`. Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Template } from '../types/template';
 import { debug } from '../utils';
 import { LanguageManager } from '../managers/language-manager';
@@ -13,134 +11,104 @@ interface TemplateConfigProps {
     editedTemplate?: Template | null;
 }
 
-export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
-    const { onTemplateSave, isNewTemplate, onClearForm, currentTemplate, editedTemplate } = props;
-    // Determine if we're editing or creating based on editedTemplate
-    const isEditing = editedTemplate !== undefined;
-    const [name, setName] = useState<string>('');
-    const [tlX, setTlX] = useState<string>('');
-    const [tlY, setTlY] = useState<string>('');
-    const [pxX, setPxX] = useState<string>('');
-    const [pxY, setPxY] = useState<string>('');
-    const [imageDataUrl, setImageDataUrl] = useState<string>('');
-    const [language, setLanguage] = useState(LanguageManager.getCurrentLanguage());
-    const [exampleNumbers] = useState(() => 
-        Array.from({ length: 4 }, () => Math.floor(Math.random() * 1000)).join(' ')
-    );
+interface TemplateConfigState {
+    name: string;
+    tlX: string;
+    tlY: string;
+    pxX: string;
+    pxY: string;
+    imageDataUrl: string;
+    language: string;
+    exampleNumbers: string;
+}
 
-    // Function to clear the form
-    const clearForm = () => {
-        setName('');
-        setTlX('');
-        setTlY('');
-        setPxX('');
-        setPxY('');
-        setImageDataUrl('');
-    };
+/**
+ * Class component for template configuration form
+ * Handles template creation, editing, and loading from hash
+ */
+export class TemplateConfig extends React.Component<TemplateConfigProps, TemplateConfigState> {
+    private languageChangeCallback: () => void;
+    private hashChangeHandler: (() => void) | null = null;
 
-    useEffect(() => {
-        debug('[TemplateConfig.useEffect] Setting up language change listener');
-        const handleLanguageChange = () => {
-            debug('[TemplateConfig.handleLanguageChange] Language changed, updating state');
-            setLanguage(LanguageManager.getCurrentLanguage());
-        };
+    /**
+     * Creates a new TemplateConfig instance
+     * @param props Component properties
+     */
+    constructor(props: TemplateConfigProps) {
+        super(props);
+        debug('[TemplateConfig.constructor] Creating TemplateConfig instance');
         
-        LanguageManager.onLanguageChange(handleLanguageChange);
-        
-        return () => {
-            debug('[TemplateConfig.useEffect] Cleaning up language change listener');
-            LanguageManager.removeLanguageChangeListener(handleLanguageChange);
+        this.state = {
+            name: '',
+            tlX: '',
+            tlY: '',
+            pxX: '',
+            pxY: '',
+            imageDataUrl: '',
+            language: LanguageManager.getCurrentLanguage(),
+            exampleNumbers: Array.from({ length: 4 }, () => Math.floor(Math.random() * 1000)).join(' ')
         };
-    }, []);
 
-    // Clear form when isNewTemplate is true
-    useEffect(() => {
-        debug(`[TemplateConfig.useEffect] isNewTemplate changed to: ${isNewTemplate}`);
-        if (isNewTemplate) {
-            debug('[TemplateConfig.useEffect] Clearing form for new template');
-            clearForm();
-            if (onClearForm) {
-                debug('[TemplateConfig.useEffect] Calling onClearForm callback');
-                onClearForm();
+        this.languageChangeCallback = this.handleLanguageChange.bind(this);
+    }
+
+    /**
+     * Clears the form fields
+     */
+    private clearForm(): void {
+        debug('[TemplateConfig.clearForm] Clearing form fields');
+        this.setState({
+            name: '',
+            tlX: '',
+            tlY: '',
+            pxX: '',
+            pxY: '',
+            imageDataUrl: ''
+        });
+    }
+
+    /**
+     * Handles language change events from LanguageManager
+     * Updates the component state with the new language
+     */
+    private handleLanguageChange(): void {
+        debug('[TemplateConfig.handleLanguageChange] Language changed, updating state');
+        this.setState({ language: LanguageManager.getCurrentLanguage() });
+    }
+
+    /**
+     * Loads template data from URL hash
+     */
+    private loadFromHash(): void {
+        if (window.location.hash) {
+            try {
+                const hash = window.location.hash.substring(1);
+                debug(`[TemplateConfig.loadFromHash] Loading template from hash: ${hash.substring(0, 20)}...`);
+                const template = Template.deserialize(hash);
+                this.setState({
+                    name: template.name,
+                    tlX: template.tlX.toString(),
+                    tlY: template.tlY.toString(),
+                    pxX: template.pxX.toString(),
+                    pxY: template.pxY.toString(),
+                    imageDataUrl: template.imageDataUrl
+                });
+            } catch (error) {
+                debug('[TemplateConfig.loadFromHash] Error loading template from hash:', error);
             }
         }
-    }, [isNewTemplate, onClearForm]);
+    }
 
-    // Load template data when component mounts or dependencies change
-    useEffect(() => {
-        // Always clear the form if isNewTemplate is true or editedTemplate is null (creating new)
-        if (isNewTemplate || editedTemplate === null) {
-            debug('[TemplateConfig.useEffect] Clearing form for new template creation');
-            clearForm();
-            return;
-        }
-
-        // Load from editedTemplate if provided (for editing)
-        if (editedTemplate) {
-            debug(`[TemplateConfig.useEffect] Loading template for editing: ${editedTemplate.name}`);
-            setName(editedTemplate.name);
-            setTlX(editedTemplate.tlX.toString());
-            setTlY(editedTemplate.tlY.toString());
-            setPxX(editedTemplate.pxX.toString());
-            setPxY(editedTemplate.pxY.toString());
-            setImageDataUrl(editedTemplate.imageDataUrl);
-            return;
-        }
-
-        const loadFromHash = () => {
-            if (window.location.hash) {
-                try {
-                    const hash = window.location.hash.substring(1); // Remove the '#' character
-                    debug(`[TemplateConfig.loadFromHash] Loading template from hash: ${hash.substring(0, 20)}...`);
-                    const template = Template.deserialize(hash);
-                    setName(template.name);
-                    setTlX(template.tlX.toString());
-                    setTlY(template.tlY.toString());
-                    setPxX(template.pxX.toString());
-                    setPxY(template.pxY.toString());
-                    setImageDataUrl(template.imageDataUrl);
-                } catch (error) {
-                    debug('Error loading template from hash:', error);
-                }
-            }
-        };
-
-        // Load from current template prop if available, otherwise from hash
-        if (currentTemplate) {
-            debug(`[TemplateConfig.useEffect] Loading from current template: ${currentTemplate.name}`);
-            setName(currentTemplate.name);
-            setTlX(currentTemplate.tlX.toString());
-            setTlY(currentTemplate.tlY.toString());
-            setPxX(currentTemplate.pxX.toString());
-            setPxY(currentTemplate.pxY.toString());
-            setImageDataUrl(currentTemplate.imageDataUrl);
-        } else {
-            loadFromHash();
-        }
-
-        // Listen for hash changes
-        const handleHashChange = () => {
-            if (!isNewTemplate) {
-                debug('[TemplateConfig.handleHashChange] Hash changed, reloading template data');
-                loadFromHash();
-            }
-        };
-
-        window.addEventListener('hashchange', handleHashChange);
-        
-        return () => {
-            window.removeEventListener('hashchange', handleHashChange);
-        };
-    }, [isNewTemplate, currentTemplate, editedTemplate]); // Add dependencies
-
-    const handlePaste = (e: React.ClipboardEvent) => {
+    /**
+     * Handles paste events to parse coordinate data
+     * @param e Clipboard event
+     */
+    private handlePaste(e: React.ClipboardEvent): void {
         const pastedText = e.clipboardData.getData('text');
         debug(`[TemplateConfig.handlePaste] Pasted text: ${pastedText}`);
-        // Try to parse 4 numbers separated by various delimiters
         const numbers = pastedText.split(/[\s,.;\-–—]+/).filter(num => num.trim() !== '');
         
         if (numbers.length === 4) {
-            // Check if all parts are valid numbers
             const validNumbers = numbers.map(num => {
                 const parsed = parseInt(num);
                 return isNaN(parsed) ? null : parsed;
@@ -149,43 +117,45 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             if (validNumbers.every(num => num !== null)) {
                 debug(`[TemplateConfig.handlePaste] Parsed coordinates: ${validNumbers.join(', ')}`);
                 e.preventDefault();
-                setTlX(validNumbers[0]!.toString());
-                setTlY(validNumbers[1]!.toString());
-                setPxX(validNumbers[2]!.toString());
-                setPxY(validNumbers[3]!.toString());
+                this.setState({
+                    tlX: validNumbers[0]!.toString(),
+                    tlY: validNumbers[1]!.toString(),
+                    pxX: validNumbers[2]!.toString(),
+                    pxY: validNumbers[3]!.toString()
+                });
             } else {
                 debug('[TemplateConfig.handlePaste] Invalid numbers in pasted text');
             }
         } else {
             debug(`[TemplateConfig.handlePaste] Expected 4 numbers, got ${numbers.length}`);
         }
-    };
+    }
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    /**
+     * Handles form submission
+     * @param e Form event
+     */
+    private async handleSubmit(e: React.FormEvent): Promise<void> {
         e.preventDefault();
         debug('[TemplateConfig.handleSubmit] Submitting template form');
         
         const template = new Template(
-            name,
-            parseInt(tlX),
-            parseInt(tlY),
-            parseInt(pxX),
-            parseInt(pxY),
-            imageDataUrl
+            this.state.name,
+            parseInt(this.state.tlX),
+            parseInt(this.state.tlY),
+            parseInt(this.state.pxX),
+            parseInt(this.state.pxY),
+            this.state.imageDataUrl
         );
         
         try {
-            // Load the template image
             await template.loadTemplateImage();
-            
-            // Load the Wplace image
             await template.loadWplaceImage();
             
-            if (onTemplateSave) {
-                onTemplateSave(template);
+            if (this.props.onTemplateSave) {
+                this.props.onTemplateSave(template);
             }
             
-            // Serialize and add to hash
             const serialized = template.serialize();
             window.location.hash = serialized;
             debug('[TemplateConfig.handleSubmit] Template saved successfully');
@@ -193,93 +163,206 @@ export const TemplateConfig: React.FC<TemplateConfigProps> = (props) => {
             debug('[TemplateConfig.handleSubmit] Error loading images:', error);
             alert('Failed to load images. Please check the image URL and try again.');
         }
-    };
+    }
 
-    return (
-        <div className="template-configuration">
-            <form id="template-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="template-name" data-i18n="templateName">Template Name:</label>
-                    <input 
-                        type="text" 
-                        id="template-name" 
-                        required 
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Untitled Template"
-                    />
-                </div>
-                <div className="coordinate-inputs-container" onPaste={handlePaste}>
-                    <div className="coordinate-inputs-row">
-                        <div className="form-group">
-                            <label htmlFor="tl-x" data-i18n="tlX">Tl X:</label>
-                            <input 
-                                type="text" 
-                                id="tl-x" 
-                                required 
-                                value={tlX}
-                                onChange={(e) => setTlX(e.target.value.replace(/[^0-9\-]/g, ''))}
-                                inputMode="numeric"
-                                pattern="[0-9\-]*"
-                            />
+    /**
+     * React lifecycle method called after component mounts
+     * Sets up language change listener and loads initial data
+     */
+    componentDidMount(): void {
+        debug('[TemplateConfig.componentDidMount] Component mounted');
+        LanguageManager.onLanguageChange(this.languageChangeCallback);
+        
+        // Load initial data
+        this.loadInitialData();
+        
+        // Set up hash change listener
+        this.hashChangeHandler = this.handleHashChange.bind(this);
+        window.addEventListener('hashchange', this.hashChangeHandler);
+    }
+
+    /**
+     * Loads initial template data based on props
+     */
+    private loadInitialData(): void {
+        debug('[TemplateConfig.loadInitialData] Loading initial template data');
+        const { isNewTemplate, editedTemplate, currentTemplate } = this.props;
+        
+        if (isNewTemplate || editedTemplate === null) {
+            debug('[TemplateConfig.loadInitialData] Clearing form for new template creation');
+            this.clearForm();
+            return;
+        }
+
+        if (editedTemplate) {
+            debug(`[TemplateConfig.loadInitialData] Loading template for editing: ${editedTemplate.name}`);
+            this.setState({
+                name: editedTemplate.name,
+                tlX: editedTemplate.tlX.toString(),
+                tlY: editedTemplate.tlY.toString(),
+                pxX: editedTemplate.pxX.toString(),
+                pxY: editedTemplate.pxY.toString(),
+                imageDataUrl: editedTemplate.imageDataUrl
+            });
+            return;
+        }
+
+        if (currentTemplate) {
+            debug(`[TemplateConfig.loadInitialData] Loading from current template: ${currentTemplate.name}`);
+            this.setState({
+                name: currentTemplate.name,
+                tlX: currentTemplate.tlX.toString(),
+                tlY: currentTemplate.tlY.toString(),
+                pxX: currentTemplate.pxX.toString(),
+                pxY: currentTemplate.pxY.toString(),
+                imageDataUrl: currentTemplate.imageDataUrl
+            });
+        } else {
+            this.loadFromHash();
+        }
+    }
+
+    /**
+     * Handles hash change events
+     */
+    private handleHashChange(): void {
+        if (!this.props.isNewTemplate) {
+            debug('[TemplateConfig.handleHashChange] Hash changed, reloading template data');
+            this.loadFromHash();
+        }
+    }
+
+    /**
+     * React lifecycle method called before component unmounts
+     * Cleans up event listeners
+     */
+    componentWillUnmount(): void {
+        debug('[TemplateConfig.componentWillUnmount] Component unmounting');
+        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+        
+        if (this.hashChangeHandler) {
+            window.removeEventListener('hashchange', this.hashChangeHandler);
+        }
+    }
+
+    /**
+     * React lifecycle method called when props update
+     * @param prevProps Previous component properties
+     */
+    componentDidUpdate(prevProps: TemplateConfigProps): void {
+        debug('[TemplateConfig.componentDidUpdate] Component updated');
+        
+        if (this.props.isNewTemplate !== prevProps.isNewTemplate) {
+            debug(`[TemplateConfig.componentDidUpdate] isNewTemplate changed to: ${this.props.isNewTemplate}`);
+            if (this.props.isNewTemplate) {
+                debug('[TemplateConfig.componentDidUpdate] Clearing form for new template');
+                this.clearForm();
+                if (this.props.onClearForm) {
+                    debug('[TemplateConfig.componentDidUpdate] Calling onClearForm callback');
+                    this.props.onClearForm();
+                }
+            }
+        }
+
+        if (this.props.editedTemplate !== prevProps.editedTemplate || 
+            this.props.currentTemplate !== prevProps.currentTemplate) {
+            debug('[TemplateConfig.componentDidUpdate] Template data changed, reloading');
+            this.loadInitialData();
+        }
+    }
+
+    /**
+     * React render method
+     * @returns Rendered component
+     */
+    render(): React.ReactNode {
+        debug('[TemplateConfig.render] Rendering component');
+        return (
+            <div className="template-configuration">
+                <form id="template-form" onSubmit={this.handleSubmit.bind(this)}>
+                    <div className="form-group">
+                        <label htmlFor="template-name" data-i18n="templateName">Template Name:</label>
+                        <input 
+                            type="text" 
+                            id="template-name" 
+                            required 
+                            value={this.state.name}
+                            onChange={(e) => this.setState({ name: e.target.value })}
+                            placeholder="Untitled Template"
+                        />
+                    </div>
+                    <div className="coordinate-inputs-container" onPaste={this.handlePaste.bind(this)}>
+                        <div className="coordinate-inputs-row">
+                            <div className="form-group">
+                                <label htmlFor="tl-x" data-i18n="tlX">Tl X:</label>
+                                <input 
+                                    type="text" 
+                                    id="tl-x" 
+                                    required 
+                                    value={this.state.tlX}
+                                    onChange={(e) => this.setState({ tlX: e.target.value.replace(/[^0-9\-]/g, '') })}
+                                    inputMode="numeric"
+                                    pattern="[0-9\-]*"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="tl-y" data-i18n="tlY">Tl Y:</label>
+                                <input 
+                                    type="text" 
+                                    id="tl-y" 
+                                    required 
+                                    value={this.state.tlY}
+                                    onChange={(e) => this.setState({ tlY: e.target.value.replace(/[^0-9\-]/g, '') })}
+                                    inputMode="numeric"
+                                    pattern="[0-9\-]*"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="px-x" data-i18n="pxX">Px X:</label>
+                                <input 
+                                    type="text" 
+                                    id="px-x" 
+                                    required 
+                                    value={this.state.pxX}
+                                    onChange={(e) => this.setState({ pxX: e.target.value.replace(/[^0-9\-]/g, '') })}
+                                    inputMode="numeric"
+                                    pattern="[0-9\-]*"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="px-y" data-i18n="pxY">Px Y:</label>
+                                <input 
+                                    type="text" 
+                                    id="px-y" 
+                                    required 
+                                    value={this.state.pxY}
+                                    onChange={(e) => this.setState({ pxY: e.target.value.replace(/[^0-9\-]/g, '') })}
+                                    inputMode="numeric"
+                                    pattern="[0-9\-]*"
+                                />
+                            </div>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="tl-y" data-i18n="tlY">Tl Y:</label>
-                            <input 
-                                type="text" 
-                                id="tl-y" 
-                                required 
-                                value={tlY}
-                                onChange={(e) => setTlY(e.target.value.replace(/[^0-9\-]/g, ''))}
-                                inputMode="numeric"
-                                pattern="[0-9\-]*"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="px-x" data-i18n="pxX">Px X:</label>
-                            <input 
-                                type="text" 
-                                id="px-x" 
-                                required 
-                                value={pxX}
-                                onChange={(e) => setPxX(e.target.value.replace(/[^0-9\-]/g, ''))}
-                                inputMode="numeric"
-                                pattern="[0-9\-]*"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="px-y" data-i18n="pxY">Px Y:</label>
-                            <input 
-                                type="text" 
-                                id="px-y" 
-                                required 
-                                value={pxY}
-                                onChange={(e) => setPxY(e.target.value.replace(/[^0-9\-]/g, ''))}
-                                inputMode="numeric"
-                                pattern="[0-9\-]*"
-                            />
+                        <div className="paste-note">
+                            <small>
+                                {LanguageManager.getText('pasteTip').replace('{{example}}', this.state.exampleNumbers)}
+                            </small>
                         </div>
                     </div>
-                    <div className="paste-note">
-                        <small>
-                            {LanguageManager.getText('pasteTip').replace('{{example}}', exampleNumbers)}
-                        </small>
+                    <div className="form-group" style={{ marginTop: '10px' }}>
+                        <label htmlFor="image-url" data-i18n="imageUrl">Image URL:</label>
+                        <input 
+                            type="url" 
+                            id="image-url" 
+                            required 
+                            value={this.state.imageDataUrl}
+                            onChange={(e) => this.setState({ imageDataUrl: e.target.value })}
+                        />
                     </div>
-                </div>
-                <div className="form-group" style={{ marginTop: '10px' }}>
-                    <label htmlFor="image-url" data-i18n="imageUrl">Image URL:</label>
-                    <input 
-                        type="url" 
-                        id="image-url" 
-                        required 
-                        value={imageDataUrl}
-                        onChange={(e) => setImageDataUrl(e.target.value)}
-                    />
-                </div>
-                <button type="submit" data-i18n="saveTemplate">
-                    Save Template
-                </button>
-            </form>
-        </div>
-    );
-};
+                    <button type="submit" data-i18n="saveTemplate">
+                        Save Template
+                    </button>
+                </form>
+            </div>
+        );
+    }
+}
