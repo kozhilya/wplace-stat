@@ -6,6 +6,9 @@ export const WPLACE_TILE_SIZE = 1000;
 
 export const AUTO_UPDATE_INTERVAL = 60000; // 1 minute in milliseconds
 
+// Global constants
+export const MIN_REMAINING_FOR_BUTTON = 100;
+
 /**
  * Cooldown period for failed tile downloads (10 seconds)
  */

@@ -6,15 +6,13 @@ import { CanvasRenderer, Ping } from './CanvasRenderer';
 
 import { StatisticsRow } from '../managers/statistics-manager';
 import { ImageLoaderManager } from '../managers/image-loader-manager';
+import { MIN_REMAINING_FOR_BUTTON } from '../settings';
 
 interface RightPanelProps {
     currentTemplate?: Template;
     selectedColorId?: number | null;
     statistics?: StatisticsRow[];
 }
-
-// Global constants
-const MIN_REMAINING_FOR_BUTTON = 10;
 
 export const RightPanel: React.FC<RightPanelProps> = ({ currentTemplate, selectedColorId, statistics = [] }) => {
     const interactionManagerRef = useRef<CanvasInteractionManager | null>(null);
