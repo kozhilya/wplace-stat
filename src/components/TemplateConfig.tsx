@@ -1,3 +1,5 @@
+// Переделай этот React-компонент в представление в виде `class`. Создай документацию для методов этого файла, а также создай больше `debug`-сообщений. Добавь префиксом в квадратных скобках класс и метод, в котором выводит сообщение. AI!
+
 import React, { useState, useEffect } from 'react';
 import { Template } from '../types/template';
 import { debug } from '../utils';
