@@ -33,7 +33,6 @@ interface RightPanelState {
 export class RightPanel extends React.Component<RightPanelProps, RightPanelState> {
     private eventManager: EventManager;
     private interactionManager: CanvasInteractionManager | null = null;
-    private differenceImageRef: React.RefObject<HTMLImageElement>;
     private animationFrameId: number = 0;
     private languageChangeCallback: () => void;
     private darkModeObserver: MutationObserver;
@@ -47,7 +46,6 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
         debug('[RightPanel.constructor] Creating RightPanel instance');
         
         this.eventManager = EventManager.getInstance();
-        this.differenceImageRef = React.createRef();
         
         this.state = {
             viewMode: 'difference',
@@ -107,8 +105,15 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
                 imageToDraw = this.props.currentTemplate?.wplaceImage || null;
                 break;
             case 'difference':
-                imageToDraw = this.differenceImageRef.current;
-                break;
+                // For difference mode, we need to regenerate the image
+                if (this.props.currentTemplate?.templateImage && this.props.currentTemplate?.wplaceImage) {
+                    this.generateDifferenceImage(
+                        this.props.currentTemplate.templateImage, 
+                        this.props.currentTemplate.wplaceImage
+                    );
+                }
+                // Don't set imageToDraw here, it will be set when the difference image loads
+                return;
         }
         
         this.setState({ currentImageToDraw: imageToDraw });
@@ -182,9 +187,9 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
         
         const img = new Image();
         img.onload = () => {
-            //  TS2540: Cannot assign to 'current' because it is a read-only property. AI!
-            this.differenceImageRef.current = img;
-            this.updateCurrentImageToDraw();
+            // Store the difference image in state instead of the ref
+            debug('[RightPanel.generateDifferenceImage] Difference image loaded');
+            this.setState({ currentImageToDraw: img });
         };
         img.src = tempCanvas.toDataURL('image/png');
     }
