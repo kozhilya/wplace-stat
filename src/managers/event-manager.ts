@@ -1,10 +1,14 @@
 import { debug } from '../utils';
+import { CanvasMovementEventArgs, CanvasZoomRequestEventArgs } from './canvas-interaction-manager';
+import { LanguageChangeEventArts, LanguageRequestEventArts } from './language-manager';
+
+export interface IEventArgs {}
 
 /**
  * Base class for all event arguments
  * Provides a foundation for typed event data
  */
-export class EventArgs {   
+export class EventArgs implements IEventArgs {   
     // Base class for all event arguments
 }
 
@@ -12,26 +16,36 @@ export class EventArgs {
  * Type definition for event mapping structure
  * Maps event names to their corresponding argument classes
  */
-export type EventMappingType = { [key in string]: typeof EventArgs };
+export type EventMappingType = { [key in string]: IEventArgs };
 
 /**
  * Mapping of event names to their argument classes
  * Defines the type structure for all events in the application
  */
-export const EventMapping: EventMappingType = {
+export interface EventMapping {
+    // Application events
     'app:start': EventArgs,
-} as const;
+
+    // Canvas events
+    'canvas:movement': CanvasMovementEventArgs,
+    'canvas:zoom-request': CanvasZoomRequestEventArgs,
+
+    // Language events
+    'language:request': LanguageRequestEventArts,
+    'language:change': LanguageChangeEventArts,
+
+};
 
 /**
  * Union type of all available event names
  */
-export type EventNames = keyof typeof EventMapping;
+export type EventName = keyof EventMapping;
 
 /**
  * Type definition for event handler functions
  * @template T The type of event arguments
  */
-type EventHandler<T extends EventArgs> = (args: T) => void;
+type EventHandler<T extends IEventArgs> = (args: T) => void;
 
 /**
  * Singleton class for managing application events
@@ -39,7 +53,7 @@ type EventHandler<T extends EventArgs> = (args: T) => void;
  */
 export class EventManager {
     private static instance: EventManager;
-    private handlers: Map<EventNames, Set<EventHandler<any>>> = new Map();
+    private handlers: Map<EventName, Set<EventHandler<any>>> = new Map();
 
     /**
      * Private constructor for singleton pattern
@@ -53,7 +67,7 @@ export class EventManager {
      * @param eventName The name of the event to subscribe to
      * @param handler The event handler function
      */
-    public on<T extends EventNames>(eventName: T, handler: EventHandler<InstanceType<typeof EventMapping[T]>>): void {
+    public on<T extends EventName>(eventName: T, handler: EventHandler<EventMapping[T]>): void {
         debug(`[EventManager.on] Subscribing to event: ${eventName}`);
         if (!this.handlers.has(eventName)) {
             this.handlers.set(eventName, new Set());
@@ -68,7 +82,7 @@ export class EventManager {
      * @param eventName The name of the event to unsubscribe from
      * @param handler The event handler function to remove
      */
-    public off<T extends EventNames>(eventName: T, handler: EventHandler<InstanceType<typeof EventMapping[T]>>): void {
+    public off<T extends EventName>(eventName: T, handler: EventHandler<EventMapping[T]>): void {
         debug(`[EventManager.off] Unsubscribing from event: ${eventName}`);
         const eventHandlers = this.handlers.get(eventName);
         if (eventHandlers) {
@@ -91,7 +105,7 @@ export class EventManager {
      * @param eventName The name of the event to emit
      * @param args The event arguments to pass to handlers
      */
-    public emit<T extends EventNames>(eventName: T, args: InstanceType<typeof EventMapping[T]>): void {
+    public emit<T extends EventName>(eventName: T, args: EventMapping[T]): void {
         debug(`[EventManager.emit] Emitting event: ${eventName}`);
         const eventHandlers = this.handlers.get(eventName);
         if (eventHandlers) {
@@ -112,7 +126,7 @@ export class EventManager {
      * Clears all handlers for a specific event
      * @param eventName The name of the event to clear
      */
-    public clear(eventName: EventNames): void {
+    public clear(eventName: EventName): void {
         debug(`[EventManager.clear] Clearing all handlers for event: ${eventName}`);
         const hadHandlers = this.handlers.has(eventName);
         this.handlers.delete(eventName);
@@ -138,7 +152,7 @@ export class EventManager {
      * @param eventName The name of the event
      * @returns The number of handlers subscribed to the event
      */
-    public getHandlerCount(eventName: EventNames): number {
+    public getHandlerCount(eventName: EventName): number {
         const handlers = this.handlers.get(eventName);
         return handlers ? handlers.size : 0;
     }

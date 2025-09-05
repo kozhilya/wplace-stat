@@ -48,10 +48,8 @@ export class CanvasRenderer extends React.Component<CanvasRendererProps, CanvasR
      * @param event Canvas movement event arguments
      */
     private handleCanvasMovement(event: any): void {
-        debug('[CanvasRenderer.handleCanvasMovement] Updating canvas transform parameters');
         this.offset = event.offset;
         this.scale = event.scale;
-        debug(`[CanvasRenderer.handleCanvasMovement] Offset: (${this.offset.x}, ${this.offset.y}), Scale: ${this.scale}`);
     }
 
     /**
@@ -60,7 +58,6 @@ export class CanvasRenderer extends React.Component<CanvasRendererProps, CanvasR
      * @param image Image to draw
      */
     private drawImageWithTransform(ctx: CanvasRenderingContext2D, image: HTMLImageElement): void {
-        debug('[CanvasRenderer.drawImageWithTransform] Drawing image with transform');
         // Clear the canvas
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -89,7 +86,6 @@ export class CanvasRenderer extends React.Component<CanvasRendererProps, CanvasR
             return;
         }
 
-        debug(`[CanvasRenderer.drawPingAnimation] Drawing ${this.props.pingAnimations.length} ping animation(s)`);
         ctx.save();
         ctx.strokeStyle = '#ff0000';
         ctx.lineWidth = 2;

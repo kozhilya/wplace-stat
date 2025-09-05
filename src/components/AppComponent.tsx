@@ -9,8 +9,11 @@ import { TemplateCollection } from '../types/template-collection';
 import { StatisticsRow, StatisticsManager } from '../managers/statistics-manager';
 import { AUTO_UPDATE_INTERVAL } from '../settings';
 import { debug } from '../utils';
+import { EventManager } from '../managers/event-manager';
 
 export const AppComponent: React.FC = () => {
+    const eventManager = EventManager.getInstance();
+
     const [templateName, setTemplateName] = useState<string>('Untitled Template');
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [leftPanelWidth, setLeftPanelWidth] = useState<number>(550);

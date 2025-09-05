@@ -67,7 +67,7 @@ export class CanvasInteractionManager {
      * @param newScale The new zoom scale value
      */
     setScale(newScale: number): void {
-        debug(`[CanvasInteractionManager.setScale] Setting scale from ${this.scale} to ${newScale}`);
+        // debug(`[CanvasInteractionManager.setScale] Setting scale from ${this.scale} to ${newScale}`);
         this.scale = newScale;
         // Apply bounds when scale changes
         this.applyBounds();
@@ -162,7 +162,7 @@ export class CanvasInteractionManager {
             
             this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
             
-            debug(`[CanvasInteractionManager.handleMouseMove] Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
+            // debug(`[CanvasInteractionManager.handleMouseMove] Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
             
             // Prevent default during drag
             e.preventDefault();
@@ -186,7 +186,7 @@ export class CanvasInteractionManager {
         e.preventDefault();
         e.stopPropagation(); // Prevent event from bubbling up
 
-        debug(`[CanvasInteractionManager.handleWheel] Wheel event: deltaY=${e.deltaY}, deltaMode=${e.deltaMode}`);
+        // debug(`[CanvasInteractionManager.handleWheel] Wheel event: deltaY=${e.deltaY}, deltaMode=${e.deltaMode}`);
         
         // Use a smaller zoom intensity for smoother zooming
         const zoomIntensity = 0.05;

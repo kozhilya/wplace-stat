@@ -1,6 +1,6 @@
 import React from 'react';
 import { Template } from '../types/template';
-import { CanvasInteractionManager } from '../managers/canvas-interaction-manager';
+import { CanvasInteractionManager, CanvasZoomRequestEventArgs } from '../managers/canvas-interaction-manager';
 import { LanguageManager } from '../managers/language-manager';
 import { CanvasRenderer, Ping } from './CanvasRenderer';
 import { StatisticsRow } from '../managers/statistics-manager';
@@ -17,8 +17,6 @@ interface RightPanelProps {
 
 interface RightPanelState {
     viewMode: 'template' | 'wplace' | 'difference';
-    scale: number;
-    offset: { x: number; y: number };
     currentImageToDraw: HTMLImageElement | null;
     language: string;
     remainingPixels: number;
@@ -49,8 +47,6 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
         
         this.state = {
             viewMode: 'difference',
-            scale: 1,
-            offset: { x: 0, y: 0 },
             currentImageToDraw: null,
             language: LanguageManager.getCurrentLanguage(),
             remainingPixels: 0,
@@ -199,11 +195,7 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
      */
     private handleZoomIn(): void {
         debug('[RightPanel.handleZoomIn] Zooming in');
-        const newScale = Math.min(this.state.scale * 1.25, 10);
-        this.setState({ scale: newScale });
-        if (this.interactionManager) {
-            this.interactionManager.setScale(newScale);
-        }
+        this.eventManager.emit('canvas:zoom-request', new CanvasZoomRequestEventArgs('zoom-in'));
     }
 
     /**
@@ -211,11 +203,7 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
      */
     private handleZoomOut(): void {
         debug('[RightPanel.handleZoomOut] Zooming out');
-        const newScale = Math.max(this.state.scale / 1.25, 0.1);
-        this.setState({ scale: newScale });
-        if (this.interactionManager) {
-            this.interactionManager.setScale(newScale);
-        }
+        this.eventManager.emit('canvas:zoom-request', new CanvasZoomRequestEventArgs('zoom-out'));
     }
 
     /**
@@ -223,7 +211,7 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
      */
     private handleZoomReset(): void {
         debug('[RightPanel.handleZoomReset] Resetting zoom');
-        this.interactionManager?.resetView();
+        this.eventManager.emit('canvas:zoom-request', new CanvasZoomRequestEventArgs('zoom-reset'));
     }
 
     /**
