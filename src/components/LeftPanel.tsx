@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { TemplateConfig } from './TemplateConfig';
 import { StatisticsView } from './StatisticsView';
 import { TemplateList } from './TemplateList';
-import { Template } from '../template';
+import { Template } from '../types/template';
 import { StatisticsRow } from '../managers/statistics-manager';
-import { TemplateCollection } from '../template';
+import { TemplateCollection } from '../types/template-collection';
 import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
 

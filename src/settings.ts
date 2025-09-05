@@ -1,4 +1,4 @@
-import { Color } from "./color";
+import { Color } from "./types/color";
 
 export const IS_LOCALHOST: boolean = location.hostname == 'localhost';
 

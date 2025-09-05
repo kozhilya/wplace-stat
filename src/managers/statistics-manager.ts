@@ -1,6 +1,6 @@
 import { WplaceColorDefinition, WplacePalette } from '../settings';
 import { debug } from '../utils';
-import { Color } from "../color";
+import { Color } from "../types/color";
 
 /**
  * Represents a statistics row for a specific color in the template

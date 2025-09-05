@@ -1,6 +1,6 @@
 import React from 'react';
-import { Template } from '../template';
-import { TemplateCollection } from '../template';
+import { Template } from '../types/template';
+import { TemplateCollection } from '../types/template-collection';
 import { debug } from '../utils';
 import { LanguageManager } from '../managers/language-manager';
 
@@ -14,48 +14,48 @@ export const TemplateList: React.FC<TemplateListProps> = (props) => {
     const collection = React.useRef(new TemplateCollection());
 
     React.useEffect(() => {
-        debug('TemplateList.useEffect: Component mounted, loading templates');
+        debug('[TemplateList.useEffect] Component mounted, loading templates');
         const loadedTemplates = collection.current.getTemplates();
-        debug(`TemplateList.useEffect: Loaded ${loadedTemplates.length} templates`);
+        debug(`[TemplateList.useEffect] Loaded ${loadedTemplates.length} templates`);
         setTemplates(loadedTemplates);
     }, []);
 
     const handleDelete = (index: number, templateName: string) => {
-        debug(`TemplateList.handleDelete: Attempting to delete template at index ${index}: ${templateName}`);
+        debug(`[TemplateList.handleDelete] Attempting to delete template at index ${index}: ${templateName}`);
         if (window.confirm(LanguageManager.getText('confirmDelete').replace('{templateName}', templateName))) {
-            debug(`TemplateList.handleDelete: Confirmed deletion of template: ${templateName}`);
+            debug(`[TemplateList.handleDelete] Confirmed deletion of template: ${templateName}`);
             collection.current.removeTemplate(index);
             const updatedTemplates = collection.current.getTemplates();
-            debug(`TemplateList.handleDelete: Templates after deletion: ${updatedTemplates.length}`);
+            debug(`[TemplateList.handleDelete] Templates after deletion: ${updatedTemplates.length}`);
             setTemplates(updatedTemplates);
         } else {
-            debug(`TemplateList.handleDelete: Deletion cancelled for template: ${templateName}`);
+            debug(`[TemplateList.handleDelete] Deletion cancelled for template: ${templateName}`);
         }
     };
 
     const handleLoad = async (template: Template) => {
-        debug(`TemplateList.handleLoad: Starting to load template: ${template.name}`);
+        debug(`[TemplateList.handleLoad] Starting to load template: ${template.name}`);
         try {
-            debug(`TemplateList.handleLoad: Loading template image for: ${template.name}`);
+            debug(`[TemplateList.handleLoad] Loading template image for: ${template.name}`);
             // Load the template image
             await template.loadTemplateImage();
             
-            debug(`TemplateList.handleLoad: Loading Wplace image for: ${template.name}`);
+            debug(`[TemplateList.handleLoad] Loading Wplace image for: ${template.name}`);
             // Load the Wplace image
             await template.loadWplaceImage();
             
-            debug(`TemplateList.handleLoad: Calling onTemplateSelect for: ${template.name}`);
+            debug(`[TemplateList.handleLoad] Calling onTemplateSelect for: ${template.name}`);
             props.onTemplateSelect(template);
-            debug(`TemplateList.handleLoad: Successfully loaded template: ${template.name}`);
+            debug(`[TemplateList.handleLoad] Successfully loaded template: ${template.name}`);
         } catch (error) {
-            debug('TemplateList.handleLoad: Error loading template images:', error);
+            debug('[TemplateList.handleLoad] Error loading template images:', error);
             alert('Failed to load template images. Please try again.');
         }
     };
 
     // Function to get the template image as a data URL
     const getTemplateImageUrl = (template: Template): string => {
-        debug(`TemplateList.getTemplateImageUrl: Getting image URL for template: ${template.name}`);
+        debug(`[TemplateList.getTemplateImageUrl] Getting image URL for template: ${template.name}`);
         // For simplicity, we'll use the imageDataUrl directly
         // In a real implementation, you might want to create a thumbnail
         return template.imageDataUrl;
@@ -67,7 +67,7 @@ export const TemplateList: React.FC<TemplateListProps> = (props) => {
                 <button 
                     className="create-template-button"
                     onClick={() => {
-                        debug('TemplateList.onCreateTemplate: Create new template button clicked');
+                        debug('[TemplateList.onCreateTemplate] Create new template button clicked');
                         // Ensure the onCreateTemplate callback is called
                         props.onCreateTemplate();
                     }}

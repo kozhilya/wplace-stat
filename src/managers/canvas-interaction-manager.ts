@@ -1,4 +1,4 @@
-import { Template } from '../template';
+import { Template } from '../types/template';
 import { clamp, debug } from '../utils';
 
 export class CanvasInteractionManager {

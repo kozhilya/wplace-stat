@@ -1,7 +1,7 @@
 import { WPLACE_TILE_SIZE, WplacePalette, IS_LOCALHOST, COOLDOWN_PERIOD_MS } from '../settings';
-import { Template } from '../template';
+import { Template } from '../types/template';
 import { debug } from '../utils';
-import { Color } from "../color";
+import { Color } from "../types/color";
 
 /**
  * Manages loading and processing of template and wplace images

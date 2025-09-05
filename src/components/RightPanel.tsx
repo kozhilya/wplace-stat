@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Template } from '../template';
+import { Template } from '../types/template';
 import { CanvasInteractionManager } from '../managers/canvas-interaction-manager';
 import { LanguageManager } from '../managers/language-manager';
 import { CanvasRenderer, Ping } from './CanvasRenderer';
