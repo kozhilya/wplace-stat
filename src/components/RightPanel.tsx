@@ -182,6 +182,7 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
         
         const img = new Image();
         img.onload = () => {
+            //  TS2540: Cannot assign to 'current' because it is a read-only property. AI!
             this.differenceImageRef.current = img;
             this.updateCurrentImageToDraw();
         };
