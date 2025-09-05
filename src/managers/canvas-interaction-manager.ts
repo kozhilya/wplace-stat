@@ -17,14 +17,19 @@ export class CanvasInteractionManager {
 
     /** The HTML canvas element being managed */
     private canvas: HTMLCanvasElement;
+
     /** Current zoom scale (1 = 100%) */
     private scale: number = 1;
+
     /** Current pan offset in canvas coordinates */
     private offset: Point = { x: 0, y: 0 };
+
     /** Flag indicating if the user is currently dragging the canvas */
     private isDragging: boolean = false;
+
     /** Last recorded mouse position for drag calculations */
     private lastMousePosition: Point = { x: 0, y: 0 };
+    
     /** The current template being displayed on the canvas */
     private currentTemplate?: Template;
 
@@ -275,13 +280,11 @@ export class CanvasInteractionManager {
         // Allow the image to be positioned such that any corner can be at the center of the canvas
         // The center of the canvas is at (canvasWidth/2, canvasHeight/2)
         // To place a corner at the center, the offset needs to be adjusted
-        
         // For x-axis:
         // The minimum offset is when the right edge of the image is at the center of the canvas
         // offset.x = canvasWidth/2 - scaledWidth
         // The maximum offset is when the left edge of the image is at the center of the canvas
         // offset.x = canvasWidth/2
-        
         // Similarly for y-axis
         const minOffsetX = canvasWidth / 2 - scaledWidth;
         const maxOffsetX = canvasWidth / 2;
@@ -323,9 +326,11 @@ export class CanvasInteractionManager {
             case 'zoom-in':
                 this.zoomIn();
                 break;
+
             case 'zoom-out':
                 this.zoomOut();
                 break;
+
             case 'zoom-reset':
                 this.resetView();
                 break;
@@ -351,6 +356,7 @@ export class CanvasInteractionManager {
     }
 }
 
+// Добавь документацию для этих EventArgs. AI!
 export class CanvasMovementEventArgs implements IEventArgs {
     sender: CanvasInteractionManager;
 
