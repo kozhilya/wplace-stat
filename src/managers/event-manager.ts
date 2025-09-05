@@ -1,13 +1,15 @@
 import { debug } from '../utils';
-import { CanvasMovementEventArgs, CanvasZoomRequestEventArgs } from './canvas-interaction-manager';
-import { LanguageChangeEventArts, LanguageRequestEventArts } from './language-manager';
 import { 
+    CanvasMovementEventArgs, 
+    CanvasZoomRequestEventArgs,
+    LanguageChangeEventArts, 
+    LanguageRequestEventArts,
     TemplateSaveEventArts, 
     TemplateLoadEventArts, 
     TemplateChangeEventArts, 
     StatisticsUpdateEventArts, 
     LastUpdatedEventArts 
-} from '../components/AppComponent';
+} from '../types/event-args';
 
 export interface IEventArgs {}
 
