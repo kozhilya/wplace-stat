@@ -7,6 +7,8 @@ import { StatisticsRow } from '../managers/statistics-manager';
 import { TemplateCollection } from '../types/template-collection';
 import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
+import { EventManager } from '../managers/event-manager';
+import { TemplateSaveEventArts } from './AppComponent';
 
 interface LeftPanelProps {
     width: number;

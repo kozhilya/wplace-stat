@@ -386,8 +386,6 @@ export const AppComponent: React.FC = () => {
                 <LeftPanel 
                     width={leftPanelWidth} 
                     statistics={statistics} 
-                    onTemplateSave={handleTemplateSave}
-                    onTemplateLoad={handleTemplateLoad}
                     currentTemplate={currentTemplate}
                     activeView={leftPanelView}
                     onCloseView={() => setLeftPanelView(null)}
