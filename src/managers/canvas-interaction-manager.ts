@@ -1,21 +1,24 @@
 import { Template } from '../types/template';
 import { clamp, debug } from '../utils';
+import { EventManager, IEventArgs } from './event-manager';
+
+export type Point = { x: number; y: number };
+
 
 export class CanvasInteractionManager {
+    private eventManager = EventManager.getInstance();
+
     private canvas: HTMLCanvasElement;
     private scale: number = 1;
-    private offset: { x: number; y: number } = { x: 0, y: 0 };
+    private offset: Point = { x: 0, y: 0 };
     private isDragging: boolean = false;
-    private lastMousePosition: { x: number; y: number } = { x: 0, y: 0 };
+    private lastMousePosition: Point = { x: 0, y: 0 };
     private currentTemplate?: Template;
-    private onPositionChange?: (scale: number, offset: { x: number; y: number }) => void;
 
     constructor(
-        canvas: HTMLCanvasElement,
-        onPositionChange?: (scale: number, offset: { x: number; y: number }) => void
+        canvas: HTMLCanvasElement
     ) {
         this.canvas = canvas;
-        this.onPositionChange = onPositionChange;
         // Set initial cursor style
         this.canvas.style.cursor = 'grab';
         this.setupEventListeners();
@@ -30,10 +33,9 @@ export class CanvasInteractionManager {
         this.scale = newScale;
         // Apply bounds when scale changes
         this.applyBounds();
+
         // Notify listeners
-        if (this.onPositionChange) {
-            this.onPositionChange(this.scale, this.offset);
-        }
+        this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
     }
 
     resetView(): void {
@@ -60,9 +62,7 @@ export class CanvasInteractionManager {
         }
         
         // Update through callback
-        if (this.onPositionChange) {
-            this.onPositionChange(this.scale, this.offset);
-        }
+        this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
     }
 
     private setupEventListeners(): void {
@@ -100,7 +100,8 @@ export class CanvasInteractionManager {
             this.applyBounds();
             
             this.lastMousePosition = { x: e.clientX, y: e.clientY };
-            this.onPositionChange?.(this.scale, this.offset);
+            
+            this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
             
             // Test output in one line
             debug(`Mouse drag: delta(${deltaX},${deltaY}), offset(${this.offset.x},${this.offset.y})`);
@@ -151,11 +152,8 @@ export class CanvasInteractionManager {
         // Apply bounds to keep the image within the canvas
         this.applyBounds();
         
-        // Notify position change (scale and offset) at once
-        // This prevents double rendering
-        if (this.onPositionChange) {
-            this.onPositionChange(this.scale, this.offset);
-        }
+        // Notify position change
+        this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
     }
 
     private handleTouchStart(e: TouchEvent): void {
@@ -189,7 +187,8 @@ export class CanvasInteractionManager {
                 x: e.touches[0].clientX, 
                 y: e.touches[0].clientY 
             };
-            this.onPositionChange?.(this.scale, this.offset);
+            
+            this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
             e.preventDefault();
         }
     }
@@ -240,16 +239,7 @@ export class CanvasInteractionManager {
             debug(`  Y bounds: [${minOffsetY}, ${maxOffsetY}]`);
         }
         
-        // Update through the callback
-        this.onPositionChange?.(this.scale, this.offset);
-    }
-
-    getScale(): number {
-        return this.scale;
-    }
-
-    getOffset(): { x: number; y: number } {
-        return this.offset;
+        this.eventManager.emit('canvas:movement', new CanvasMovementEventArgs(this, this.offset, this.scale));
     }
 
     cleanup(): void {
@@ -257,3 +247,28 @@ export class CanvasInteractionManager {
         // For now, we'll rely on garbage collection
     }
 }
+
+export class CanvasMovementEventArgs implements IEventArgs {
+    sender: CanvasInteractionManager;
+
+    offset: Point;
+    scale: number;
+
+    constructor(sender: CanvasInteractionManager, offset: Point, scale: number) {        
+        this.sender = sender;
+        this.offset = offset;
+        this.scale = scale;
+    }
+}
+
+export type CanvasZoomRequest = 'zoom-out' | 'zoom-in' | 'zoom-reset';
+
+export class CanvasZoomRequestEventArgs implements IEventArgs {
+    request: CanvasZoomRequest;
+
+    constructor(request: CanvasZoomRequest) {
+        this.request = request;
+    }
+}
+
+// Добавь в менеджер обработку событий 'canvas:zoom-request' с объектом аргументов CanvasZoomRequestEventArgs. AI!
