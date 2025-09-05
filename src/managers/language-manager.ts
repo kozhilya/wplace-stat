@@ -5,7 +5,7 @@
 import { en } from '../locales/en';
 import { ru } from '../locales/ru';
 import { es } from '../locales/es';
-import { IEventArgs } from './event-manager';
+import { LanguageRequestEventArts, LanguageChangeEventArts } from '../types/event-args';
 
 /** Supported language codes */
 type Language = 'en' | 'ru' | 'es';
@@ -15,26 +15,6 @@ type Translations = typeof en;
 
 /** Callback function type for language change events */
 type LanguageChangeCallback = () => void;
-
-export class LanguageRequestEventArts implements IEventArgs {
-    targetLanguage: Language;
-
-    constructor(targetLanguage: Language) {
-        this.targetLanguage = targetLanguage;
-    }
-}
-
-export class LanguageChangeEventArts implements IEventArgs {
-    manager: LanguageManager;
-    targetLanguage: Language;
-    translations: Translations;
-
-    constructor(manager: LanguageManager, targetLanguage: Language, translations: Translations) {
-        this.manager = manager;
-        this.targetLanguage = targetLanguage;
-        this.translations = translations;
-    }
-}
 
 /**
  * A static class that manages application internationalization
