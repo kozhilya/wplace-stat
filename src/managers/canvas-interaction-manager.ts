@@ -22,6 +22,11 @@ export class CanvasInteractionManager {
         // Set initial cursor style
         this.canvas.style.cursor = 'grab';
         this.setupEventListeners();
+        
+        // Subscribe to zoom request events
+        const eventManager = EventManager.getInstance();
+        eventManager.on('canvas:zoom-request', this.handleZoomRequest.bind(this));
+        debug('[CanvasInteractionManager.constructor] Subscribed to canvas:zoom-request events');
     }
 
     setTemplate(template?: Template): void {
@@ -245,6 +250,49 @@ export class CanvasInteractionManager {
     cleanup(): void {
         // Remove event listeners if needed
         // For now, we'll rely on garbage collection
+        
+        // Unsubscribe from zoom request events
+        const eventManager = EventManager.getInstance();
+        eventManager.off('canvas:zoom-request', this.handleZoomRequest.bind(this));
+        debug('[CanvasInteractionManager.cleanup] Unsubscribed from canvas:zoom-request events');
+    }
+
+    /**
+     * Handles zoom request events
+     * @param args Zoom request event arguments
+     */
+    private handleZoomRequest(args: CanvasZoomRequestEventArgs): void {
+        debug(`[CanvasInteractionManager.handleZoomRequest] Processing zoom request: ${args.request}`);
+        
+        switch (args.request) {
+            case 'zoom-in':
+                this.zoomIn();
+                break;
+            case 'zoom-out':
+                this.zoomOut();
+                break;
+            case 'zoom-reset':
+                this.resetView();
+                break;
+        }
+    }
+
+    /**
+     * Zooms in by increasing the scale
+     */
+    private zoomIn(): void {
+        debug('[CanvasInteractionManager.zoomIn] Zooming in');
+        const newScale = Math.min(10, this.scale * 1.2);
+        this.setScale(newScale);
+    }
+
+    /**
+     * Zooms out by decreasing the scale
+     */
+    private zoomOut(): void {
+        debug('[CanvasInteractionManager.zoomOut] Zooming out');
+        const newScale = Math.max(0.1, this.scale / 1.2);
+        this.setScale(newScale);
     }
 }
 
@@ -270,5 +318,3 @@ export class CanvasZoomRequestEventArgs implements IEventArgs {
         this.request = request;
     }
 }
-
-// Добавь в менеджер обработку событий 'canvas:zoom-request' с объектом аргументов CanvasZoomRequestEventArgs. AI!
