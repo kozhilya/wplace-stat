@@ -193,6 +193,27 @@ export const AppComponent: React.FC = () => {
             handleTemplateSaveInternal(args.template);
         };
 
+        // Left panel view events
+        const handleTemplateViewOpened = (args: TemplateViewOpenedEventArts) => {
+            debug('AppComponent.handleTemplateViewOpened: Template view opened');
+            setLeftPanelView('template');
+        };
+
+        const handleTemplateViewClosed = (args: TemplateViewClosedEventArts) => {
+            debug('AppComponent.handleTemplateViewClosed: Template view closed');
+            setLeftPanelView(null);
+        };
+
+        const handleTemplatesViewOpened = (args: TemplatesViewOpenedEventArts) => {
+            debug('AppComponent.handleTemplatesViewOpened: Templates view opened');
+            setLeftPanelView('templates');
+        };
+
+        const handleTemplatesViewClosed = (args: TemplatesViewClosedEventArts) => {
+            debug('AppComponent.handleTemplatesViewClosed: Templates view closed');
+            setLeftPanelView(null);
+        };
+
         // Subscribe to events
         eventManager.on('template:save', handleTemplateSave);
         eventManager.on('template:load', handleTemplateLoad);
@@ -200,6 +221,10 @@ export const AppComponent: React.FC = () => {
         eventManager.on('statistics:update', handleStatisticsUpdate);
         eventManager.on('last-updated:change', handleLastUpdatedChange);
         eventManager.on('template:edited', handleTemplateEdited);
+        eventManager.on('template-view:opened', handleTemplateViewOpened);
+        eventManager.on('template-view:closed', handleTemplateViewClosed);
+        eventManager.on('templates-view:opened', handleTemplatesViewOpened);
+        eventManager.on('templates-view:closed', handleTemplatesViewClosed);
         
         // Listen for manual update requests
         const handleManualUpdate = async () => {
@@ -226,6 +251,10 @@ export const AppComponent: React.FC = () => {
             eventManager.off('statistics:update', handleStatisticsUpdate);
             eventManager.off('last-updated:change', handleLastUpdatedChange);
             eventManager.off('template:edited', handleTemplateEdited);
+            eventManager.off('template-view:opened', handleTemplateViewOpened);
+            eventManager.off('template-view:closed', handleTemplateViewClosed);
+            eventManager.off('templates-view:opened', handleTemplatesViewOpened);
+            eventManager.off('templates-view:closed', handleTemplatesViewClosed);
             
             stopAutoUpdate();
         };

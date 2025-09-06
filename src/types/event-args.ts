@@ -61,6 +61,23 @@ export class TemplateEditedEventArts implements IEventArgs {
     }
 }
 
+// Left panel events
+export class TemplateViewOpenedEventArts implements IEventArgs {
+    constructor() {}
+}
+
+export class TemplateViewClosedEventArts implements IEventArgs {
+    constructor() {}
+}
+
+export class TemplatesViewOpenedEventArts implements IEventArgs {
+    constructor() {}
+}
+
+export class TemplatesViewClosedEventArts implements IEventArgs {
+    constructor() {}
+}
+
 // Canvas events
 export class CanvasMovementEventArgs implements IEventArgs {
     /** The CanvasInteractionManager instance that generated this event */

@@ -55,6 +55,12 @@ export interface EventMapping {
     // Template edit events
     'template:request-edit': TemplateRequestEditEventArts,
     'template:edited': TemplateEditedEventArts,
+    
+    // Left panel events
+    'template-view:opened': TemplateViewOpenedEventArts,
+    'template-view:closed': TemplateViewClosedEventArts,
+    'templates-view:opened': TemplatesViewOpenedEventArts,
+    'templates-view:closed': TemplatesViewClosedEventArts,
 };
 
 /**

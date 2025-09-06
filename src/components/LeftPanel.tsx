@@ -91,6 +91,8 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         const eventManager = EventManager.getInstance();
         eventManager.emit('template:request-edit', new TemplateRequestEditEventArts(true));
         this.props.onCreateTemplate();
+        // Emit template view opened event
+        eventManager.emit('template-view:opened', new TemplateViewOpenedEventArts());
     }
 
     /**
@@ -107,6 +109,8 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         
         // Close the view
         this.props.onCloseView();
+        // Emit templates view closed event
+        eventManager.emit('templates-view:closed', new TemplatesViewClosedEventArts());
     }
 
     /**
@@ -115,6 +119,15 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     private handleCloseView(): void {
         debug('[LeftPanel.handleCloseView] Closing view');
+        
+        // Emit appropriate view closed event
+        const eventManager = EventManager.getInstance();
+        if (this.props.activeView === 'template') {
+            eventManager.emit('template-view:closed', new TemplateViewClosedEventArts());
+        } else if (this.props.activeView === 'templates') {
+            eventManager.emit('templates-view:closed', new TemplatesViewClosedEventArts());
+        }
+        
         this.props.onCloseView();
     }
 

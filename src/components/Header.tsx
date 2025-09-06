@@ -89,6 +89,9 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     private handleTemplateButtonClick(): void {
         debug('[Header.handleTemplateButtonClick] Template edit button clicked');
         this.props.onTemplateButtonClick();
+        // Emit template view opened event
+        const eventManager = EventManager.getInstance();
+        eventManager.emit('template-view:opened', new TemplateViewOpenedEventArts());
     }
 
     /**
@@ -98,6 +101,9 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     private handleTemplatesButtonClick(): void {
         debug('[Header.handleTemplatesButtonClick] Templates button clicked');
         this.props.onTemplatesButtonClick();
+        // Emit templates view opened event
+        const eventManager = EventManager.getInstance();
+        eventManager.emit('templates-view:opened', new TemplatesViewOpenedEventArts());
     }
 
     /**
