@@ -2,8 +2,8 @@
  * Represents a template for wplace image processing
  * Contains information about the template's position, dimensions, and images
  */
-import { ImageLoaderManager } from '../managers/image-loader-manager.js';
-import { debug } from '../utils.js';
+import { ImageLoaderManager } from '../managers/image-loader-manager';
+import { debug } from '../utils';
 
 /**
  * Information about a single tile in the wplace grid

@@ -1,4 +1,4 @@
-import { IS_LOCALHOST } from "./settings.js";
+import { IS_LOCALHOST } from "./settings";
 
 // Global flag to control debug mode
 declare global {
