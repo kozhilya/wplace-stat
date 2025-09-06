@@ -274,6 +274,6 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                     </div>
                 </div>
             )}
-        </>;
+        </>);
     }
 }
