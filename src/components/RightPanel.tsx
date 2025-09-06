@@ -229,6 +229,18 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
     }
 
     /**
+     * Handles key down events for ping activation
+     * @param e Keyboard event
+     */
+    private handleKeyDown(e: KeyboardEvent): void {
+        if (e.key === 'q' || e.key === 'Q') {
+            debug('[RightPanel.handleKeyDown] Q key pressed for ping');
+            e.preventDefault();
+            this.handlePingRemaining();
+        }
+    }
+
+    /**
      * React lifecycle method called after component mounts
      * Sets up event listeners and starts dark mode observation
      */
@@ -240,6 +252,9 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
         eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
         
         this.darkModeObserver.observe(document.body, { attributes: true });
+        
+        // Add keydown event listener
+        document.addEventListener('keydown', this.handleKeyDown.bind(this));
         
         // Start ping animation if there are existing pings
         if (this.state.pingAnimations.length > 0) {
@@ -257,6 +272,9 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
         // Unsubscribe from language change events
         const eventManager = EventManager.getInstance();
         eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
+        
+        // Remove keydown event listener
+        document.removeEventListener('keydown', this.handleKeyDown.bind(this));
         
         this.darkModeObserver.disconnect();
         if (this.animationFrameId) {
@@ -381,7 +399,7 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
                         
                         <button 
                             onClick={this.handlePingRemaining.bind(this)} 
-                            title={`${LanguageManager.getText('pingRemaining')} [Space]`}
+                            title={`${LanguageManager.getText('pingRemaining')} [Q]`}
                             disabled={this.state.remainingPixels > MIN_REMAINING_FOR_BUTTON || this.state.remainingPixels === 0}
                             className="new-action-button"
                         >
