@@ -1,9 +1,8 @@
-export default {
+module.exports = {
     apps: [
         {
             name: 'wplace-stat',
-            script: 'server/index.js',
-            interpreter: 'node',
+            script: 'server/start.cjs',
             env: {
                 NODE_ENV: 'production',
                 PORT: 3001
