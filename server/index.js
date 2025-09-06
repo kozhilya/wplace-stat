@@ -1,5 +1,10 @@
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,8 +22,6 @@ app.get('/api/tile/:x/:y', async (req, res) => {
     const tileUrl = `https://backend.wplace.live/files/s0/tiles/${x}/${y}.png`;
     
     try {
-        // Динамический импорт node-fetch
-        const { default: fetch } = await import('node-fetch');
         const response = await fetch(tileUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

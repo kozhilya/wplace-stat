@@ -1,7 +1,7 @@
-import { WPLACE_TILE_SIZE, WplacePalette, IS_LOCALHOST, COOLDOWN_PERIOD_MS } from '../settings';
-import { Template } from '../types/template';
-import { debug } from '../utils';
-import { Color } from "../types/color";
+import { WPLACE_TILE_SIZE, WplacePalette, IS_LOCALHOST, COOLDOWN_PERIOD_MS } from '../settings.js';
+import { Template } from '../types/template.js';
+import { debug } from '../utils.js';
+import { Color } from "../types/color.js";
 
 /**
  * Manages loading and processing of template and wplace images
