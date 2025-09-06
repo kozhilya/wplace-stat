@@ -194,6 +194,9 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
             const eventManager = EventManager.getInstance();
             eventManager.emit('template:edited', new TemplateEditedEventArts(template));
             
+            // Emit template view closed event to close the edit window
+            eventManager.emit('template-view:closed', new TemplateViewClosedEventArts());
+            
             const serialized = template.serialize();
             window.location.hash = serialized;
             debug('[TemplateConfig.handleSubmit] Template saved successfully');
