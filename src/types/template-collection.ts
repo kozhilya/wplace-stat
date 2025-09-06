@@ -59,10 +59,6 @@ export class TemplateCollection {
         return [...this.templates];
     }
 
-    private saveToLocalStorage(): void {
-        localStorage.setItem('templateCollection', JSON.stringify(this.templates));
-    }
-
     private loadFromLocalStorage(): void {
         const stored = localStorage.getItem('templateCollection');
         if (stored) {
