@@ -196,6 +196,14 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
 
         if (this.props.activeView !== prevProps.activeView) {
             debug(`[LeftPanel.componentDidUpdate] Active view changed: ${prevProps.activeView} -> ${this.props.activeView}`);
+            
+            // Reload templates when switching to templates view
+            if (this.props.activeView === 'templates') {
+                debug('[LeftPanel.componentDidUpdate] Templates view opened, reloading templates');
+                const loadedTemplates = this.collection.getTemplates();
+                debug(`[LeftPanel.componentDidUpdate] Loaded ${loadedTemplates.length} templates`);
+                this.setState({ templates: loadedTemplates });
+            }
         }
 
         if (this.props.currentTemplate !== prevProps.currentTemplate) {

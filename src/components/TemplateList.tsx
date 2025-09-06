@@ -49,6 +49,16 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
     }
 
     /**
+     * Reloads templates from the collection
+     */
+    private reloadTemplates(): void {
+        debug('[TemplateList.reloadTemplates] Reloading templates');
+        const loadedTemplates = this.collection.getTemplates();
+        debug(`[TemplateList.reloadTemplates] Loaded ${loadedTemplates.length} templates`);
+        this.setState({ templates: loadedTemplates });
+    }
+
+    /**
      * Handles template deletion with confirmation
      * @param index Index of the template to delete
      * @param templateName Name of the template to delete
@@ -58,9 +68,7 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
         if (window.confirm(LanguageManager.getText('confirmDelete').replace('{templateName}', templateName))) {
             debug(`[TemplateList.handleDelete] Confirmed deletion of template: ${templateName}`);
             this.collection.removeTemplate(index);
-            const updatedTemplates = this.collection.getTemplates();
-            debug(`[TemplateList.handleDelete] Templates after deletion: ${updatedTemplates.length}`);
-            this.setState({ templates: updatedTemplates });
+            this.reloadTemplates();
         } else {
             debug(`[TemplateList.handleDelete] Deletion cancelled for template: ${templateName}`);
         }
@@ -120,9 +128,7 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
      */
     componentDidMount(): void {
         debug('[TemplateList.componentDidMount] Component mounted');
-        const loadedTemplates = this.collection.getTemplates();
-        debug(`[TemplateList.componentDidMount] Loaded ${loadedTemplates.length} templates`);
-        this.setState({ templates: loadedTemplates });
+        this.reloadTemplates();
         
         // Subscribe to language change events
         const eventManager = EventManager.getInstance();
