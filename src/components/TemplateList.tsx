@@ -3,7 +3,12 @@ import { Template } from '../types/template';
 import { TemplateCollection } from '../types/template-collection';
 import { debug } from '../utils';
 import { LanguageManager } from '../managers/language-manager';
-import { LanguageChangeEventArts, TemplateChangeEventArts, TemplateLoadEventArts } from '../types/event-args';
+import { 
+    LanguageChangeEventArts, 
+    TemplateChangeEventArts, 
+    TemplateLoadEventArts,
+    TemplatesViewClosedEventArts 
+} from '../types/event-args';
 import { EventManager } from '../managers/event-manager';
 
 interface TemplateListProps {
