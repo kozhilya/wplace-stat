@@ -67,8 +67,20 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      * Adds template to collection and updates parent component
      * @param template The template to save
      */
-    private handleTemplateSave(template: Template): void {
+    private async handleTemplateSave(template: Template): Promise<void> {
         debug(`[LeftPanel.handleTemplateSave] Saving template: ${template.name}`);
+        
+        // Load template images first
+        try {
+            await template.loadTemplateImage();
+            await template.loadWplaceImage();
+            debug(`[LeftPanel.handleTemplateSave] Template images loaded successfully: ${template.name}`);
+        } catch (error) {
+            debug('[LeftPanel.handleTemplateSave] Error loading template images:', error);
+            alert('Failed to load template images. Please check the image URL and try again.');
+            return;
+        }
+        
         // Add to collection
         this.collection.addTemplate(template);
         const updatedTemplates = this.collection.getTemplates();
@@ -82,10 +94,11 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         const eventManager = EventManager.getInstance();
         eventManager.emit('template:save', new TemplateSaveEventArts(template));
 
-        // If we were creating a new template, set the current template and switch to statistics view
+        // If we were creating a new template, load it immediately
         if (this.state.isNewTemplate) {
-            // Emit template change event to update the current template
-            eventManager.emit('template:change', new TemplateChangeEventArts(template));
+            debug(`[LeftPanel.handleTemplateSave] Loading newly created template: ${template.name}`);
+            // Emit template load event to fully load and set the template
+            eventManager.emit('template:load', new TemplateLoadEventArts(template));
         }
 
         // Close the view

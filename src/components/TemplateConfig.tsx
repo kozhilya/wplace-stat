@@ -201,6 +201,11 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
             const serialized = template.serialize();
             window.location.hash = serialized;
             debug('[TemplateConfig.handleSubmit] Template saved successfully');
+            
+            // Notify parent component to save the template
+            if (this.props.onTemplateSave) {
+                this.props.onTemplateSave(template);
+            }
         } catch (error) {
             debug('[TemplateConfig.handleSubmit] Error loading images:', error);
             alert('Failed to load images. Please check the image URL and try again.');
@@ -411,7 +416,7 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
                         />
                     </div>
                     <button type="submit" data-i18n="saveTemplate">
-                        Save Template
+                        {LanguageManager.getText('saveTemplate')}
                     </button>
                 </form>
             </div>
