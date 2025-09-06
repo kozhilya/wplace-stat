@@ -5,7 +5,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack serve --mode development",
-    "dev:server": "nodemon server/index.js",
+    "dev:server": "nodemon --experimental-modules server/index.js",
     "start": "node server/index.js",
     "serve": "npx serve -s dist -l 3001",
     "pm2:start": "npm run build && pm2 start ecosystem.config.js",
