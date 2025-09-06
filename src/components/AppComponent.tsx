@@ -16,7 +16,11 @@ import {
     TemplateChangeEventArts, 
     StatisticsUpdateEventArts, 
     LastUpdatedEventArts, 
-    TemplateEditedEventArts
+    TemplateEditedEventArts,
+    TemplateViewOpenedEventArts,
+    TemplateViewClosedEventArts,
+    TemplatesViewOpenedEventArts,
+    TemplatesViewClosedEventArts
 } from '../types/event-args';
 
 export const AppComponent: React.FC = () => {

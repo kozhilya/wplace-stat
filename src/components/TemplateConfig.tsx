@@ -7,7 +7,8 @@ import {
     TemplateSaveEventArts, 
     TemplateRequestEditEventArts,
     TemplateChangeEventArts, 
-    TemplateEditedEventArts
+    TemplateEditedEventArts,
+    TemplateViewClosedEventArts
 } from '../types/event-args';
 import { EventManager } from '../managers/event-manager';
 

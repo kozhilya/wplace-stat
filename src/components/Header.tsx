@@ -1,7 +1,7 @@
 import React from 'react';
 import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
-import { LanguageChangeEventArts, LanguageRequestEventArts } from '../types/event-args';
+import { LanguageChangeEventArts, LanguageRequestEventArts, TemplatesViewOpenedEventArts, TemplateViewOpenedEventArts } from '../types/event-args';
 import { EventManager } from '../managers/event-manager';
 
 interface HeaderProps {

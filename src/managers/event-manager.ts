@@ -10,7 +10,11 @@ import {
     StatisticsUpdateEventArts, 
     LastUpdatedEventArts, 
     TemplateRequestEditEventArts,
-    TemplateEditedEventArts
+    TemplateEditedEventArts,
+    TemplateViewOpenedEventArts,
+    TemplateViewClosedEventArts,
+    TemplatesViewOpenedEventArts,
+    TemplatesViewClosedEventArts
 } from '../types/event-args';
 
 export interface IEventArgs {}
