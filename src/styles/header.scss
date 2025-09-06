@@ -106,3 +106,74 @@
 
     }
 }
+
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--color-background);
+    border-radius: 8px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+    
+    h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: var(--color-text-primary);
+    }
+}
+
+.modal-close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-text-light);
+    
+    &:hover {
+        color: var(--color-text-primary);
+    }
+}
+
+.modal-body {
+    padding: 20px;
+    
+    ol {
+        padding-left: 20px;
+        margin-bottom: 20px;
+        
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+    }
+    
+    p {
+        margin: 0;
+        line-height: 1.5;
+        color: var(--color-text-light);
+    }
+}

@@ -16,6 +16,7 @@ interface HeaderProps {
 interface HeaderState {
     currentLanguage: string;
     isDarkMode: boolean;
+    showHelpModal: boolean;
 }
 
 /**
@@ -33,7 +34,8 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
         
         this.state = {
             currentLanguage: LanguageManager.getCurrentLanguage(),
-            isDarkMode: document.body.classList.contains('dark-mode')
+            isDarkMode: document.body.classList.contains('dark-mode'),
+            showHelpModal: false
         };
     }
 
@@ -84,22 +86,20 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
 
     /**
      * Handles help button click
-     * Opens the help dialog
+     * Opens the help modal
      */
     private handleHelpClick(): void {
         debug('[Header.handleHelpClick] Help button clicked');
-        // For now, we'll show an alert with basic instructions
-        alert(`
-WPlace Progress Tracker - Quick Guide
+        this.setState({ showHelpModal: true });
+    }
 
-1. Create a template by providing an image URL and coordinates
-2. The app will compare your template with the current r/place canvas
-3. Use the statistics to track your progress
-4. Zoom and pan to navigate the canvas
-5. Use the ping feature to highlight remaining pixels
-
-Note: Full documentation will be available soon.
-        `.trim());
+    /**
+     * Handles help modal close
+     * Closes the help modal
+     */
+    private handleHelpModalClose(): void {
+        debug('[Header.handleHelpModalClose] Closing help modal');
+        this.setState({ showHelpModal: false });
     }
 
     /**
@@ -178,7 +178,8 @@ Note: Full documentation will be available soon.
     render(): React.ReactNode {
         debug('[Header.render] Rendering component');
         return (
-            <header className="header">
+            <>
+                <header className="header">
                 <div className="header-left">
                     <button 
                         className="templates-button"
@@ -246,6 +247,33 @@ Note: Full documentation will be available soon.
                     </a>
                 </div>
             </header>
-        );
+            
+            {/* Help Modal */}
+            {this.state.showHelpModal && (
+                <div className="modal-overlay" onClick={this.handleHelpModalClose.bind(this)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>WPlace Progress Tracker - Quick Guide</h2>
+                            <button 
+                                className="modal-close-button"
+                                onClick={this.handleHelpModalClose.bind(this)}
+                            >
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <ol>
+                                <li>Create a template by providing an image URL and coordinates</li>
+                                <li>The app will compare your template with the current r/place canvas</li>
+                                <li>Use the statistics to track your progress</li>
+                                <li>Zoom and pan to navigate the canvas</li>
+                                <li>Use the ping feature to highlight remaining pixels</li>
+                            </ol>
+                            <p><strong>Note:</strong> Full documentation will be available soon.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>;
     }
 }
