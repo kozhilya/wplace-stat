@@ -5,8 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "build": "webpack --mode production",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:client": "webpack serve --mode development",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:build\"",
+    "dev:build": "webpack --mode development --watch",
     "dev:server": "nodemon server/index.js",
     "start": "node server/index.js",
     "serve": "npx serve -s dist -l 3001",

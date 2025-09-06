@@ -37,18 +37,7 @@ export default {
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
-  devServer: {
-    static: './dist',
-    port: 3000, // Изменяем порт dev сервера
-    hot: true,
-    open: true, // Automatically open the browser
-    watchFiles: ['src/**/*'], // Explicitly watch these files for changes
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001', // Проксируем API запросы к серверу
-        changeOrigin: true,
-        logLevel: 'debug'
-      }
-    }
-  },
+  // Убираем devServer, так как мы не хотим его использовать
+  // Вместо этого, используем watch mode для отслеживания изменений
+  watch: process.env.NODE_ENV === 'development',
 };
