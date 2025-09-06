@@ -22,7 +22,23 @@ export class TemplateCollection {
     }
 
     addTemplate(template: Template): void {
-        this.templates.push(template);
+        // Check if a template with the same coordinates already exists
+        const existingIndex = this.findIndexByCoordinates(
+            template.tlX, 
+            template.tlY, 
+            template.pxX, 
+            template.pxY
+        );
+        
+        if (existingIndex !== -1) {
+            // Update existing template
+            this.templates[existingIndex] = template;
+            debug(`[TemplateCollection.addTemplate] Updated existing template at index ${existingIndex}: ${template.name}`);
+        } else {
+            // Add new template
+            this.templates.push(template);
+            debug(`[TemplateCollection.addTemplate] Added new template: ${template.name}`);
+        }
         this.saveToLocalStorage();
     }
 

@@ -26,6 +26,7 @@ interface LeftPanelState {
     templates: Template[];
     language: string;
     isNewTemplate: boolean;
+    previousTemplate?: Template; // Track the previous template when creating a new one
 }
 
 /**
@@ -77,6 +78,12 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         const eventManager = EventManager.getInstance();
         eventManager.emit('template:save', new TemplateSaveEventArts(template));
         
+        // If we were creating a new template, set the current template and switch to statistics view
+        if (this.state.isNewTemplate) {
+            // Emit template change event to update the current template
+            eventManager.emit('template:change', new TemplateChangeEventArts(template));
+        }
+        
         // Close the view
         this.props.onCloseView();
     }
@@ -87,6 +94,12 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     private handleCreateTemplate(): void {
         debug('[LeftPanel.handleCreateTemplate] Creating new template');
+        // Save the current template as previous template
+        // Set flag indicating we're creating a new template
+        this.setState({ 
+            isNewTemplate: true,
+            previousTemplate: this.props.currentTemplate 
+        });
         // Emit template request edit event for new template
         const eventManager = EventManager.getInstance();
         eventManager.emit('template:request-edit', new TemplateRequestEditEventArts(true));
@@ -124,6 +137,16 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         const eventManager = EventManager.getInstance();
         if (this.props.activeView === 'template') {
             eventManager.emit('template-view:closed', new TemplateViewClosedEventArts());
+            
+            // If we were creating a new template, reset the isNewTemplate flag
+            // and restore the previous template
+            if (this.state.isNewTemplate) {
+                this.setState({ isNewTemplate: false });
+                // Restore the previous template
+                if (this.state.previousTemplate) {
+                    eventManager.emit('template:change', new TemplateChangeEventArts(this.state.previousTemplate));
+                }
+            }
         } else if (this.props.activeView === 'templates') {
             eventManager.emit('templates-view:closed', new TemplatesViewClosedEventArts());
         }
