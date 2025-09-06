@@ -13,6 +13,8 @@
     "pm2:delete": "pm2 delete wplace-stat"
   },
   "dependencies": {
+    "@types/node-fetch": "^2.6.13",
+    "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
