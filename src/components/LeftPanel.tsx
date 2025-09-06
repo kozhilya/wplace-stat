@@ -36,7 +36,6 @@ interface LeftPanelState {
  */
 export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
     private collection: TemplateCollection;
-    private languageChangeCallback: (args: LanguageChangeEventArts) => void;
 
     /**
      * Creates a new LeftPanel instance
@@ -47,7 +46,6 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         debug('[LeftPanel.constructor] Creating LeftPanel instance');
         
         this.collection = new TemplateCollection();
-        this.languageChangeCallback = this.handleLanguageChangeEvent.bind(this);
         
         this.state = {
             templates: [],

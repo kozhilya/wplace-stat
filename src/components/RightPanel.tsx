@@ -32,7 +32,6 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
     private eventManager: EventManager;
     private interactionManager: CanvasInteractionManager | null = null;
     private animationFrameId: number = 0;
-    private languageChangeCallback: () => void;
     private darkModeObserver: MutationObserver;
 
     /**
@@ -54,7 +53,6 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
             canvasElement: null
         };
 
-        this.languageChangeCallback = this.handleLanguageChange.bind(this);
         this.darkModeObserver = new MutationObserver(this.handleDarkModeChange.bind(this));
     }
 

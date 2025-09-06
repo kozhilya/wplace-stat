@@ -22,8 +22,6 @@ interface StatisticsViewState {
  * Handles sorting, filtering, and interaction with statistics data
  */
 export class StatisticsView extends React.Component<StatisticsViewProps, StatisticsViewState> {
-    private languageChangeCallback: () => void;
-
     /**
      * Creates a new StatisticsView instance
      * @param props Component properties
@@ -39,8 +37,6 @@ export class StatisticsView extends React.Component<StatisticsViewProps, Statist
             hideCompleted: false,
             language: LanguageManager.getCurrentLanguage()
         };
-
-        this.languageChangeCallback = this.handleLanguageChange.bind(this);
     }
 
     /**

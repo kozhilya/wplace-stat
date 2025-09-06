@@ -20,7 +20,6 @@ interface TemplateListState {
  */
 export class TemplateList extends React.Component<TemplateListProps, TemplateListState> {
     private collection: TemplateCollection;
-    private languageChangeCallback: () => void;
 
     /**
      * Creates a new TemplateList instance
@@ -31,7 +30,6 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
         debug('[TemplateList.constructor] Creating TemplateList instance');
         
         this.collection = new TemplateCollection();
-        this.languageChangeCallback = this.handleLanguageChange.bind(this);
         
         this.state = {
             templates: [],

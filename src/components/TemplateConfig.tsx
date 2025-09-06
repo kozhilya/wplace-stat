@@ -27,7 +27,6 @@ interface TemplateConfigState {
  * Handles template creation, editing, and loading from hash
  */
 export class TemplateConfig extends React.Component<TemplateConfigProps, TemplateConfigState> {
-    private languageChangeCallback: () => void;
     private hashChangeHandler: (() => void) | null = null;
 
     /**
@@ -48,8 +47,6 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
             language: LanguageManager.getCurrentLanguage(),
             exampleNumbers: Array.from({ length: 4 }, () => Math.floor(Math.random() * 1000)).join(' ')
         };
-
-        this.languageChangeCallback = this.handleLanguageChange.bind(this);
     }
 
     /**

@@ -35,8 +35,6 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
             currentLanguage: LanguageManager.getCurrentLanguage(),
             isDarkMode: document.body.classList.contains('dark-mode')
         };
-
-        this.handleLanguageChangeEvent = this.handleLanguageChangeEvent.bind(this);
     }
 
     /**
