@@ -43,7 +43,17 @@ export class LanguageManager {
             this.currentLanguage = savedLanguage;
         }
         this.updateTexts();
-        this.notifyLanguageChange();
+        
+        // Subscribe to language request events
+        const eventManager = EventManager.getInstance();
+        eventManager.on('language:request', this.handleLanguageRequest.bind(this));
+        
+        // Emit initial language change event
+        eventManager.emit('language:change', new LanguageChangeEventArts(
+            this,
+            this.currentLanguage,
+            this.translations[this.currentLanguage]
+        ));
     }
 
     /**
@@ -55,7 +65,14 @@ export class LanguageManager {
             this.currentLanguage = language;
             localStorage.setItem('language', language);
             this.updateTexts();
-            this.notifyLanguageChange();
+            
+            // Emit language change event
+            const eventManager = EventManager.getInstance();
+            eventManager.emit('language:change', new LanguageChangeEventArts(
+                this,
+                language,
+                this.translations[language]
+            ));
         }
     }
 
@@ -76,22 +93,14 @@ export class LanguageManager {
     }
 
     /**
-     * Removes a previously registered language change callback
-     * @param callback The callback function to remove
+     * Handles language request events
+     * @param args Language request event arguments
      */
-    static removeLanguageChangeListener(callback: LanguageChangeCallback): void {
-        const index = this.languageChangeCallbacks.indexOf(callback);
-        if (index > -1) {
-            this.languageChangeCallbacks.splice(index, 1);
-        }
+    private static handleLanguageRequest(args: LanguageRequestEventArts): void {
+        debug(`[LanguageManager.handleLanguageRequest] Language requested: ${args.targetLanguage}`);
+        this.setLanguage(args.targetLanguage);
     }
 
-    /**
-     * Notifies all registered callbacks that the language has changed
-     */
-    private static notifyLanguageChange(): void {
-        this.languageChangeCallbacks.forEach(callback => callback());
-    }
 
     /**
      * Updates all UI elements with data-i18n attributes to display text in the current language

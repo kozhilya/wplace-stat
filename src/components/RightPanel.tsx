@@ -59,11 +59,11 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
     }
 
     /**
-     * Handles language change events from LanguageManager
+     * Handles language change events from EventManager
      */
-    private handleLanguageChange(): void {
-        debug('[RightPanel.handleLanguageChange] Language changed');
-        this.setState({ language: LanguageManager.getCurrentLanguage() });
+    private handleLanguageChangeEvent(args: LanguageChangeEventArts): void {
+        debug('[RightPanel.handleLanguageChangeEvent] Language changed');
+        this.setState({ language: args.targetLanguage });
     }
 
     /**
@@ -235,7 +235,11 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
      */
     componentDidMount(): void {
         debug('[RightPanel.componentDidMount] Component mounted');
-        LanguageManager.onLanguageChange(this.languageChangeCallback);
+        
+        // Subscribe to language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
+        
         this.darkModeObserver.observe(document.body, { attributes: true });
         
         // Start ping animation if there are existing pings
@@ -250,7 +254,11 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
      */
     componentWillUnmount(): void {
         debug('[RightPanel.componentWillUnmount] Component unmounting');
-        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+        
+        // Unsubscribe from language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
+        
         this.darkModeObserver.disconnect();
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);

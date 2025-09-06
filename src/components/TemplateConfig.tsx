@@ -68,12 +68,12 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
     }
 
     /**
-     * Handles language change events from LanguageManager
+     * Handles language change events from EventManager
      * Updates the component state with the new language
      */
-    private handleLanguageChange(): void {
-        debug('[TemplateConfig.handleLanguageChange] Language changed, updating state');
-        this.setState({ language: LanguageManager.getCurrentLanguage() });
+    private handleLanguageChangeEvent(args: LanguageChangeEventArts): void {
+        debug('[TemplateConfig.handleLanguageChangeEvent] Language changed, updating state');
+        this.setState({ language: args.targetLanguage });
     }
 
     /**
@@ -171,7 +171,10 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
      */
     componentDidMount(): void {
         debug('[TemplateConfig.componentDidMount] Component mounted');
-        LanguageManager.onLanguageChange(this.languageChangeCallback);
+        
+        // Subscribe to language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
         
         // Load initial data
         this.loadInitialData();
@@ -238,7 +241,10 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
      */
     componentWillUnmount(): void {
         debug('[TemplateConfig.componentWillUnmount] Component unmounting');
-        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+        
+        // Unsubscribe from language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
         
         if (this.hashChangeHandler) {
             window.removeEventListener('hashchange', this.hashChangeHandler);

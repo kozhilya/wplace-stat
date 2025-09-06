@@ -57,12 +57,12 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
     }
 
     /**
-     * Handles language change events from LanguageManager
+     * Handles language change events from EventManager
      * Updates the component state with the new language
      */
-    private handleLanguageChange(): void {
-        debug('[LeftPanel.handleLanguageChange] Language changed, updating state');
-        this.setState({ language: LanguageManager.getCurrentLanguage() });
+    private handleLanguageChangeEvent(args: LanguageChangeEventArts): void {
+        debug('[LeftPanel.handleLanguageChangeEvent] Language changed, updating state');
+        this.setState({ language: args.targetLanguage });
     }
 
     /**
@@ -131,7 +131,9 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         debug(`[LeftPanel.componentDidMount] Loaded ${loadedTemplates.length} templates`);
         this.setState({ templates: loadedTemplates });
         
-        LanguageManager.onLanguageChange(this.languageChangeCallback);
+        // Subscribe to language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
     }
 
     /**
@@ -140,7 +142,10 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     componentWillUnmount(): void {
         debug('[LeftPanel.componentWillUnmount] Component unmounting');
-        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+        
+        // Unsubscribe from language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
     }
 
     /**

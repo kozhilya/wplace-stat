@@ -40,12 +40,12 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
     }
 
     /**
-     * Handles language change events from LanguageManager
+     * Handles language change events from EventManager
      * Updates the component state with the new language
      */
-    private handleLanguageChange(): void {
-        debug('[TemplateList.handleLanguageChange] Language changed, updating state');
-        this.setState({ language: LanguageManager.getCurrentLanguage() });
+    private handleLanguageChangeEvent(args: LanguageChangeEventArts): void {
+        debug('[TemplateList.handleLanguageChangeEvent] Language changed, updating state');
+        this.setState({ language: args.targetLanguage });
     }
 
     /**
@@ -127,7 +127,10 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
      */
     componentWillUnmount(): void {
         debug('[TemplateList.componentWillUnmount] Component unmounting');
-        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+        
+        // Unsubscribe from language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
     }
 
     /**

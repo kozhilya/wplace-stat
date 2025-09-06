@@ -44,12 +44,12 @@ export class StatisticsView extends React.Component<StatisticsViewProps, Statist
     }
 
     /**
-     * Handles language change events from LanguageManager
+     * Handles language change events from EventManager
      * Updates the component state with the new language
      */
-    private handleLanguageChange(): void {
-        debug('[StatisticsView.handleLanguageChange] Language changed, updating state');
-        this.setState({ language: LanguageManager.getCurrentLanguage() });
+    private handleLanguageChangeEvent(args: LanguageChangeEventArts): void {
+        debug('[StatisticsView.handleLanguageChangeEvent] Language changed, updating state');
+        this.setState({ language: args.targetLanguage });
     }
 
     /**
@@ -125,7 +125,10 @@ export class StatisticsView extends React.Component<StatisticsViewProps, Statist
      */
     componentDidMount(): void {
         debug('[StatisticsView.componentDidMount] Component mounted');
-        LanguageManager.onLanguageChange(this.languageChangeCallback);
+        
+        // Subscribe to language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
     }
 
     /**
@@ -134,7 +137,10 @@ export class StatisticsView extends React.Component<StatisticsViewProps, Statist
      */
     componentWillUnmount(): void {
         debug('[StatisticsView.componentWillUnmount] Component unmounting');
-        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+        
+        // Unsubscribe from language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
     }
 
     /**

@@ -40,12 +40,12 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     }
 
     /**
-     * Handles language change events from LanguageManager
+     * Handles language change events from EventManager
      * Updates the component state with the new language
      */
-    private handleLanguageChange(): void {
-        debug('[Header.handleLanguageChange] Language changed, updating state');
-        this.setState({ currentLanguage: LanguageManager.getCurrentLanguage() });
+    private handleLanguageChangeEvent(args: LanguageChangeEventArts): void {
+        debug('[Header.handleLanguageChangeEvent] Language changed, updating state');
+        this.setState({ currentLanguage: args.targetLanguage });
     }
 
     /**
@@ -55,7 +55,10 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     private handleLanguageSelectorChange(event: React.ChangeEvent<HTMLSelectElement>): void {
         const newLanguage = event.target.value as 'en' | 'ru' | 'es';
         debug(`[Header.handleLanguageSelectorChange] Language changed to: ${newLanguage}`);
-        LanguageManager.setLanguage(newLanguage);
+        
+        // Emit language request event
+        const eventManager = EventManager.getInstance();
+        eventManager.emit('language:request', new LanguageRequestEventArts(newLanguage));
     }
 
     /**
@@ -105,7 +108,10 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
      */
     componentDidMount(): void {
         debug('[Header.componentDidMount] Component mounted');
-        LanguageManager.onLanguageChange(this.languageChangeCallback);
+        
+        // Subscribe to language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
     }
 
     /**
@@ -114,7 +120,10 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
      */
     componentWillUnmount(): void {
         debug('[Header.componentWillUnmount] Component unmounting');
-        LanguageManager.removeLanguageChangeListener(this.languageChangeCallback);
+        
+        // Unsubscribe from language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
     }
 
     /**
