@@ -23,38 +23,60 @@ A web application for tracking progress on WPlace (a pixel art collaboration pla
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm or yarn
+- Node.js (v14 or higher) and npm/yarn - для локальной разработки
+- ИЛИ Docker и Docker Compose - для запуска через контейнеры
 
-### Installation
+### Installation (локальная разработка)
 
-1. Clone the repository:
+1. Клонируйте репозиторий:
 ```bash
 git clone https://github.com/kozhilya/wplace-stat.git
-cd wplace-progress-tracker
+cd wplace-stat
 ```
 
-2. Install dependencies:
+2. Установите зависимости:
 ```bash
 npm install
 ```
 
-3. Start the development server:
+3. Запустите сервер разработки:
 ```bash
 npm start
 ```
 
-4. Open your browser and navigate to `http://localhost:3001`
+4. Откройте браузер и перейдите по адресу `http://localhost:3001`
 
-### Building for Production
+### Запуск через Docker
 
-To create a production build:
+1. Клонируйте репозиторий:
+```bash
+git clone https://github.com/kozhilya/wplace-stat.git
+cd wplace-stat
+```
+
+2. Соберите и запустите контейнер:
+```bash
+npm run docker:build
+npm run docker:up
+```
+
+3. Приложение будет доступно по адресу `http://localhost:3001`
+
+### Сборка для продакшена
+
+Для создания production сборки:
 
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist/` directory.
+Собранные файлы будут находиться в директории `dist/`
+
+### Docker команды
+
+- `npm run docker:build` - собрать Docker образ
+- `npm run docker:up` - запустить контейнер
+- `npm run docker:down` - остановить контейнер
 
 ## Usage
 
