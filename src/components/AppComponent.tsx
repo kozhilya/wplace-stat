@@ -187,12 +187,18 @@ export const AppComponent: React.FC = () => {
             setLastUpdated(args.lastUpdated);
         };
 
+        const handleTemplateEdited = (args: TemplateEditedEventArts) => {
+            debug(`AppComponent.handleTemplateEdited: Received template:edited event for: ${args.template.name}`);
+            handleTemplateSaveInternal(args.template);
+        };
+
         // Subscribe to events
         eventManager.on('template:save', handleTemplateSave);
         eventManager.on('template:load', handleTemplateLoad);
         eventManager.on('template:change', handleTemplateChange);
         eventManager.on('statistics:update', handleStatisticsUpdate);
         eventManager.on('last-updated:change', handleLastUpdatedChange);
+        eventManager.on('template:edited', handleTemplateEdited);
         
         // Listen for manual update requests
         const handleManualUpdate = async () => {
@@ -218,6 +224,7 @@ export const AppComponent: React.FC = () => {
             eventManager.off('template:change', handleTemplateChange);
             eventManager.off('statistics:update', handleStatisticsUpdate);
             eventManager.off('last-updated:change', handleLastUpdatedChange);
+            eventManager.off('template:edited', handleTemplateEdited);
             
             stopAutoUpdate();
         };

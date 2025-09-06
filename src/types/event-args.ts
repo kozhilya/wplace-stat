@@ -44,6 +44,23 @@ export class LastUpdatedEventArts implements IEventArgs {
     }
 }
 
+// Template edit events
+export class TemplateRequestEditEventArts implements IEventArgs {
+    isNewTemplate: boolean;
+    
+    constructor(isNewTemplate: boolean) {
+        this.isNewTemplate = isNewTemplate;
+    }
+}
+
+export class TemplateEditedEventArts implements IEventArgs {
+    template: Template;
+    
+    constructor(template: Template) {
+        this.template = template;
+    }
+}
+
 // Canvas events
 export class CanvasMovementEventArgs implements IEventArgs {
     /** The CanvasInteractionManager instance that generated this event */

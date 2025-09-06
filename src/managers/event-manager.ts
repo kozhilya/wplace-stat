@@ -49,6 +49,10 @@ export interface EventMapping {
     'template:change': TemplateChangeEventArts,
     'statistics:update': StatisticsUpdateEventArts,
     'last-updated:change': LastUpdatedEventArts,
+    
+    // Template edit events
+    'template:request-edit': TemplateRequestEditEventArts,
+    'template:edited': TemplateEditedEventArts,
 };
 
 /**

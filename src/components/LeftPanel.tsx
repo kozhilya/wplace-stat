@@ -83,11 +83,13 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
 
     /**
      * Handles new template creation
-     * Sets new template flag and notifies parent component
+     * Emits template request edit event for new template
      */
     private handleCreateTemplate(): void {
         debug('[LeftPanel.handleCreateTemplate] Creating new template');
-        this.setState({ isNewTemplate: true });
+        // Emit template request edit event for new template
+        const eventManager = EventManager.getInstance();
+        eventManager.emit('template:request-edit', new TemplateRequestEditEventArts(true));
         this.props.onCreateTemplate();
     }
 

@@ -2,7 +2,12 @@ import React from 'react';
 import { Template } from '../types/template';
 import { debug } from '../utils';
 import { LanguageManager } from '../managers/language-manager';
-import { LanguageChangeEventArts, TemplateSaveEventArts } from '../types/event-args';
+import { 
+    LanguageChangeEventArts, 
+    TemplateSaveEventArts, 
+    TemplateRequestEditEventArts,
+    TemplateChangeEventArts 
+} from '../types/event-args';
 import { EventManager } from '../managers/event-manager';
 
 interface TemplateConfigProps {
@@ -131,6 +136,39 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
     }
 
     /**
+     * Handles template change events
+     * @param args Template change event arguments
+     */
+    private handleTemplateChange(args: TemplateChangeEventArts): void {
+        debug('[TemplateConfig.handleTemplateChange] Template changed');
+        if (args.template) {
+            this.setState({
+                name: args.template.name,
+                tlX: args.template.tlX.toString(),
+                tlY: args.template.tlY.toString(),
+                pxX: args.template.pxX.toString(),
+                pxY: args.template.pxY.toString(),
+                imageDataUrl: args.template.imageDataUrl
+            });
+        } else {
+            // Clear form if template is undefined
+            this.clearForm();
+        }
+    }
+
+    /**
+     * Handles template request edit events
+     * @param args Template request edit event arguments
+     */
+    private handleTemplateRequestEdit(args: TemplateRequestEditEventArts): void {
+        debug(`[TemplateConfig.handleTemplateRequestEdit] Template edit requested, isNewTemplate: ${args.isNewTemplate}`);
+        if (args.isNewTemplate) {
+            this.clearForm();
+        }
+        // If not new template, the form will be populated by template:change events
+    }
+
+    /**
      * Handles form submission
      * @param e Form event
      */
@@ -151,9 +189,9 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
             await template.loadTemplateImage();
             await template.loadWplaceImage();
             
-            // Emit template save event
+            // Emit template edited event
             const eventManager = EventManager.getInstance();
-            eventManager.emit('template:save', new TemplateSaveEventArts(template));
+            eventManager.emit('template:edited', new TemplateEditedEventArts(template));
             
             const serialized = template.serialize();
             window.location.hash = serialized;
@@ -166,14 +204,16 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
 
     /**
      * React lifecycle method called after component mounts
-     * Sets up language change listener and loads initial data
+     * Sets up event listeners and loads initial data
      */
     componentDidMount(): void {
         debug('[TemplateConfig.componentDidMount] Component mounted');
         
-        // Subscribe to language change events
+        // Subscribe to events
         const eventManager = EventManager.getInstance();
         eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
+        eventManager.on('template:change', this.handleTemplateChange.bind(this));
+        eventManager.on('template:request-edit', this.handleTemplateRequestEdit.bind(this));
         
         // Load initial data
         this.loadInitialData();
@@ -241,9 +281,11 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
     componentWillUnmount(): void {
         debug('[TemplateConfig.componentWillUnmount] Component unmounting');
         
-        // Unsubscribe from language change events
+        // Unsubscribe from events
         const eventManager = EventManager.getInstance();
         eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
+        eventManager.off('template:change', this.handleTemplateChange.bind(this));
+        eventManager.off('template:request-edit', this.handleTemplateRequestEdit.bind(this));
         
         if (this.hashChangeHandler) {
             window.removeEventListener('hashchange', this.hashChangeHandler);
