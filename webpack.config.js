@@ -19,12 +19,7 @@ export default {
         use: [
           'style-loader',
           'css-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              implementation: require('sass-embedded'),
-            },
-          },
+          'sass-loader',
         ],
       },
     ],
