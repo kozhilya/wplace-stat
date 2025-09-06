@@ -233,7 +233,8 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
      * @param e Keyboard event
      */
     private handleKeyDown(e: KeyboardEvent): void {
-        if (e.key === 'q' || e.key === 'Q') {
+        // Use key code instead of key character to work with any keyboard layout
+        if (e.code === 'KeyQ') {
             debug('[RightPanel.handleKeyDown] Q key pressed for ping');
             e.preventDefault();
             this.handlePingRemaining();
