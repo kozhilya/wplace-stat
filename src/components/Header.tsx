@@ -253,7 +253,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                 <div className="modal-overlay" onClick={this.handleHelpModalClose.bind(this)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h2>WPlace Progress Tracker - Quick Guide</h2>
+                            <h2>{LanguageManager.getText('helpTitle')}</h2>
                             <button 
                                 className="modal-close-button"
                                 onClick={this.handleHelpModalClose.bind(this)}
@@ -263,14 +263,11 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                         </div>
                         <div className="modal-body">
                             <ol>
-                                <li>Create a template by providing an image URL and coordinates</li>
-                                <li>The app will compare your template with the current r/place canvas</li>
-                                <li>Use the statistics to track your progress</li>
-                                <li>Zoom and pan to navigate the canvas</li>
-                                <li>Use the ping feature to highlight remaining pixels</li>
-                                <li>Press <strong>Q</strong> to quickly ping remaining pixels</li>
+                                {LanguageManager.getText('helpItems').map((item: string, index: number) => (
+                                    <li key={index}>{item}</li>
+                                ))}
                             </ol>
-                            <p><strong>Note:</strong> Full documentation will be available soon.</p>
+                            <p><strong>{LanguageManager.getText('helpNote')}</strong></p>
                         </div>
                     </div>
                 </div>

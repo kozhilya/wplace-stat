@@ -46,5 +46,15 @@ export const es = {
     hideCompleted: 'Ocultar completados',
     pingRemaining: 'Resaltar restantes',
     pasteTip: 'Consejo: Puedе pegar 4 números (como "{{example}}") para completar todos los campos de coordenadas a la vez',
-    help: 'Ayuda'
+    help: 'Ayuda',
+    helpTitle: 'WPlace Seguimiento de Progreso - Guía Rápida',
+    helpItems: [
+        'Cree una plantilla proporcionando una URL de imagen y coordenadas',
+        'La aplicación comparará su plantilla con el lienzo actual de r/place',
+        'Use las estadísticas para rastrear su progreso',
+        'Zoom y paneo para navegar por el lienzo',
+        'Use la función de ping para resaltar los píxeles restantes',
+        'Presione Q para hacer ping rápidamente a los píxeles restantes'
+    ],
+    helpNote: 'Nota: La documentación completa estará disponible pronto.'
 };

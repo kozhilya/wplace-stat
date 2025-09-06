@@ -46,5 +46,15 @@ export const en = {
     hideCompleted: 'Hide completed',
     pingRemaining: 'Ping remaining',
     pasteTip: 'Tip: You can paste 4 numbers (like "{{example}}") to fill all coordinate fields at once',
-    help: 'Help'
+    help: 'Help',
+    helpTitle: 'WPlace Progress Tracker - Quick Guide',
+    helpItems: [
+        'Create a template by providing an image URL and coordinates',
+        'The app will compare your template with the current r/place canvas',
+        'Use the statistics to track your progress',
+        'Zoom and pan to navigate the canvas',
+        'Use the ping feature to highlight remaining pixels',
+        'Press Q to quickly ping remaining pixels'
+    ],
+    helpNote: 'Note: Full documentation will be available soon.'
 };
