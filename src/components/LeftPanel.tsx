@@ -8,7 +8,7 @@ import { TemplateCollection } from '../types/template-collection';
 import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
 import { EventManager } from '../managers/event-manager';
-import { TemplateSaveEventArts, TemplateLoadEventArts, LanguageChangeEventArts, TemplateRequestEditEventArts, TemplatesViewClosedEventArts, TemplateViewClosedEventArts, TemplateViewOpenedEventArts } from '../types/event-args';
+import { TemplateSaveEventArts, TemplateLoadEventArts, LanguageChangeEventArts, TemplateRequestEditEventArts, TemplatesViewClosedEventArts, TemplateViewClosedEventArts, TemplateViewOpenedEventArts, TemplateChangeEventArts } from '../types/event-args';
 
 interface LeftPanelProps {
     width: number;
@@ -43,9 +43,9 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
     constructor(props: LeftPanelProps) {
         super(props);
         debug('[LeftPanel.constructor] Creating LeftPanel instance');
-        
+
         this.collection = new TemplateCollection();
-        
+
         this.state = {
             templates: [],
             language: LanguageManager.getCurrentLanguage(),
@@ -73,17 +73,17 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         this.collection.addTemplate(template);
         const updatedTemplates = this.collection.getTemplates();
         this.setState({ templates: updatedTemplates, isNewTemplate: false });
-        
+
         // Emit template save event
         const eventManager = EventManager.getInstance();
         eventManager.emit('template:save', new TemplateSaveEventArts(template));
-        
+
         // If we were creating a new template, set the current template and switch to statistics view
         if (this.state.isNewTemplate) {
             // Emit template change event to update the current template
             eventManager.emit('template:change', new TemplateChangeEventArts(template));
         }
-        
+
         // Close the view
         this.props.onCloseView();
     }
@@ -96,9 +96,9 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         debug('[LeftPanel.handleCreateTemplate] Creating new template');
         // Save the current template as previous template
         // Set flag indicating we're creating a new template
-        this.setState({ 
+        this.setState({
             isNewTemplate: true,
-            previousTemplate: this.props.currentTemplate 
+            previousTemplate: this.props.currentTemplate
         });
         // Emit template request edit event for new template
         const eventManager = EventManager.getInstance();
@@ -116,11 +116,11 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     private handleTemplateLoad(template: Template): void {
         debug(`[LeftPanel.handleTemplateLoad] Loading template from list: ${template.name}`);
-        
+
         // Emit template load event
         const eventManager = EventManager.getInstance();
         eventManager.emit('template:load', new TemplateLoadEventArts(template));
-        
+
         // Close the view
         this.props.onCloseView();
         // Emit templates view closed event
@@ -133,12 +133,12 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     private handleCloseView(): void {
         debug('[LeftPanel.handleCloseView] Closing view');
-        
+
         // Emit appropriate view closed event
         const eventManager = EventManager.getInstance();
         if (this.props.activeView === 'template') {
             eventManager.emit('template-view:closed', new TemplateViewClosedEventArts());
-            
+
             // If we were creating a new template, reset the isNewTemplate flag
             // and restore the previous template
             if (this.state.isNewTemplate) {
@@ -154,7 +154,7 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         } else if (this.props.activeView === 'templates') {
             eventManager.emit('templates-view:closed', new TemplatesViewClosedEventArts());
         }
-        
+
         this.props.onCloseView();
     }
 
@@ -168,7 +168,7 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         const loadedTemplates = this.collection.getTemplates();
         debug(`[LeftPanel.componentDidMount] Loaded ${loadedTemplates.length} templates`);
         this.setState({ templates: loadedTemplates });
-        
+
         // Subscribe to language change events
         const eventManager = EventManager.getInstance();
         eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
@@ -180,7 +180,7 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     componentWillUnmount(): void {
         debug('[LeftPanel.componentWillUnmount] Component unmounting');
-        
+
         // Unsubscribe from language change events
         const eventManager = EventManager.getInstance();
         eventManager.off('language:change', this.handleLanguageChangeEvent.bind(this));
@@ -193,15 +193,15 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     componentDidUpdate(prevProps: LeftPanelProps, prevState: LeftPanelState): void {
         debug('[LeftPanel.componentDidUpdate] Component updated');
-        
+
         if (this.props.activeView !== prevProps.activeView) {
             debug(`[LeftPanel.componentDidUpdate] Active view changed: ${prevProps.activeView} -> ${this.props.activeView}`);
         }
-        
+
         if (this.props.currentTemplate !== prevProps.currentTemplate) {
             debug(`[LeftPanel.componentDidUpdate] Current template changed: ${prevProps.currentTemplate?.name || 'undefined'} -> ${this.props.currentTemplate?.name || 'undefined'}`);
         }
-        
+
         if (this.state.templates !== prevState.templates) {
             debug(`[LeftPanel.componentDidUpdate] Templates changed: ${prevState.templates.length} -> ${this.state.templates.length}`);
         }
@@ -213,9 +213,9 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
      */
     render(): React.ReactNode {
         debug('[LeftPanel.render] Rendering component');
-        const { 
-            width, 
-            statistics, 
+        const {
+            width,
+            statistics,
             currentTemplate,
             activeView,
             onStatisticsRowClick,
@@ -228,12 +228,12 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
                 {(activeView !== null || (this.state.templates.length === 0 && !currentTemplate)) && (
                     <div className="left-panel-header">
                         <h2>
-                            {activeView === 'template' || (this.state.templates.length === 0 && !currentTemplate) 
+                            {activeView === 'template' || (this.state.templates.length === 0 && !currentTemplate)
                                 ? (this.state.isNewTemplate || (this.state.templates.length === 0 && !currentTemplate) ? LanguageManager.getText('newTemplate') : LanguageManager.getText('editTemplateHeader'))
                                 : LanguageManager.getText('savedTemplatesHeader')}
                         </h2>
                         {activeView !== null && (
-                            <button 
+                            <button
                                 className="close-button"
                                 onClick={this.handleCloseView.bind(this)}
                                 title={LanguageManager.getText('close')}
@@ -244,32 +244,32 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
                     </div>
                 )}
                 {activeView === 'template' && (
-                    <TemplateConfig 
-                        onTemplateSave={this.handleTemplateSave.bind(this)} 
+                    <TemplateConfig
+                        onTemplateSave={this.handleTemplateSave.bind(this)}
                         isNewTemplate={this.state.isNewTemplate}
                         currentTemplate={this.state.isNewTemplate ? undefined : currentTemplate}
                         editedTemplate={this.state.isNewTemplate ? null : currentTemplate}
                     />
                 )}
                 {activeView === 'templates' && (
-                    <TemplateList 
-                        onTemplateSelect={this.handleTemplateLoad.bind(this)} 
+                    <TemplateList
+                        onTemplateSelect={this.handleTemplateLoad.bind(this)}
                         onCreateTemplate={this.handleCreateTemplate.bind(this)}
                     />
                 )}
                 {/* Show TemplateConfig when no templates exist and no current template */}
                 {this.state.templates.length === 0 && !currentTemplate && activeView === null && (
-                    <TemplateConfig 
-                        onTemplateSave={this.handleTemplateSave.bind(this)} 
+                    <TemplateConfig
+                        onTemplateSave={this.handleTemplateSave.bind(this)}
                         isNewTemplate={this.state.isNewTemplate}
                         currentTemplate={this.state.isNewTemplate ? undefined : currentTemplate}
                         editedTemplate={this.state.isNewTemplate ? null : undefined}
                     />
                 )}
                 {currentTemplate && activeView === null && (
-                    <StatisticsView 
-                        statistics={statistics} 
-                        onRowClick={onStatisticsRowClick} 
+                    <StatisticsView
+                        statistics={statistics}
+                        onRowClick={onStatisticsRowClick}
                         selectedColorId={selectedColorId}
                     />
                 )}
