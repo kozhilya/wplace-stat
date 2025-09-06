@@ -3,6 +3,8 @@ import { Template } from '../types/template';
 import { TemplateCollection } from '../types/template-collection';
 import { debug } from '../utils';
 import { LanguageManager } from '../managers/language-manager';
+import { LanguageChangeEventArts } from '../types/event-args';
+import { EventManager } from '../managers/event-manager';
 
 interface TemplateListProps {
     onTemplateSelect: (template: Template) => void;

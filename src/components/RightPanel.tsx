@@ -8,6 +8,7 @@ import { ImageLoaderManager } from '../managers/image-loader-manager';
 import { MIN_REMAINING_FOR_BUTTON } from '../settings';
 import { EventManager } from '../managers/event-manager';
 import { debug } from '../utils';
+import { LanguageChangeEventArts } from '../types/event-args';
 
 interface RightPanelProps {
     currentTemplate?: Template;

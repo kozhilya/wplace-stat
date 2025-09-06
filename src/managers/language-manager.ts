@@ -5,6 +5,9 @@
 import { en } from '../locales/en';
 import { ru } from '../locales/ru';
 import { es } from '../locales/es';
+import { EventManager } from './event-manager';
+import { LanguageChangeEventArts, LanguageRequestEventArts } from '../types/event-args';
+import { debug } from '../utils';
 
 /** Supported language codes */
 type Language = 'en' | 'ru' | 'es';

@@ -2,6 +2,8 @@ import React from 'react';
 import { LanguageManager } from '../managers/language-manager';
 import { StatisticsRow } from '../managers/statistics-manager';
 import { debug } from '../utils';
+import { LanguageChangeEventArts } from '../types/event-args';
+import { EventManager } from '../managers/event-manager';
 
 interface StatisticsViewProps {
     statistics?: StatisticsRow[];

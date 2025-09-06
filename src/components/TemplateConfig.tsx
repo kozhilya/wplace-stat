@@ -2,6 +2,8 @@ import React from 'react';
 import { Template } from '../types/template';
 import { debug } from '../utils';
 import { LanguageManager } from '../managers/language-manager';
+import { LanguageChangeEventArts } from '../types/event-args';
+import { EventManager } from '../managers/event-manager';
 
 interface TemplateConfigProps {
     onTemplateSave?: (template: Template) => void;
