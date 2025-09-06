@@ -205,31 +205,17 @@ export class ImageLoaderManager {
         debug(`${prefix} Loading tile`);
 
         while (true) {
-            const timestamp = Date.now();
-            const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
-
-            const urls: string[] = [originalUrl];
-
-            if (IS_LOCALHOST) {
-                urls.push(`https://api.codetabs.com/v1/proxy/?quest=${originalUrl}`);
-                urls.push(`https://corsproxy.io/?${encodeURIComponent(originalUrl)}`);
-            }
-
-            for (const url of urls) {
-                debug(`${prefix} Attempting to load "${url}"...`);
-                let response;
-
-                try {
-                    response = await fetch(url);
-                }
-                catch (e) {
-                    debug(`${prefix} Load "${url}" failed error ${(e as Error).message}`);
-                    continue;
-                }
-
+            // Use your backend proxy instead of direct URLs
+            const proxyUrl = `/api/tile/${tileX}/${tileY}`;
+            
+            debug(`${prefix} Attempting to load from proxy: "${proxyUrl}"...`);
+            
+            try {
+                const response = await fetch(proxyUrl);
+                
                 if (response.status !== 200) {
-                    debug(`${prefix} Load "${url}" failed with code ${response.status}: ${response.statusText}`);
-                    continue;
+                    debug(`${prefix} Load from proxy failed with code ${response.status}: ${response.statusText}`);
+                    throw new Error(`Proxy returned status ${response.status}`);
                 }
 
                 const imageBlob = await response.blob();
@@ -253,11 +239,63 @@ export class ImageLoaderManager {
                 });
 
                 return image;
-            }
+            } catch (error) {
+                debug(`${prefix} Load from proxy failed: ${(error as Error).message}`);
+                
+                // Fallback to original URLs if proxy fails
+                const timestamp = Date.now();
+                const originalUrl = `https://backend.wplace.live/files/s0/tiles/${tileX}/${tileY}.png?t=${timestamp}`;
+                const urls: string[] = [originalUrl];
 
-            debug(`${prefix} Tile loading failed, going on cooldown...`);
-            await new Promise(resolve => setTimeout(resolve, COOLDOWN_PERIOD_MS));
-            debug(`${prefix} Tile cooldown ready!`);
+                if (IS_LOCALHOST) {
+                    urls.push(`https://api.codetabs.com/v1/proxy/?quest=${originalUrl}`);
+                    urls.push(`https://corsproxy.io/?${encodeURIComponent(originalUrl)}`);
+                }
+
+                for (const url of urls) {
+                    debug(`${prefix} Fallback: attempting to load "${url}"...`);
+                    let response;
+
+                    try {
+                        response = await fetch(url);
+                    }
+                    catch (e) {
+                        debug(`${prefix} Fallback load "${url}" failed error ${(e as Error).message}`);
+                        continue;
+                    }
+
+                    if (response.status !== 200) {
+                        debug(`${prefix} Fallback load "${url}" failed with code ${response.status}: ${response.statusText}`);
+                        continue;
+                    }
+
+                    const imageBlob = await response.blob();
+                    const objectUrl = URL.createObjectURL(imageBlob);
+
+                    // Create a promise to wait for the image to load
+                    const image = new Image();
+                    image.crossOrigin = 'Anonymous';
+                    
+                    // Wait for the image to load
+                    await new Promise<void>((resolve, reject) => {
+                        image.onload = () => {
+                            URL.revokeObjectURL(objectUrl);
+                            resolve();
+                        };
+                        image.onerror = (error) => {
+                            URL.revokeObjectURL(objectUrl);
+                            reject(error);
+                        };
+                        image.src = objectUrl;
+                    });
+
+                    return image;
+                }
+
+                debug(`${prefix} All tile loading methods failed, going on cooldown...`);
+                await new Promise(resolve => setTimeout(resolve, COOLDOWN_PERIOD_MS));
+                debug(`${prefix} Tile cooldown ready!`);
+            }
         }
     }
 
