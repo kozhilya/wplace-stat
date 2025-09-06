@@ -146,6 +146,25 @@ export class LanguageManager {
      * @returns The translated string
      */
     static getText(key: keyof Translations): string {
-        return this.translations[this.currentLanguage][key];
+        const value = this.translations[this.currentLanguage][key];
+        if (Array.isArray(value)) {
+            console.error(`[LanguageManager.getText] Expected string but got array for key: ${key}`);
+            return value.join(', ');
+        }
+        return value;
+    }
+
+    /**
+     * Retrieves a translated string array for the given key in the current language
+     * @param key The translation key to look up
+     * @returns The translated string array
+     */
+    static getTextArray(key: keyof Translations): string[] {
+        const value = this.translations[this.currentLanguage][key];
+        if (!Array.isArray(value)) {
+            console.error(`[LanguageManager.getTextArray] Expected array but got string for key: ${key}`);
+            return [value];
+        }
+        return value;
     }
 }
