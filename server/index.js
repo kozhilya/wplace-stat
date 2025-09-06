@@ -29,7 +29,10 @@ app.get('/api/tile/:x/:y', async (req, res) => {
         
         // Устанавливаем соответствующие заголовки
         res.set('Content-Type', 'image/png');
-        res.set('Cache-Control', 'public, max-age=300'); // Кэшируем на 5 минут
+        // Запрещаем кеширование
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
         
         // Пересылаем данные
         const buffer = await response.buffer();
