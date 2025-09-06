@@ -12,6 +12,7 @@ export interface Ping {
 
 interface CanvasRendererProps {
     currentImageToDraw: HTMLImageElement | null;
+    overlayImageToDraw: HTMLImageElement | null;
     canvasRefCallback?: (canvas: HTMLCanvasElement | null) => void;
     pingAnimations?: Ping[];
 }
@@ -57,15 +58,17 @@ export class CanvasRenderer extends React.Component<CanvasRendererProps, CanvasR
      * @param ctx Canvas rendering context
      * @param image Image to draw
      */
-    private drawImageWithTransform(ctx: CanvasRenderingContext2D, image: HTMLImageElement): void {
-        // Clear the canvas
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    private drawImageWithTransform(ctx: CanvasRenderingContext2D, image: HTMLImageElement, opacity: number = 1): void {
+        // Save the current context
+        ctx.save();
+        
+        // Set global alpha if opacity is specified
+        if (opacity !== 1) {
+            ctx.globalAlpha = opacity;
+        }
 
         // Disable image smoothing to keep pixels sharp
         ctx.imageSmoothingEnabled = false;
-
-        // Save the current context
-        ctx.save();
 
         // Use transform instead of separate translate and scale
         ctx.transform(this.scale, 0, 0, this.scale, this.offset.x, this.offset.y);
@@ -140,10 +143,19 @@ export class CanvasRenderer extends React.Component<CanvasRendererProps, CanvasR
             }
         }
 
+        // Clear the canvas first
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        
+        // Draw the main image
         if (this.props.currentImageToDraw) {
             this.drawImageWithTransform(ctx, this.props.currentImageToDraw);
         } else {
-            debug('[CanvasRenderer.drawCanvas] No image to draw');
+            debug('[CanvasRenderer.drawCanvas] No main image to draw');
+        }
+        
+        // Draw the overlay image with transparency if it exists
+        if (this.props.overlayImageToDraw) {
+            this.drawImageWithTransform(ctx, this.props.overlayImageToDraw, BACKGROUND_IMAGE_OPACITY);
         }
 
         // Draw ping animation on top
@@ -203,7 +215,10 @@ export class CanvasRenderer extends React.Component<CanvasRendererProps, CanvasR
     componentDidUpdate(prevProps: CanvasRendererProps): void {
         debug('[CanvasRenderer.componentDidUpdate] Component updated');
         if (prevProps.currentImageToDraw !== this.props.currentImageToDraw) {
-            debug('[CanvasRenderer.componentDidUpdate] Image to draw changed');
+            debug('[CanvasRenderer.componentDidUpdate] Main image to draw changed');
+        }
+        if (prevProps.overlayImageToDraw !== this.props.overlayImageToDraw) {
+            debug('[CanvasRenderer.componentDidUpdate] Overlay image to draw changed');
         }
         if (prevProps.pingAnimations !== this.props.pingAnimations) {
             debug(`[CanvasRenderer.componentDidUpdate] Ping animations changed: ${this.props.pingAnimations?.length || 0} animations`);

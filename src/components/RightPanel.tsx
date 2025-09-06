@@ -23,6 +23,7 @@ interface RightPanelState {
     remainingPixels: number;
     pingAnimations: Ping[];
     canvasElement: HTMLCanvasElement | null;
+    hoverMode: 'template' | 'wplace' | 'difference' | null;
 }
 
 /**
@@ -51,7 +52,8 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
             language: LanguageManager.getCurrentLanguage(),
             remainingPixels: 0,
             pingAnimations: [],
-            canvasElement: null
+            canvasElement: null,
+            hoverMode: null
         };
 
         this.darkModeObserver = new MutationObserver(this.handleDarkModeChange.bind(this));
@@ -351,11 +353,47 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
      */
     render(): React.ReactNode {
         debug('[RightPanel.render] Rendering component');
+        
+        // Determine which image to show as overlay
+        let overlayImageToDraw: HTMLImageElement | null = null;
+        if (this.state.hoverMode) {
+            switch (this.state.hoverMode) {
+                case 'template':
+                    overlayImageToDraw = this.props.currentTemplate?.templateImage || null;
+                    break;
+                case 'wplace':
+                    overlayImageToDraw = this.props.currentTemplate?.wplaceImage || null;
+                    break;
+                case 'difference':
+                    // For difference mode, we need to generate the image
+                    if (this.props.currentTemplate?.templateImage && this.props.currentTemplate?.wplaceImage) {
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = this.props.currentTemplate.templateImage.width;
+                        tempCanvas.height = this.props.currentTemplate.templateImage.height;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        if (tempCtx) {
+                            tempCtx.imageSmoothingEnabled = false;
+                            ImageLoaderManager.drawDifference(tempCtx, 
+                                this.props.currentTemplate.templateImage, 
+                                this.props.currentTemplate.wplaceImage, 
+                                0, 0, 
+                                this.props.selectedColorId);
+                            
+                            const img = new Image();
+                            img.src = tempCanvas.toDataURL('image/png');
+                            overlayImageToDraw = img;
+                        }
+                    }
+                    break;
+            }
+        }
+        
         return (
             <div className="right-panel">
                 <div className="canvas-area">
                     <CanvasRenderer
                         currentImageToDraw={this.state.currentImageToDraw}
+                        overlayImageToDraw={overlayImageToDraw}
                         canvasRefCallback={this.setCanvasElement.bind(this)}
                         pingAnimations={this.state.pingAnimations}
                     />
@@ -363,6 +401,8 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
                     <div className="view-mode-selector">
                         <button
                             onClick={() => this.setState({ viewMode: 'template' })}
+                            onMouseEnter={() => this.setState({ hoverMode: 'template' })}
+                            onMouseLeave={() => this.setState({ hoverMode: null })}
                             className={this.state.viewMode === 'template' ? 'active' : ''}
                             title={LanguageManager.getText('template')}
                         >
@@ -371,6 +411,8 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
                         </button>
                         <button
                             onClick={() => this.setState({ viewMode: 'wplace' })}
+                            onMouseEnter={() => this.setState({ hoverMode: 'wplace' })}
+                            onMouseLeave={() => this.setState({ hoverMode: null })}
                             className={this.state.viewMode === 'wplace' ? 'active' : ''}
                             title={LanguageManager.getText('wplace')}
                         >
@@ -379,6 +421,8 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
                         </button>
                         <button
                             onClick={() => this.setState({ viewMode: 'difference' })}
+                            onMouseEnter={() => this.setState({ hoverMode: 'difference' })}
+                            onMouseLeave={() => this.setState({ hoverMode: null })}
                             className={this.state.viewMode === 'difference' ? 'active' : ''}
                             title={LanguageManager.getText('difference')}
                         >
