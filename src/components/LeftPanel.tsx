@@ -103,6 +103,7 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         // Emit template request edit event for new template
         const eventManager = EventManager.getInstance();
         eventManager.emit('template:request-edit', new TemplateRequestEditEventArts(true));
+        // Notify parent to show template view
         this.props.onCreateTemplate();
         // Emit template view opened event
         eventManager.emit('template-view:opened', new TemplateViewOpenedEventArts());
@@ -145,6 +146,9 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
                 // Restore the previous template
                 if (this.state.previousTemplate) {
                     eventManager.emit('template:change', new TemplateChangeEventArts(this.state.previousTemplate));
+                } else {
+                    // If no previous template, emit undefined to clear the current template
+                    eventManager.emit('template:change', new TemplateChangeEventArts(undefined));
                 }
             }
         } else if (this.props.activeView === 'templates') {
