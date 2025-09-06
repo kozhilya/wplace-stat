@@ -2,9 +2,8 @@ module.exports = {
     apps: [
         {
             name: 'wplace-stat',
-            script: 'npx',
-            args: 'serve -s dist -l 3001',
-            interpreter: 'none',
+            script: './server/index.js',
+            interpreter: 'node',
             env: {
                 NODE_ENV: 'production',
                 PORT: 3001

@@ -44,5 +44,12 @@ module.exports = {
     hot: true,
     open: true, // Automatically open the browser
     watchFiles: ['src/**/*'], // Explicitly watch these files for changes
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        router: () => 'http://localhost:3001',
+        logLevel: 'debug'
+      }
+    }
   },
 };
