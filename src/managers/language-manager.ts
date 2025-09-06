@@ -13,7 +13,9 @@ import { debug } from '../utils';
 type Language = 'en' | 'ru' | 'es';
 
 /** Type for translation objects matching the structure of the English translations */
-type Translations = typeof en;
+type Translations = {
+    [K in keyof typeof en]: string | string[];
+};
 
 /** Callback function type for language change events */
 type LanguageChangeCallback = () => void;
@@ -116,20 +118,23 @@ export class LanguageManager {
             const key = element.getAttribute('data-i18n');
             if (key && key in this.translations[this.currentLanguage]) {
                 const text = this.translations[this.currentLanguage][key as keyof Translations];
+                // Convert arrays to strings by joining with commas
+                const displayText = Array.isArray(text) ? text.join(', ') : text;
+                
                 if (element instanceof HTMLInputElement && element.type === 'submit') {
-                    element.value = text;
+                    element.value = displayText;
                 } else if (element instanceof HTMLButtonElement) {
-                    element.textContent = text;
+                    element.textContent = displayText;
                 } else if (element instanceof HTMLTableCellElement) {
                     // For table headers, preserve the sort indicator structure
                     const span = element.querySelector('span.text');
                     if (span) {
-                        span.textContent = text;
+                        span.textContent = displayText;
                     } else {
-                        element.innerHTML = `<span class="text">${text}</span><span class="sort-indicator"></span>`;
+                        element.innerHTML = `<span class="text">${displayText}</span><span class="sort-indicator"></span>`;
                     }
                 } else {
-                    element.textContent = text;
+                    element.textContent = displayText;
                 }
             }
         });

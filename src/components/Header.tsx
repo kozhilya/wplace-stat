@@ -184,7 +184,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                     <button 
                         className="templates-button"
                         onClick={this.handleTemplatesButtonClick.bind(this)}
-                        title={LanguageManager.getText('templates')}
+                        title={LanguageManager.getText('templates') as string}
                     >
                         <i className="fas fa-bars"></i>
                     </button>
@@ -195,7 +195,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                         <button 
                             className="template-button"
                             onClick={this.handleTemplateButtonClick.bind(this)}
-                            title={LanguageManager.getText('template')}
+                            title={LanguageManager.getText('template') as string}
                         >
                             <i className="fas fa-pencil-alt"></i>
                         </button>
@@ -210,7 +210,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                             disabled={this.props.isUpdating}
                         >
                             <i className={`fas fa-sync-alt refresh-icon ${this.props.isUpdating ? 'rotating' : ''}`}></i>
-                            {LanguageManager.getText('lastUpdated')}: {this.props.lastUpdated.toLocaleTimeString()}
+                            {LanguageManager.getText('lastUpdated') as string}: {this.props.lastUpdated.toLocaleTimeString()}
                         </button>
                     </div>
                     <select 
@@ -225,14 +225,14 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                     <button 
                         className="dark-mode-toggle"
                         onClick={this.handleDarkModeToggle.bind(this)}
-                        title={this.state.isDarkMode ? LanguageManager.getText('lightMode') : LanguageManager.getText('darkMode')}
+                        title={this.state.isDarkMode ? LanguageManager.getText('lightMode') as string : LanguageManager.getText('darkMode') as string}
                     >
                         <i className={this.state.isDarkMode ? 'fas fa-sun' : 'fas fa-moon'}></i>
                     </button>
                     <button 
                         className="help-button"
                         onClick={this.handleHelpClick.bind(this)}
-                        title={LanguageManager.getText('help')}
+                        title={LanguageManager.getText('help') as string}
                     >
                         <i className="fas fa-question-circle"></i>
                     </button>
@@ -253,7 +253,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                 <div className="modal-overlay" onClick={this.handleHelpModalClose.bind(this)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h2>{LanguageManager.getText('helpTitle')}</h2>
+                            <h2>{LanguageManager.getText('helpTitle') as string}</h2>
                             <button 
                                 className="modal-close-button"
                                 onClick={this.handleHelpModalClose.bind(this)}
@@ -263,11 +263,11 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                         </div>
                         <div className="modal-body">
                             <ol>
-                                {LanguageManager.getText('helpItems').map((item: string, index: number) => (
+                                {(LanguageManager.getText('helpItems') as string[]).map((item: string, index: number) => (
                                     <li key={index}>{item}</li>
                                 ))}
                             </ol>
-                            <p><strong>{LanguageManager.getText('helpNote')}</strong></p>
+                            <p><strong>{LanguageManager.getText('helpNote') as string}</strong></p>
                         </div>
                     </div>
                 </div>
