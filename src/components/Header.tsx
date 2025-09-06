@@ -268,6 +268,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                                 <li>Use the statistics to track your progress</li>
                                 <li>Zoom and pan to navigate the canvas</li>
                                 <li>Use the ping feature to highlight remaining pixels</li>
+                                <li>Press <strong>Q</strong> to quickly ping remaining pixels</li>
                             </ol>
                             <p><strong>Note:</strong> Full documentation will be available soon.</p>
                         </div>
