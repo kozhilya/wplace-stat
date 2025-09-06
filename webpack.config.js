@@ -40,7 +40,7 @@ module.exports = {
   },
   devServer: {
     static: './dist',
-    port: 3000,
+    port: 3001,
     hot: true,
     open: true, // Automatically open the browser
     watchFiles: ['src/**/*'], // Explicitly watch these files for changes
