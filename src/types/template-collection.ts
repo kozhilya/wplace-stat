@@ -42,6 +42,14 @@ export class TemplateCollection {
         this.saveToLocalStorage();
     }
 
+    /**
+     * Saves the current templates to localStorage immediately
+     */
+    saveToLocalStorage(): void {
+        debug('[TemplateCollection.saveToLocalStorage] Saving templates to localStorage');
+        localStorage.setItem('templateCollection', JSON.stringify(this.templates));
+    }
+
     removeTemplate(index: number): void {
         this.templates.splice(index, 1);
         this.saveToLocalStorage();

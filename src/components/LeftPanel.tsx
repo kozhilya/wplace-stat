@@ -74,6 +74,10 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         const updatedTemplates = this.collection.getTemplates();
         this.setState({ templates: updatedTemplates, isNewTemplate: false });
 
+        // Save to localStorage immediately
+        this.collection.saveToLocalStorage();
+        debug(`[LeftPanel.handleTemplateSave] Template saved to localStorage: ${template.name}`);
+
         // Emit template save event
         const eventManager = EventManager.getInstance();
         eventManager.emit('template:save', new TemplateSaveEventArts(template));

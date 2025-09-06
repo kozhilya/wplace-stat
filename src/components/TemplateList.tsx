@@ -68,6 +68,9 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
         if (window.confirm(LanguageManager.getText('confirmDelete').replace('{templateName}', templateName))) {
             debug(`[TemplateList.handleDelete] Confirmed deletion of template: ${templateName}`);
             this.collection.removeTemplate(index);
+            // Save to localStorage immediately after deletion
+            (this.collection as any).saveToLocalStorage();
+            debug(`[TemplateList.handleDelete] Template deleted from localStorage: ${templateName}`);
             this.reloadTemplates();
         } else {
             debug(`[TemplateList.handleDelete] Deletion cancelled for template: ${templateName}`);
