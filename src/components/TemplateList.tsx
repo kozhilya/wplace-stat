@@ -118,7 +118,9 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
         debug(`[TemplateList.componentDidMount] Loaded ${loadedTemplates.length} templates`);
         this.setState({ templates: loadedTemplates });
         
-        LanguageManager.onLanguageChange(this.languageChangeCallback);
+        // Subscribe to language change events
+        const eventManager = EventManager.getInstance();
+        eventManager.on('language:change', this.handleLanguageChangeEvent.bind(this));
     }
 
     /**
