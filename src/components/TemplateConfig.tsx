@@ -151,9 +151,9 @@ export class TemplateConfig extends React.Component<TemplateConfigProps, Templat
             await template.loadTemplateImage();
             await template.loadWplaceImage();
             
-            if (this.props.onTemplateSave) {
-                this.props.onTemplateSave(template);
-            }
+            // Emit template save event
+            const eventManager = EventManager.getInstance();
+            eventManager.emit('template:save', new TemplateSaveEventArts(template));
             
             const serialized = template.serialize();
             window.location.hash = serialized;

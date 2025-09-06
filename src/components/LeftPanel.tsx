@@ -12,8 +12,6 @@ import { TemplateSaveEventArts, TemplateLoadEventArts, LanguageChangeEventArts }
 
 interface LeftPanelProps {
     width: number;
-    onTemplateSave?: (template: Template) => void;
-    onTemplateLoad?: (template: Template) => void;
     statistics?: StatisticsRow[];
     currentTemplate?: Template;
     activeView: 'template' | 'templates' | null;

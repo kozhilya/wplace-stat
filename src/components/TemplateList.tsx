@@ -80,8 +80,10 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
             debug(`[TemplateList.handleLoad] Loading Wplace image for: ${template.name}`);
             await template.loadWplaceImage();
             
-            debug(`[TemplateList.handleLoad] Calling onTemplateSelect for: ${template.name}`);
-            this.props.onTemplateSelect(template);
+            debug(`[TemplateList.handleLoad] Emitting template:load event for: ${template.name}`);
+            // Emit template load event
+            const eventManager = EventManager.getInstance();
+            eventManager.emit('template:load', new TemplateLoadEventArts(template));
             debug(`[TemplateList.handleLoad] Successfully loaded template: ${template.name}`);
         } catch (error) {
             debug('[TemplateList.handleLoad] Error loading template images:', error);
@@ -105,6 +107,10 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
      */
     private handleCreateTemplate(): void {
         debug('[TemplateList.handleCreateTemplate] Create new template button clicked');
+        // Emit template change event with undefined to clear current template
+        const eventManager = EventManager.getInstance();
+        eventManager.emit('template:change', new TemplateChangeEventArts(undefined));
+        // Notify parent to create new template
         this.props.onCreateTemplate();
     }
 
