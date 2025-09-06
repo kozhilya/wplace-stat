@@ -8,7 +8,7 @@ import { TemplateCollection } from '../types/template-collection';
 import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
 import { EventManager } from '../managers/event-manager';
-import { TemplateSaveEventArts, TemplateLoadEventArts, LanguageChangeEventArts } from '../types/event-args';
+import { TemplateSaveEventArts, TemplateLoadEventArts, LanguageChangeEventArts, TemplateRequestEditEventArts } from '../types/event-args';
 
 interface LeftPanelProps {
     width: number;

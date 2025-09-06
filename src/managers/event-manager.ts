@@ -8,7 +8,9 @@ import {
     TemplateLoadEventArts, 
     TemplateChangeEventArts, 
     StatisticsUpdateEventArts, 
-    LastUpdatedEventArts 
+    LastUpdatedEventArts, 
+    TemplateRequestEditEventArts,
+    TemplateEditedEventArts
 } from '../types/event-args';
 
 export interface IEventArgs {}
