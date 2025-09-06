@@ -44,14 +44,14 @@ module.exports = {
   },
   devServer: {
     static: './dist',
-    port: 3001,
+    port: 3000, // Изменяем порт dev сервера
     hot: true,
     open: true, // Automatically open the browser
     watchFiles: ['src/**/*'], // Explicitly watch these files for changes
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
-        router: () => 'http://localhost:3001',
+        target: 'http://localhost:3001', // Проксируем API запросы к серверу
+        changeOrigin: true,
         logLevel: 'debug'
       }
     }
