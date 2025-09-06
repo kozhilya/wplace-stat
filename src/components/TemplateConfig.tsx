@@ -6,7 +6,8 @@ import {
     LanguageChangeEventArts, 
     TemplateSaveEventArts, 
     TemplateRequestEditEventArts,
-    TemplateChangeEventArts 
+    TemplateChangeEventArts, 
+    TemplateEditedEventArts
 } from '../types/event-args';
 import { EventManager } from '../managers/event-manager';
 
