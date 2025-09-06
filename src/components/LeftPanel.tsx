@@ -8,7 +8,7 @@ import { TemplateCollection } from '../types/template-collection';
 import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
 import { EventManager } from '../managers/event-manager';
-import { TemplateSaveEventArts, TemplateLoadEventArts } from '../types/event-args';
+import { TemplateSaveEventArts, TemplateLoadEventArts, LanguageChangeEventArts } from '../types/event-args';
 
 interface LeftPanelProps {
     width: number;
@@ -36,7 +36,7 @@ interface LeftPanelState {
  */
 export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
     private collection: TemplateCollection;
-    private languageChangeCallback: () => void;
+    private languageChangeCallback: (args: LanguageChangeEventArts) => void;
 
     /**
      * Creates a new LeftPanel instance
@@ -47,7 +47,7 @@ export class LeftPanel extends React.Component<LeftPanelProps, LeftPanelState> {
         debug('[LeftPanel.constructor] Creating LeftPanel instance');
         
         this.collection = new TemplateCollection();
-        this.languageChangeCallback = this.handleLanguageChange.bind(this);
+        this.languageChangeCallback = this.handleLanguageChangeEvent.bind(this);
         
         this.state = {
             templates: [],

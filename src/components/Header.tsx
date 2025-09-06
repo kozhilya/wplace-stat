@@ -1,6 +1,8 @@
 import React from 'react';
 import { LanguageManager } from '../managers/language-manager';
 import { debug } from '../utils';
+import { LanguageChangeEventArts, LanguageRequestEventArts } from '../types/event-args';
+import { EventManager } from '../managers/event-manager';
 
 interface HeaderProps {
     templateName: string;
@@ -21,8 +23,6 @@ interface HeaderState {
  * Displays template information, controls, and settings
  */
 export class Header extends React.Component<HeaderProps, HeaderState> {
-    private languageChangeCallback: () => void;
-
     /**
      * Creates a new Header instance
      * @param props Component properties
@@ -36,7 +36,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
             isDarkMode: document.body.classList.contains('dark-mode')
         };
 
-        this.languageChangeCallback = this.handleLanguageChange.bind(this);
+        this.handleLanguageChangeEvent = this.handleLanguageChangeEvent.bind(this);
     }
 
     /**
