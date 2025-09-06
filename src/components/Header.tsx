@@ -83,6 +83,26 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     }
 
     /**
+     * Handles help button click
+     * Opens the help dialog
+     */
+    private handleHelpClick(): void {
+        debug('[Header.handleHelpClick] Help button clicked');
+        // For now, we'll show an alert with basic instructions
+        alert(`
+WPlace Progress Tracker - Quick Guide
+
+1. Create a template by providing an image URL and coordinates
+2. The app will compare your template with the current r/place canvas
+3. Use the statistics to track your progress
+4. Zoom and pan to navigate the canvas
+5. Use the ping feature to highlight remaining pixels
+
+Note: Full documentation will be available soon.
+        `.trim());
+    }
+
+    /**
      * Handles template button click
      * Calls the parent component's callback with debug logging
      */
@@ -207,6 +227,13 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                         title={this.state.isDarkMode ? LanguageManager.getText('lightMode') : LanguageManager.getText('darkMode')}
                     >
                         <i className={this.state.isDarkMode ? 'fas fa-sun' : 'fas fa-moon'}></i>
+                    </button>
+                    <button 
+                        className="help-button"
+                        onClick={this.handleHelpClick.bind(this)}
+                        title={LanguageManager.getText('help')}
+                    >
+                        <i className="fas fa-question-circle"></i>
                     </button>
                     <a 
                         href="https://github.com/kozhilya/wplace-stat" 
