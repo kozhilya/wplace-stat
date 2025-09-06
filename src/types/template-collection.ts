@@ -12,6 +12,15 @@ export class TemplateCollection {
         return this.templates.indexOf(template);
     }
 
+    findIndexByCoordinates(tlX: number, tlY: number, pxX: number, pxY: number): number {
+        return this.templates.findIndex(t => 
+            t.tlX === tlX && 
+            t.tlY === tlY && 
+            t.pxX === pxX && 
+            t.pxY === pxY
+        );
+    }
+
     addTemplate(template: Template): void {
         this.templates.push(template);
         this.saveToLocalStorage();
