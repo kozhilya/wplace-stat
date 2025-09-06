@@ -14,7 +14,7 @@
     "jsx": "react-jsx",
     "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
-    "noEmit": true
+    "noEmit": false
   },
   "include": [
     "src/**/*"

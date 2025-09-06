@@ -11,7 +11,12 @@ export default {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true
+          }
+        },
         exclude: /node_modules/,
       },
       {
@@ -37,6 +42,7 @@ export default {
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
+  devtool: 'source-map',
   // Убираем devServer, так как мы не хотим его использовать
   // Вместо этого, используем watch mode для отслеживания изменений
   watch: process.env.NODE_ENV === 'development',
