@@ -2,7 +2,7 @@ export default {
     apps: [
         {
             name: 'wplace-stat',
-            script: 'server/start.cjs',
+            script: 'server/index.js',
             interpreter: 'node',
             env: {
                 NODE_ENV: 'production',
