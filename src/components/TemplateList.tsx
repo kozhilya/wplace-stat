@@ -96,6 +96,9 @@ export class TemplateList extends React.Component<TemplateListProps, TemplateLis
             const eventManager = EventManager.getInstance();
             eventManager.emit('template:load', new TemplateLoadEventArts(template));
             debug(`[TemplateList.handleLoad] Successfully loaded template: ${template.name}`);
+            
+            // Emit templates view closed event to close the templates list
+            eventManager.emit('templates-view:closed', new TemplatesViewClosedEventArts());
         } catch (error) {
             debug('[TemplateList.handleLoad] Error loading template images:', error);
             alert('Failed to load template images. Please try again.');
