@@ -6,6 +6,8 @@ export const WPLACE_TILE_SIZE = 1000;
 
 export const AUTO_UPDATE_INTERVAL = 60000; // 1 minute in milliseconds
 
+export const BACKGROUND_IMAGE_OPACITY = 0.5;
+
 // Global constants
 export const MIN_REMAINING_FOR_BUTTON = 200;
 

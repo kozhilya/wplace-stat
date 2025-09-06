@@ -2,6 +2,7 @@ import React from 'react';
 import { EventManager } from '../managers/event-manager';
 import { Point } from '../managers/canvas-interaction-manager';
 import { debug } from '../utils';
+import { BACKGROUND_IMAGE_OPACITY } from '../settings';
 
 export interface Ping {
     startTime: number;
