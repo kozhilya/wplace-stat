@@ -242,11 +242,21 @@ export const AppComponent: React.FC = () => {
         
         window.addEventListener('manualUpdateRequested', handleManualUpdate);
         
+        // Add focus event listener to update when the tab becomes active
+        const handleFocus = async () => {
+            debug('AppComponent.handleFocus: Tab gained focus, updating Wplace image');
+            if (currentTemplateRef.current && updateWplaceImageRef.current) {
+                await updateWplaceImageRef.current(currentTemplateRef.current);
+            }
+        };
+        window.addEventListener('focus', handleFocus);
+        
         // Cleanup
         return () => {
             debug('AppComponent.useEffect: Cleaning up event listeners and intervals');
             window.removeEventListener('hashchange', handleHashChange);
             window.removeEventListener('manualUpdateRequested', handleManualUpdate);
+            window.removeEventListener('focus', handleFocus);
             
             // Unsubscribe from events
             eventManager.off('template:save', handleTemplateSave);
