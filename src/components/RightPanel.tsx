@@ -328,16 +328,28 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
         // Generate difference image when needed
         if (this.state.viewMode === 'difference' && 
             this.props.currentTemplate?.templateImage && 
-            this.props.currentTemplate?.wplaceImage &&
-            (this.props.currentTemplate !== prevProps.currentTemplate ||
-             this.state.viewMode !== prevState.viewMode ||
-             this.props.selectedColorId !== prevProps.selectedColorId ||
-             this.props.lastUpdated !== prevProps.lastUpdated)) {
-            debug('[RightPanel.componentDidUpdate] Regenerating difference image');
-            this.generateDifferenceImage(
-                this.props.currentTemplate.templateImage, 
-                this.props.currentTemplate.wplaceImage
-            );
+            this.props.currentTemplate?.wplaceImage) {
+            
+            // Check if any of the trigger conditions are true
+            const shouldRegenerate = 
+                this.props.currentTemplate !== prevProps.currentTemplate ||
+                this.state.viewMode !== prevState.viewMode ||
+                this.props.selectedColorId !== prevProps.selectedColorId ||
+                this.props.lastUpdated !== prevProps.lastUpdated;
+            
+            if (shouldRegenerate) {
+                debug('[RightPanel.componentDidUpdate] Regenerating difference image');
+                debug(`  currentTemplate changed: ${this.props.currentTemplate !== prevProps.currentTemplate}`);
+                debug(`  viewMode changed: ${this.state.viewMode !== prevState.viewMode}`);
+                debug(`  selectedColorId changed: ${this.props.selectedColorId !== prevProps.selectedColorId}`);
+                debug(`  lastUpdated changed: ${this.props.lastUpdated !== prevProps.lastUpdated}`);
+                debug(`  lastUpdated values: ${prevProps.lastUpdated?.toISOString()} -> ${this.props.lastUpdated?.toISOString()}`);
+                
+                this.generateDifferenceImage(
+                    this.props.currentTemplate.templateImage, 
+                    this.props.currentTemplate.wplaceImage
+                );
+            }
         }
 
         // Start/stop ping animation
