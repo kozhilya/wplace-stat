@@ -14,6 +14,7 @@ interface RightPanelProps {
     currentTemplate?: Template;
     selectedColorId?: number | null;
     statistics?: StatisticsRow[];
+    lastUpdated?: Date;
 }
 
 interface RightPanelState {
@@ -330,7 +331,8 @@ export class RightPanel extends React.Component<RightPanelProps, RightPanelState
             this.props.currentTemplate?.wplaceImage &&
             (this.props.currentTemplate !== prevProps.currentTemplate ||
              this.state.viewMode !== prevState.viewMode ||
-             this.props.selectedColorId !== prevProps.selectedColorId)) {
+             this.props.selectedColorId !== prevProps.selectedColorId ||
+             this.props.lastUpdated !== prevProps.lastUpdated)) {
             debug('[RightPanel.componentDidUpdate] Regenerating difference image');
             this.generateDifferenceImage(
                 this.props.currentTemplate.templateImage, 

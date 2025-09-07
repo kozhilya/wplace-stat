@@ -415,6 +415,7 @@ export const AppComponent: React.FC = () => {
                     currentTemplate={currentTemplate} 
                     selectedColorId={selectedColorId}
                     statistics={statistics}
+                    lastUpdated={lastUpdated}
                 />
             </div>
         </div>
