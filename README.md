@@ -2,7 +2,7 @@
 
 A web application for tracking progress on WPlace (a pixel art collaboration platform) templates. This tool helps users monitor their pixel placement progress by comparing their work against template images and providing detailed statistics.
 
-*Note: This project is my playground for testing how well AI code works. My personal opinion: is that it's very not good, but for such a simple SPA it's good enough... I'll probably still have to clean up the mess the AI ​​made in this project, because it clearly did a poor job of structuring the files and methods in it.*
+*Note: This project is my playground for testing how well AI code works. My personal opinion: it's not very good, but for such a simple SPA it's good enough... I'll probably still have to clean up the mess the AI made in this project, because it clearly did a poor job of structuring the files and methods in it.*
 
 ## Features
 
@@ -23,60 +23,60 @@ A web application for tracking progress on WPlace (a pixel art collaboration pla
 
 ### Prerequisites
 
-- Node.js (v14 or higher) and npm/yarn - для локальной разработки
-- ИЛИ Docker и Docker Compose - для запуска через контейнеры
+- Node.js (v14 or higher) and npm/yarn - for local development
+- OR Docker and Docker Compose - for running via containers
 
-### Installation (локальная разработка)
+### Installation (Local Development)
 
-1. Клонируйте репозиторий:
+1. Clone the repository:
 ```bash
 git clone https://github.com/kozhilya/wplace-stat.git
 cd wplace-stat
 ```
 
-2. Установите зависимости:
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Запустите сервер разработки:
+3. Start the development server:
 ```bash
 npm start
 ```
 
-4. Откройте браузер и перейдите по адресу `http://localhost:3001`
+4. Open your browser and navigate to `http://localhost:3001`
 
-### Запуск через Docker
+### Running via Docker
 
-1. Клонируйте репозиторий:
+1. Clone the repository:
 ```bash
 git clone https://github.com/kozhilya/wplace-stat.git
 cd wplace-stat
 ```
 
-2. Соберите и запустите контейнер:
+2. Build and run the container:
 ```bash
 npm run docker:build
 npm run docker:up
 ```
 
-3. Приложение будет доступно по адресу `http://localhost:3001`
+3. The application will be available at `http://localhost:3001`
 
-### Сборка для продакшена
+### Production Build
 
-Для создания production сборки:
+To create a production build:
 
 ```bash
 npm run build
 ```
 
-Собранные файлы будут находиться в директории `dist/`
+The built files will be in the `dist/` directory
 
-### Docker команды
+### Docker Commands
 
-- `npm run docker:build` - собрать Docker образ
-- `npm run docker:up` - запустить контейнер
-- `npm run docker:down` - остановить контейнер
+- `npm run docker:build` - build Docker image
+- `npm run docker:up` - start container
+- `npm run docker:down` - stop container
 
 ## Usage
 
