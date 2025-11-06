@@ -5,9 +5,7 @@ dist
 
 .aider*
 .env
-.dockerignore
-Dockerfile
-docker-compose.yml
+
 # Docker
 *.tar.gz
 docker-compose.override.yml
