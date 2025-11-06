@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  wplace-stat:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
