@@ -1,23 +1,29 @@
-# Используем официальный образ Node.js
+# Use official Node.js image
 FROM node:18-alpine
 
-# Устанавливаем рабочую директорию
+# Set working directory
 WORKDIR /app
 
-# Копируем package.json и package-lock.json
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Устанавливаем зависимости
-RUN npm ci --only=production
+# Install all dependencies (including devDependencies for build)
+RUN npm ci
 
-# Копируем исходный код
+# Install webpack globally
+RUN npm install -g webpack
+
+# Copy source code
 COPY . .
 
-# Собираем приложение
+# Build the application
 RUN npm run build
 
-# Открываем порт, на котором работает приложение
+# Remove devDependencies and keep only production
+RUN npm prune --production
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-# Запускаем приложение
+# Start the application
 CMD ["npm", "start"]
