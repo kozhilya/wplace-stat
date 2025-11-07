@@ -214,7 +214,9 @@ export class ImageLoaderManager {
         while (true) {
             // Use the API target from environment variable
             const timestamp = Date.now();
-            const proxyUrl = `${apiTarget}/api/tile/${tileX}/${tileY}?t=${timestamp}`;
+
+            const sep = (apiTarget.indexOf('?') >= 0) ? '&' : '?';
+            const proxyUrl = `${apiTarget}${sep}x=${tileX}&y=${tileY}&t=${timestamp}`;
             
             debug(`${prefix} Attempting to load tile: "${proxyUrl}"...`);
             
