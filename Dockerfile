@@ -10,20 +10,17 @@ COPY package*.json ./
 # Install all dependencies (including devDependencies for build)
 RUN npm ci
 
-# Install webpack globally
-RUN npm install -g webpack
-
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application (frontend only)
 RUN npm run build
 
-# Remove devDependencies and keep only production
-RUN npm prune --production
+# Install serve to serve static files
+RUN npm install -g serve
 
 # Expose the port the app runs on
 EXPOSE 3001
 
-# Start the application
-CMD ["npm", "start"]
+# Serve the built application
+CMD ["serve", "-s", "dist", "-l", "3001"]

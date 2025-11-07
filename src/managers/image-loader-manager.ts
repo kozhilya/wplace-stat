@@ -204,10 +204,17 @@ export class ImageLoaderManager {
 
         debug(`${prefix} Loading tile`);
 
+        // Get API target from environment variable
+        // dotenv-webpack will replace process.env.API_TARGET with the actual value during build
+        const apiTarget = process.env.API_TARGET;
+        if (!apiTarget) {
+            throw new Error('API_TARGET environment variable is not defined');
+        }
+
         while (true) {
-            // Use your backend proxy instead of direct URLs
+            // Use the API target from environment variable
             const timestamp = Date.now();
-            const proxyUrl = `/api/tile/${tileX}/${tileY}?t=${timestamp}`;
+            const proxyUrl = `${apiTarget}/api/tile/${tileX}/${tileY}?t=${timestamp}`;
             
             debug(`${prefix} Attempting to load tile: "${proxyUrl}"...`);
             

@@ -5,6 +5,9 @@ dist
 
 .aider*
 .env
+.env.local
+.env.development
+.env.production
 
 # Docker
 *.tar.gz
